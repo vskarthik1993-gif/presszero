@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>document.documentElement.className += " js";</script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Voicentropic AI — a voice agent on every lead, live in a week</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   Voicentropic AI — landing page
+   Dark editorial · warm ink + cream + electric green
+   ============================================================ */
+
+:root {
+  --ink:        #0C0B0A;
+  --ink-1:      #110F0D;
+  --ink-2:      #181613;
+  --ink-3:      #211E19;
+  --line:       rgba(243,238,228,0.09);
+  --line-2:     rgba(243,238,228,0.15);
+  --cream:      #F3EEE4;
+  --cream-dim:  #ABA59B;
+  --cream-mute: #6E695F;
+  --green:      #34E08A;
+  --green-soft: #7CEDB3;
+  --green-deep: #07210F;
+  --red:        #E0564E;
+  /* dashboard categorical accents — shared chroma/lightness, varied hue */
+  --d-cyan:     oklch(0.83 0.13 195);
+  --d-violet:   oklch(0.78 0.15 300);
+  --d-amber:    oklch(0.84 0.15 88);
+  --d-coral:    oklch(0.72 0.17 30);
+  --font-disp:  'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body:  'Hanken Grotesk', system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', ui-monospace, monospace;
+  --maxw:       1180px;
+  --pad:        clamp(20px, 5vw, 56px);
+  /* dashboard "product surface" — cool-toned so the snapshot lifts off the warm page */
+  --app-canvas: #0E1314;
+  --app-bar:    #1A2123;
+  --app-panel:  #141B1D;
+  --app-inset:  #0B1011;
+  --app-line:   rgba(175,205,210,0.10);
+  --app-line2:  rgba(175,205,210,0.18);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding-inline: var(--pad); }
+
+/* ---------- shared type ---------- */
+.overline {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--green);
+  display: inline-flex; align-items: center; gap: 9px;
+}
+.overline .dim { color: var(--cream-mute); }
+.overline::before {
+  content: ""; width: 18px; height: 1px; background: var(--green); opacity: 0.6;
+}
+h1, h2, h3 { font-family: var(--font-disp); font-weight: 700; letter-spacing: -0.03em; margin: 0; }
+.em { color: var(--green); }
+.section-title { font-size: clamp(30px, 3.8vw, 46px); line-height: 1.02; text-wrap: balance; }
+.section-lead { color: var(--cream-dim); font-size: 18px; max-width: 580px; margin-top: 20px; line-height: 1.55; }
+
+/* ---------- buttons ---------- */
+.btn {
+  font-family: var(--font-body); font-size: 15px; font-weight: 600;
+  border-radius: 999px; padding: 14px 26px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 10px;
+  border: 1px solid transparent; white-space: nowrap; transition: transform .15s ease, background .15s ease, border-color .15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-green { background: var(--green); color: var(--green-deep); }
+.btn-green:hover { background: var(--green-soft); }
+.btn-ghost { background: transparent; color: var(--cream); border-color: var(--line-2); }
+.btn-ghost:hover { border-color: var(--cream-dim); }
+.btn .ic { width: 16px; height: 16px; display: inline-block; }
+
+/* ---------- nav ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(12,11,10,0.78); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 70px; }
+.brand { display: flex; align-items: center; gap: 11px; }
+.brand-mark {
+  width: 27px; height: 27px; border-radius: 7px; background: var(--green);
+  display: grid; place-items: center; flex: 0 0 auto;
+}
+.brand-mark i {
+  width: 3px; height: 9px; border-radius: 2px; background: var(--green-deep);
+  box-shadow: -5px 0 0 var(--green-deep), 5px 0 0 var(--green-deep),
+              -10px 2px 0 var(--green-deep), 10px 2px 0 var(--green-deep);
+}
+.brand-name { font-family: var(--font-disp); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+.brand-name b { color: var(--green); font-weight: 700; }
+.nav-links { display: flex; gap: 30px; align-items: center; }
+.nav-links a { color: var(--cream-dim); font-size: 14.5px; font-weight: 500; }
+.nav-links a:hover { color: var(--cream); }
+.nav-cta {
+  font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; color: var(--cream);
+  border: 1px solid var(--line-2); padding: 9px 16px; border-radius: 999px;
+}
+.nav-cta:hover { border-color: var(--cream-dim); }
+@media (max-width: 820px) { .nav-links a:not(.nav-cta) { display: none; } }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+.hero-glow {
+  position: absolute; top: -120px; right: -80px; width: 620px; height: 620px;
+  background: radial-gradient(circle, rgba(52,224,138,0.12), transparent 60%);
+  filter: blur(10px); pointer-events: none;
+}
+.hero-grid {
+  display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center;
+  padding-top: 78px; padding-bottom: 70px; position: relative;
+}
+.hero-h1 { font-size: clamp(40px, 5.4vw, 70px); line-height: 0.99; text-wrap: balance; margin-top: 26px; }
+.hero-sub { color: var(--cream-dim); font-size: 19px; line-height: 1.55; max-width: 480px; margin: 26px 0 34px; }
+.hero-ctas { display: flex; gap: 13px; align-items: center; flex-wrap: wrap; }
+.hero-note { font-family: var(--font-mono); font-size: 12px; color: var(--cream-mute); }
+@media (max-width: 940px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* ---------- live call panel ---------- */
+.call-panel {
+  background: linear-gradient(180deg, var(--ink-2), var(--ink-1));
+  border: 1px solid var(--line-2); border-radius: 18px;
+  padding: 22px; box-shadow: 0 40px 90px -40px rgba(0,0,0,0.85);
+}
+.call-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.call-id { display: flex; align-items: center; gap: 10px; }
+.live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(52,224,138,0.6); animation: pulse 1.8s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52,224,138,0.5);} 70% { box-shadow: 0 0 0 9px rgba(52,224,138,0);} 100% { box-shadow: 0 0 0 0 rgba(52,224,138,0);} }
+.call-live { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--green); }
+.call-timer { font-family: var(--font-mono); font-size: 12px; color: var(--cream-mute); }
+
+.wave { display: flex; align-items: center; gap: 3px; height: 54px; padding: 0 2px; }
+.wave span { flex: 1; background: var(--green); border-radius: 3px; opacity: 0.9; transform-origin: center; animation: bar 0.9s ease-in-out infinite alternate; will-change: transform; }
+@keyframes bar { from { transform: scaleY(0.6); } to { transform: scaleY(1); } }
+
+.scene-tag {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--green); display: inline-flex; align-items: center; gap: 8px;
+  margin: 0 0 12px; transition: opacity .4s ease; min-height: 15px;
+}
+.scene-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(52,224,138,0.6); animation: pulse 1.8s infinite; }
+
+/* title-card chapter moment */
+.call-stage { position: relative; margin-top: 16px; min-height: 150px; padding-top: 16px; border-top: 1px solid var(--line); }
+.title-card {
+  position: absolute; left: 0; right: 0; top: 16px; bottom: 0;
+  display: flex; flex-direction: column; justify-content: center; gap: 13px;
+  opacity: 0; transition: opacity .45s ease; pointer-events: none;
+}
+.title-card.show { opacity: 1; }
+.tc-over { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cream-mute); }
+.tc-title {
+  font-family: var(--font-disp); font-weight: 700; font-size: 30px; line-height: 1.04;
+  letter-spacing: -0.025em; color: var(--green); max-width: 92%; text-wrap: balance;
+  opacity: 0; transform: translateY(12px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1);
+}
+.title-card.show .tc-title { opacity: 1; transform: none; }
+.tc-dots { display: flex; gap: 6px; margin-top: 3px; }
+.tc-dots i { width: 18px; height: 3px; border-radius: 2px; background: var(--line-2); transition: background .3s ease, width .3s ease; }
+.tc-dots i.on { background: var(--green); width: 26px; }
+
+.transcript {
+  min-height: 116px; display: flex; flex-direction: column; gap: 13px;
+  transition: opacity .4s ease;
+}
+.turn { display: flex; gap: 10px; align-items: flex-start; }
+.turn .who {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.07em;
+  padding: 3px 7px; border-radius: 5px; flex: 0 0 auto; margin-top: 2px;
+}
+.turn.bot .who { background: rgba(52,224,138,0.14); color: var(--green); }
+.turn.usr .who { background: rgba(243,238,228,0.07); color: var(--cream-dim); }
+.turn .txt { font-size: 14.5px; line-height: 1.45; color: var(--cream); }
+.turn.usr .txt { color: var(--cream-dim); }
+.turn .lang { font-family: var(--font-mono); font-size: 9px; color: var(--cream-mute); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; margin-left: 7px; vertical-align: 1px; }
+.turn.enter { opacity: 0; transform: translateY(7px); }
+.turn.enter.in { opacity: 1; transform: none; transition: opacity .38s ease, transform .38s ease; }
+.cursor { display: inline-block; width: 6px; height: 14px; background: var(--green); margin-left: 3px; vertical-align: -2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ============================================================
+   PROOF STAT BAND
+   ============================================================ */
+.proof { border-bottom: 1px solid var(--line); background: var(--ink-1); }
+.proof-grid { display: grid; grid-template-columns: repeat(4, 1fr); max-width: var(--maxw); margin: 0 auto; padding-inline: var(--pad); }
+.proof-cell { padding: 38px clamp(18px, 2.6vw, 34px); border-right: 1px solid var(--line); min-width: 0; }
+.proof-cell:first-child { padding-left: 0; }
+.proof-cell:last-child { padding-right: 0; border-right: none; }
+.proof-v { font-family: var(--font-disp); font-size: clamp(26px, 3vw, 38px); font-weight: 700; letter-spacing: -0.03em; line-height: 1; white-space: nowrap; }
+.proof-v .u { color: var(--green); font-size: 0.52em; font-weight: 600; letter-spacing: 0; }
+.proof-l { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.05em; color: var(--cream-mute); text-transform: uppercase; margin-top: 14px; line-height: 1.55; }
+@media (max-width: 760px) {
+  .proof-grid { grid-template-columns: repeat(2, 1fr); }
+  .proof-cell:nth-child(2) { border-right: none; }
+  .proof-cell:nth-child(1), .proof-cell:nth-child(2) { border-bottom: 1px solid var(--line); }
+}
+
+/* ============================================================
+   SECTION scaffolding
+   ============================================================ */
+section.block { padding-block: clamp(72px, 9vw, 116px); border-bottom: 1px solid var(--line); }
+.block-head { max-width: 760px; }
+.block-head .section-title { margin-top: 18px; }
+
+/* ---------- The Week (how it works) ---------- */
+.week-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 52px; }
+.week-card {
+  background: var(--ink-1); border: 1px solid var(--line); border-radius: 14px;
+  padding: 26px 24px 28px; position: relative; overflow: hidden;
+}
+.week-day { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); }
+.week-card h3 { font-size: 22px; margin: 16px 0 10px; letter-spacing: -0.02em; }
+.week-card p { color: var(--cream-dim); font-size: 15px; line-height: 1.55; margin: 0; }
+.week-num { position: absolute; right: 18px; top: 12px; font-family: var(--font-disp); font-size: 56px; font-weight: 700; color: var(--line-2); line-height: 1; }
+.week-foot { margin-top: 30px; font-family: var(--font-mono); font-size: 13px; color: var(--cream-mute); }
+.week-foot b { color: var(--cream); font-weight: 500; }
+@media (max-width: 820px) { .week-grid { grid-template-columns: 1fr; } }
+
+/* ---------- USP / why different ---------- */
+.usp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 52px; }
+.usp {
+  border: 1px solid var(--line); border-radius: 14px; padding: 28px;
+  background: var(--ink-1); display: flex; gap: 18px; align-items: flex-start;
+}
+.usp-ic {
+  width: 42px; height: 42px; border-radius: 10px; flex: 0 0 auto;
+  background: rgba(52,224,138,0.1); border: 1px solid rgba(52,224,138,0.22);
+  display: grid; place-items: center; color: var(--green);
+}
+.usp-ic svg { width: 21px; height: 21px; }
+.usp h3 { font-size: 19px; margin-bottom: 8px; letter-spacing: -0.02em; }
+.usp p { color: var(--cream-dim); font-size: 15px; line-height: 1.55; margin: 0; }
+.usp p b { color: var(--cream); font-weight: 600; }
+@media (max-width: 760px) { .usp-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Platform feature rows ---------- */
+.feature-rows { margin-top: 44px; border-top: 1px solid var(--line); }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; padding: 52px 0; border-bottom: 1px solid var(--line); }
+.frow-text { max-width: 430px; }
+.frow-text h3 { font-size: clamp(24px, 2.7vw, 33px); letter-spacing: -0.025em; line-height: 1.05; margin-top: 16px; }
+.frow-text p { color: var(--cream-dim); font-size: 16px; line-height: 1.55; margin-top: 14px; }
+.frow-text p b { color: var(--cream); font-weight: 600; }
+.frow.flip .frow-viz { order: -1; }
+@media (max-width: 800px) {
+  .frow { grid-template-columns: 1fr; gap: 26px; padding: 40px 0; }
+  .frow.flip .frow-viz { order: 0; }
+}
+
+/* mini visuals */
+.viz { background: linear-gradient(180deg, var(--ink-2), var(--ink-1)); border: 1px solid var(--line-2); border-radius: 14px; padding: 20px 22px; box-shadow: 0 30px 70px -42px rgba(0,0,0,0.85); }
+.viz-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cream-mute); margin-bottom: 13px; display: flex; align-items: center; justify-content: space-between; }
+.viz-divider { height: 1px; background: var(--line); margin: 16px 0 13px; }
+.eq { display: flex; align-items: center; gap: 3px; height: 38px; }
+.eq span { flex: 1; border-radius: 2px; transform-origin: center; animation: bar 0.9s ease-in-out infinite alternate; }
+.eq-noise span { background: var(--cream-mute); opacity: 0.4; }
+.eq-clean span { background: var(--green); }
+.lat-big { font-family: var(--font-disp); font-size: 56px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--green); }
+.lat-big span { font-size: 26px; color: var(--cream-dim); }
+.lat-bar { height: 8px; border-radius: 999px; background: var(--ink-3); margin: 18px 0 9px; position: relative; overflow: hidden; }
+.lat-bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, var(--green), var(--green-soft)); }
+.lat-scale { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--cream-mute); }
+
+/* parallax chips */
+.lang-chip { will-change: transform; }
+
+/* ---------- Languages ---------- */
+.lang-wrap { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: center; }
+.lang-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.lang-chip {
+  border: 1px solid var(--line-2); border-radius: 999px; padding: 9px 16px;
+  font-size: 14px; color: var(--cream); background: var(--ink-1);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.lang-chip .native { color: var(--cream-mute); font-size: 13px; }
+.lang-chip.on { border-color: rgba(52,224,138,0.4); color: var(--green); background: rgba(52,224,138,0.06); }
+.lang-note { font-family: var(--font-mono); font-size: 12.5px; color: var(--cream-mute); margin-top: 26px; line-height: 1.7; }
+.lang-note .em { color: var(--green); }
+@media (max-width: 880px) { .lang-wrap { grid-template-columns: 1fr; gap: 36px; } }
+
+/* ============================================================
+   DASHBOARD SNAPSHOTS
+   ============================================================ */
+/* The whole dashboard is ONE product surface — a snapshot of the live app,
+   visually lifted off the warm marketing page (cool tone, chrome, elevation). */
+.app-shot {
+  position: relative;
+  background: var(--app-canvas);
+  border: 1px solid var(--app-line2);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 34px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 60px 120px -50px rgba(0,0,0,0.9),
+    0 28px 60px -40px rgba(0,0,0,0.7);
+}
+/* faint focus glow so it reads as the page's subject */
+.app-shot::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(120% 80% at 50% -10%, rgba(52,224,138,0.06), transparent 55%);
+}
+.app-bar {
+  position: relative; z-index: 1; display: flex; align-items: center; gap: 8px;
+  padding: 13px 18px; background: var(--app-bar);
+  border-bottom: 1px solid var(--app-line);
+}
+.win-dots { display: flex; gap: 7px; }
+.win-dots i { width: 11px; height: 11px; border-radius: 50%; background: var(--app-line2); }
+.win-dots i:nth-child(1) { background: #FF5F57; }
+.win-dots i:nth-child(2) { background: #FEBC2E; }
+.win-dots i:nth-child(3) { background: #28C840; }
+.app-url { font-family: var(--font-mono); font-size: 12px; color: var(--cream-dim); margin-left: 12px; letter-spacing: 0.01em; }
+.app-live { margin-left: auto; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; color: var(--green); display: inline-flex; align-items: center; gap: 7px; }
+.app-live .live-dot { width: 7px; height: 7px; }
+.app-canvas { position: relative; z-index: 1; padding: clamp(14px, 1.8vw, 22px); }
+
+.snap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.snap-grid .full { grid-column: 1 / -1; }
+@media (max-width: 860px) { .snap-grid { grid-template-columns: 1fr; } }
+
+/* widget panels living inside the app surface */
+.panel {
+  background: var(--app-panel); border: 1px solid var(--app-line);
+  border-radius: 11px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+.panel-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--app-line); }
+.panel-title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cream-dim); }
+.win-tag { margin-left: auto; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; color: var(--green); display: inline-flex; align-items: center; gap: 6px; }
+.win-tag .live-dot { width: 7px; height: 7px; }
+.win-body { padding: 20px; }
+
+/* cool the inner wells so the snapshot reads as one cohesive screen */
+.app-shot .kpi,
+.app-shot .fn-track,
+.app-shot .mission-card,
+.app-shot .mparam { background: var(--app-inset); border-color: var(--app-line); }
+.app-shot .ml-row { border-top-color: var(--app-line); }
+
+/* signal strip */
+.sig-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 10px; }
+.sig-name { font-family: var(--font-disp); font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+.sig-name span { color: var(--cream-mute); font-family: var(--font-mono); font-size: 11px; margin-left: 10px; }
+.sig-nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.sig-num .v { font-family: var(--font-disp); font-size: 30px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+.sig-num .v .u { color: var(--green); font-size: 20px; }
+.sig-num .l { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cream-mute); margin-top: 9px; }
+.sig-ai {
+  margin-top: 22px; padding: 14px 16px; border-radius: 10px;
+  background: rgba(52,224,138,0.07); border: 1px solid rgba(52,224,138,0.18);
+  font-size: 14px; color: var(--cream); display: flex; gap: 11px; align-items: flex-start;
+}
+.sig-ai .spark { color: var(--green); flex: 0 0 auto; font-size: 13px; margin-top: 1px; }
+.sig-ai b { color: var(--green); font-weight: 600; }
+.sig-bar { display: flex; height: 9px; border-radius: 999px; overflow: hidden; margin-top: 22px; gap: 2px; }
+.sig-bar i { display: block; height: 100%; border-radius: 2px; }
+.sig-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; }
+.sig-legend span { font-family: var(--font-mono); font-size: 10.5px; color: var(--cream-mute); display: inline-flex; align-items: center; gap: 6px; }
+.sig-legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+
+/* funnel */
+.kpi-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 22px; }
+.kpi { border: 1px solid var(--line); border-radius: 9px; padding: 13px 14px 13px 17px; background: var(--ink-2); position: relative; overflow: hidden; }
+.kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.kpi:nth-child(1)::before { background: var(--d-cyan); }
+.kpi:nth-child(2)::before { background: var(--d-violet); }
+.kpi:nth-child(3)::before { background: var(--green); }
+.kpi:nth-child(4)::before { background: var(--d-amber); }
+.kpi .v { font-family: var(--font-disp); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.kpi .v small { font-size: 13px; color: var(--green); font-weight: 600; }
+.kpi .l { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--cream-mute); margin-top: 6px; }
+.funnel { display: flex; flex-direction: column; gap: 7px; }
+.fn-row { display: flex; align-items: center; gap: 12px; }
+.fn-label { font-size: 12.5px; color: var(--cream-dim); width: 116px; flex: 0 0 auto; }
+.fn-track { flex: 1; height: 26px; border-radius: 6px; background: var(--ink-2); overflow: hidden; position: relative; }
+.fn-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 10px; }
+.fn-fill span { font-family: var(--font-mono); font-size: 11px; color: var(--green-deep); font-weight: 700; }
+.fn-pct { font-family: var(--font-mono); font-size: 11px; color: var(--cream-mute); width: 40px; text-align: right; flex: 0 0 auto; }
+
+/* missions */
+.mission-card { border: 1px solid var(--line); border-radius: 10px; background: var(--ink-2); padding: 16px; }
+.mission-card .mlabel { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cream-mute); }
+.mission-card .mname { font-family: var(--font-disp); font-size: 17px; font-weight: 600; margin: 7px 0 12px; letter-spacing: -0.01em; }
+.mission-text { font-size: 13.5px; line-height: 1.55; color: var(--cream-dim); border-left: 2px solid rgba(52,224,138,0.4); padding-left: 12px; }
+.mission-params { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+.mparam { font-family: var(--font-mono); font-size: 10.5px; color: var(--cream-dim); background: var(--ink-3); border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px; }
+.mparam b { color: var(--green); font-weight: 500; }
+.mission-list { margin-top: 14px; display: flex; flex-direction: column; gap: 1px; }
+.ml-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 2px; border-top: 1px solid var(--line); }
+.ml-row .n { font-size: 13px; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ml-row .r { font-family: var(--font-mono); font-size: 12px; white-space: nowrap; flex: 0 0 auto; color: var(--cream-mute); }
+.ml-row .r b { color: var(--green); }
+
+/* ---------- pricing / economics ---------- */
+.econ { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+.econ-big { font-family: var(--font-disp); font-size: clamp(56px, 8vw, 104px); font-weight: 700; letter-spacing: -0.04em; line-height: 0.9; }
+.econ-big .u { color: var(--green); font-size: 0.42em; letter-spacing: -0.02em; }
+.econ-sub { font-family: var(--font-mono); font-size: 13px; color: var(--cream-mute); margin-top: 16px; letter-spacing: 0.04em; }
+.econ-list { display: flex; flex-direction: column; gap: 14px; }
+.econ-item { display: flex; gap: 13px; align-items: flex-start; font-size: 16px; color: var(--cream-dim); line-height: 1.5; }
+.econ-item .tick { color: var(--green); flex: 0 0 auto; margin-top: 2px; }
+.econ-item b { color: var(--cream); font-weight: 600; }
+@media (max-width: 820px) { .econ { grid-template-columns: 1fr; gap: 34px; } }
+
+/* ---------- final CTA ---------- */
+.cta { text-align: center; position: relative; overflow: hidden; }
+.cta-glow {
+  position: absolute; left: 50%; top: 40%; transform: translate(-50%,-50%);
+  width: 760px; height: 480px; max-width: 120vw;
+  background: radial-gradient(ellipse, rgba(52,224,138,0.14), transparent 65%); filter: blur(8px); pointer-events: none;
+}
+.cta h2 { font-size: clamp(34px, 5.2vw, 62px); line-height: 1.0; text-wrap: balance; position: relative; }
+.cta p { color: var(--cream-dim); font-size: 19px; margin: 22px auto 36px; max-width: 520px; position: relative; }
+.cta-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; }
+.cta-mail { margin-top: 26px; font-family: var(--font-mono); font-size: 13px; color: var(--cream-mute); position: relative; }
+.cta-mail a { color: var(--green); }
+
+/* ---------- footer ---------- */
+.footer { padding-block: 40px; }
+.footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.footer-meta { font-family: var(--font-mono); font-size: 12px; color: var(--cream-mute); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 13px; color: var(--cream-dim); }
+.footer-links a:hover { color: var(--cream); }
+
+html.js .reveal { opacity: 0; transform: translateY(30px); transition: opacity 1.05s cubic-bezier(.16,1,.3,1), transform 1.05s cubic-bezier(.16,1,.3,1); }
+html.js .reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { html.js .reveal { opacity: 1; transform: none; transition: none; } }
+
+/* ============================================================
+   SCROLL MOTION SYSTEM  (adapted from scroll_motion_design_system.md)
+   transform + opacity only · reduced-motion safe · no-JS safe
+   ============================================================ */
+:root {
+  --mo-base: 1.05s;
+  --mo-slow: 1.5s;
+  --mo-enter: cubic-bezier(.16, 1, .3, 1);
+}
+
+/* hidden states apply only when JS is active (no-JS shows everything) */
+html.js [data-mo] { opacity: 0; will-change: transform, opacity; }
+html.js [data-mo].in { opacity: 1; }
+html.js [data-mo="fade"] { transition: opacity var(--mo-base) var(--mo-enter); }
+html.js [data-mo="fade-up"] { transform: translateY(32px); transition: opacity var(--mo-base) var(--mo-enter), transform var(--mo-base) var(--mo-enter); }
+html.js [data-mo="fade-up"].in { transform: none; }
+html.js [data-mo="soft-scale-in"] { transform: scale(.94); transition: opacity var(--mo-base) var(--mo-enter), transform var(--mo-base) var(--mo-enter); }
+html.js [data-mo="soft-scale-in"].in { transform: none; }
+html.js [data-mo="slide-r"] { transform: translateX(52px); transition: opacity var(--mo-slow) var(--mo-enter), transform var(--mo-slow) var(--mo-enter); }
+html.js [data-mo="slide-l"] { transform: translateX(-52px); transition: opacity var(--mo-slow) var(--mo-enter), transform var(--mo-slow) var(--mo-enter); }
+html.js [data-mo="slide-r"].in, html.js [data-mo="slide-l"].in { transform: none; }
+
+/* line / mask reveal for headings */
+html.js [data-mo="line"] { clip-path: inset(0 0 102% 0); transition: clip-path var(--mo-slow) var(--mo-enter); opacity: 1; }
+html.js [data-mo="line"].in { clip-path: inset(0 0 -12% 0); }
+
+/* --- richer per-section scrub primitives (initial/hidden states) --- */
+html.js [data-mo="clip-up"] { clip-path: inset(0 0 100% 0); opacity: 1; }
+html.js [data-mo="tilt-up"] { transform: perspective(1100px) rotateX(14deg) translateY(34px); transform-origin: 50% 100%; }
+html.js [data-mo="blur-up"] { transform: translateY(26px); filter: blur(12px); }
+html.js [data-mo="scale-up"] { transform: scale(0.9); }
+
+/* scroll-linked bar growth (funnel, latency, signal segments) */
+html.js [data-grow] { transform: scaleX(0); transform-origin: left center; transition: transform var(--mo-slow) var(--mo-enter); }
+html.js [data-grow].in { transform: scaleX(1); }
+
+/* When JS scroll-scrubbing is active it writes inline transform/opacity every
+   frame — kill the CSS transitions so motion is bound 1:1 to scroll (no lag). */
+html.scrub [data-mo],
+html.scrub [data-grow],
+html.scrub .reveal { transition: none !important; }
+
+.count { font-variant-numeric: tabular-nums; }
+
+/* L1 utility — page scroll progress */
+.scroll-progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: var(--green); transform: scaleX(0); transform-origin: 0 50%; z-index: 200; pointer-events: none; }
+
+/* page-2 step connector */
+.step-line { position: relative; height: 2px; background: var(--line); border-radius: 2px; overflow: hidden; margin: 4px 0 8px; }
+.step-line span { position: absolute; inset: 0; background: linear-gradient(90deg, var(--green), var(--green-soft)); transform: scaleX(0); transform-origin: left center; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-mo], html.js [data-grow] { opacity: 1 !important; transform: none !important; clip-path: none !important; filter: none !important; transition: none !important; }
+  .scroll-progress, .step-line { display: none; }
+}
+@media (max-width: 800px) {
+  html.js [data-mo="slide-r"], html.js [data-mo="slide-l"] { transform: translateY(28px); }
+  html.js [data-mo="slide-r"].in, html.js [data-mo="slide-l"].in { transform: none; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+<!-- ===================== NAV ===================== -->
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark"><i></i></span>
+      <span class="brand-name">Voic<b>entropic</b> AI</span>
+    </a>
+    <div class="nav-links">
+      <a href="#week">How it works</a>
+      <a href="#platform">The platform</a>
+      <a href="#languages">Languages</a>
+      <a href="#pricing">Pricing</a>
+      <a class="nav-cta" href="#book">Book a demo →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero" id="top">
+  <div class="hero-glow"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="overline">Voice AI · built by Agentropic</span>
+      <h1 class="hero-h1">More qualified leads,<br/>from calls you <span class="em">never had to make.</span></h1>
+      <p class="hero-sub">A voice agent that calls every lead, qualifies them and books the meeting — sounding like your best rep. You go live in a week.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-green" href="#book">Book a demo</a>
+        <a class="btn btn-ghost" href="https://wa.me/919833018465?text=Hi%2C%20I%27d%20like%20a%20Voicentropic%20voice%20AI%20demo." target="_blank" rel="noopener">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 20l1-5.5a8.5 8.5 0 0 1 8.5-12A8.38 8.38 0 0 1 21 11.5z"/></svg>
+          WhatsApp us
+        </a>
+        <span class="hero-note">
+</span>
+      </div>
+    </div>
+
+    <!-- live call panel -->
+    <div class="call-panel" aria-hidden="true">
+      <div class="call-head">
+        <div class="call-id"><span class="live-dot"></span><span class="call-live">LIVE CALL</span></div>
+        <div class="call-timer" id="callTimer">00:41 · outbound</div>
+      </div>
+      <div class="wave" id="wave"></div>
+      <div class="call-stage">
+        <div class="title-card" id="titleCard">
+          <div class="tc-over">Now demonstrating</div>
+          <div class="tc-title" id="tcTitle">Hears through the noise</div>
+          <div class="tc-dots" id="tcDots"></div>
+        </div>
+        <div class="scene-tag" id="sceneTag"></div>
+        <div class="transcript" id="transcript"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== PROOF BAND ===================== -->
+<section class="proof">
+  <div class="proof-grid" data-stagger="90">
+    <div class="proof-cell" data-mo="clip-up">
+      <div class="proof-v">1<span class="u"> week</span></div>
+      <div class="proof-l">to go live — first<br/>test call this week</div>
+    </div>
+    <div class="proof-cell" data-mo="clip-up">
+      <div class="proof-v">&lt;₹1.5<span class="u">/min</span></div>
+      <div class="proof-l">at 1 lakh+<br/>calls per month</div>
+    </div>
+    <div class="proof-cell" data-mo="clip-up">
+      <div class="proof-v">&lt;2<span class="u">s</span></div>
+      <div class="proof-l">response latency —<br/>feels like a person</div>
+    </div>
+    <div class="proof-cell" data-mo="clip-up">
+      <div class="proof-v">10+<span class="u"> langs</span></div>
+      <div class="proof-l">Hindi, Hinglish &<br/>Indic, code-mixed</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE WEEK ===================== -->
+<section class="block" id="week">
+  <div class="wrap">
+    <div class="block-head reveal">
+      <span class="overline">How it works · live by Friday</span>
+      <h2 class="section-title" data-mo="line">A working voice agent, calling your leads in a week.</h2>
+      <p class="section-lead">No integration project. We build it on your offer, your scripts, your numbers — and you place the first real test call before the week is out.</p>
+    </div>
+    <div class="step-line" data-step-progress="week"><span></span></div>
+    <div class="week-grid" data-stagger="130">
+      <div class="week-card" data-mo="tilt-up">
+        <span class="week-num">01</span>
+        <div class="week-day">Day 1 · Lock the brief</div>
+        <h3>What should it say?</h3>
+        <p>We take your best pitch and objection handling and turn it into the agent's mission.</p>
+      </div>
+      <div class="week-card" data-mo="tilt-up">
+        <span class="week-num">02</span>
+        <div class="week-day">Days 2–4 · Build &amp; tune</div>
+        <h3>Make it sound human.</h3>
+        <p>Voice, language and pacing tuned on real recordings until it sounds like your floor.</p>
+      </div>
+      <div class="week-card" data-mo="tilt-up">
+        <span class="week-num">03</span>
+        <div class="week-day">By Friday · First calls</div>
+        <h3>It starts dialling.</h3>
+        <p>The first calls go out live. You watch leads convert in the dashboard and decide when to scale.</p>
+      </div>
+    </div>
+    <p class="week-foot reveal">You own it after we leave — <b>no black box, no lock-in.</b></p>
+  </div>
+</section>
+
+<!-- ===================== DASHBOARD SNAPSHOTS ===================== -->
+<section class="block" id="dashboard">
+  <div class="wrap">
+    <div class="block-head reveal">
+      <span class="overline">The dashboard · you stay in control</span>
+      <h2 class="section-title">Write the brief, upload the list, watch it convert.</h2>
+      <p class="section-lead">The agent does the dialling. You do the three things that matter: decide what it says, who it calls, and when to scale.</p>
+    </div>
+
+    <div class="app-shot" data-mo="scale-up">
+      <div class="app-bar">
+        <div class="win-dots"><i></i><i></i><i></i></div>
+        <span class="app-url">app.voicentropic.ai / dashboard</span>
+        <span class="app-live"><span class="live-dot"></span>LIVE</span>
+      </div>
+      <div class="app-canvas">
+        <div class="snap-grid">
+          <!-- FEATURED: campaign signal strip -->
+          <div class="panel full">
+            <div class="panel-head">
+              <span class="panel-title">Campaign · Q3 Reactivation</span>
+              <span class="win-tag"><span class="live-dot"></span>RUNNING</span>
+            </div>
+            <div class="win-body">
+          <div class="sig-head">
+            <div class="sig-name">Q3 Reactivation <span>· Mission: Re-engage cold leads</span></div>
+            <div class="sig-name" style="color:var(--cream-mute);font-size:12px;font-family:var(--font-mono)">launched 41 min ago</div>
+          </div>
+          <div class="sig-nums">
+            <div class="sig-num"><div class="v" data-cfx="blur" data-count="4820" data-fmt="comma">4,820</div><div class="l">Called</div></div>
+            <div class="sig-num"><div class="v" data-cfx="blur" data-count="31" style="color:var(--d-cyan)">31<span class="u" style="color:var(--d-cyan)">%</span></div><div class="l">Connected</div></div>
+            <div class="sig-num"><div class="v" data-cfx="blur" data-count="19" style="color:var(--green)">19<span class="u">%</span></div><div class="l">Meeting booked</div></div>
+            <div class="sig-num"><div class="v" data-cfx="blur" data-count="26" data-prefix="~">~26<span class="u"> min</span></div><div class="l">Remaining</div></div>
+          </div>
+          <div class="sig-ai">
+            <span class="spark">◆</span>
+            <span>Booked rate is tracking <b>5pp above</b> your last reactivation campaign. Connection rate is healthy — safe to scale the remaining list.</span>
+          </div>
+          <div class="sig-bar" data-grow>
+            <i style="width:46%;background:var(--green)"></i>
+            <i style="width:14%;background:var(--d-cyan)"></i>
+            <i style="width:22%;background:rgba(243,238,228,0.18)"></i>
+            <i style="width:18%;background:var(--d-coral)"></i>
+          </div>
+          <div class="sig-legend">
+            <span><i style="background:var(--green)"></i>Completed 46%</span>
+            <span><i style="background:var(--d-cyan)"></i>Calling 14%</span>
+            <span><i style="background:rgba(243,238,228,0.18)"></i>Queued 22%</span>
+            <span><i style="background:var(--d-coral)"></i>No answer 18%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- funnel + KPIs -->
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Dashboard overview</span></div>
+        <div class="win-body">
+          <div class="kpi-row">
+            <div class="kpi"><div class="v" data-cfx="blur" data-count="18402" data-fmt="comma">18,402</div><div class="l">Total leads</div></div>
+            <div class="kpi"><div class="v" data-cfx="blur" data-count="6120" data-fmt="comma">6,120</div><div class="l">Connected</div></div>
+            <div class="kpi"><div class="v" data-cfx="blur" data-count="19">19<small>%</small></div><div class="l">Booked rate</div></div>
+            <div class="kpi"><div class="v">1m 24s</div><div class="l">Avg duration</div></div>
+          </div>
+          <div class="funnel" data-stagger="70">
+            <div class="fn-row"><div class="fn-label">New lead</div><div class="fn-track"><div class="fn-fill" data-grow style="width:100%;background:rgba(243,238,228,0.16)"></div></div><div class="fn-pct">18.4k</div></div>
+            <div class="fn-row"><div class="fn-label">Engaged</div><div class="fn-track"><div class="fn-fill" data-grow style="width:72%;background:var(--d-cyan)"></div></div><div class="fn-pct">72%</div></div>
+            <div class="fn-row"><div class="fn-label">Qualified</div><div class="fn-track"><div class="fn-fill" data-grow style="width:48%;background:var(--d-violet)"></div></div><div class="fn-pct">48%</div></div>
+            <div class="fn-row"><div class="fn-label">Meeting booked ★</div><div class="fn-track"><div class="fn-fill" data-grow style="width:33%;background:var(--green)"><span>★</span></div></div><div class="fn-pct">33%</div></div>
+            <div class="fn-row"><div class="fn-label">Converted ★</div><div class="fn-track"><div class="fn-fill" data-grow style="width:21%;background:var(--d-amber)"></div></div><div class="fn-pct">21%</div></div>
+            <div class="fn-row"><div class="fn-label">Dropped</div><div class="fn-track"><div class="fn-fill" data-grow style="width:11%;background:var(--d-coral)"></div></div><div class="fn-pct">11%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- missions -->
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Missions</span></div>
+        <div class="win-body">
+          <div class="mission-card">
+            <div class="mlabel">Mission · what the agent drives toward</div>
+            <div class="mname">Re-engage cold leads</div>
+            <div class="mission-text">"Your goal is to reconnect with leads who showed interest but never booked. Be warm, reference what they cared about, and offer a quick callback slot this week."</div>
+            <div class="mission-params">
+              <span class="mparam">Max duration <b>180s</b></span>
+              <span class="mparam">TTS speed <b>1.0×</b></span>
+              <span class="mparam">Warmth <b>high</b></span>
+            </div>
+          </div>
+          <div class="mission-list">
+            <div class="ml-row"><span class="n">Re-engage cold leads</span><span class="r">booked <b>19%</b></span></div>
+            <div class="ml-row"><span class="n">New-signup welcome</span><span class="r">booked <b>27%</b></span></div>
+            <div class="ml-row"><span class="n">Post-demo follow-up</span><span class="r">booked <b>34%</b></span></div>
+            <div class="ml-row"><span class="n">Feedback &amp; NPS</span><span class="r">reached <b>61%</b></span></div>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== USP / PLATFORM ===================== -->
+<section class="block" id="platform">
+  <div class="wrap">
+    <div class="block-head reveal">
+      <span class="overline">The platform · why it converts</span>
+      <h2 class="section-title">Built to hold a real conversation.</h2>
+    </div>
+    <div class="feature-rows">
+
+      <div class="frow" data-mo="blur-up">
+        <div class="frow-text">
+          <span class="overline">Noise-immune</span>
+          <h3>It hears you through the chaos.</h3>
+          <p>Traffic, a crowd, a TV on in the back — it keeps listening and <b>never cuts the caller off.</b></p>
+        </div>
+        <div class="frow-viz">
+          <div class="viz">
+            <div class="viz-label"><span>Caller environment</span><span style="color:var(--d-coral)">● noisy</span></div>
+            <div class="eq eq-noise" data-bars="30"></div>
+            <div class="viz-divider"></div>
+            <div class="viz-label"><span>What the agent hears</span><span style="color:var(--green)">✓ you, clearly</span></div>
+            <div class="eq eq-clean" data-bars="30"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frow flip" data-mo="blur-up">
+        <div class="frow-text">
+          <span class="overline">Sub-2-second</span>
+          <h3>It answers like a person.</h3>
+          <p>Replies in under two seconds — no dead air, no "please wait." <b>Callers stay on the line.</b></p>
+        </div>
+        <div class="frow-viz">
+          <div class="viz">
+            <div class="viz-label"><span>Avg response time</span><span style="color:var(--green)">● live</span></div>
+            <div class="lat-big">1.4<span>s</span></div>
+            <div class="lat-bar"><i data-grow style="width:35%"></i></div>
+            <div class="lat-scale"><span>0s</span><span>human pace</span><span>typical bot · 4s</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frow" data-mo="blur-up">
+        <div class="frow-text">
+          <span class="overline">Barge-in</span>
+          <h3>Interrupt it anytime.</h3>
+          <p>Talk over it or change your mind — it stops, listens, and <b>picks up naturally.</b></p>
+        </div>
+        <div class="frow-viz">
+          <div class="viz">
+            <div class="viz-label"><span>Mid-sentence</span><span>caller cuts in</span></div>
+            <div class="turn bot" style="margin-bottom:11px"><span class="who">AGENT</span><span class="txt" style="opacity:.42">So you'd get priority onboard—</span></div>
+            <div class="turn usr" style="margin-bottom:11px"><span class="who">LEAD</span><span class="txt">Ek second, wo dobara?</span></div>
+            <div class="turn bot"><span class="who">AGENT</span><span class="txt">Of course — let me repeat that.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LANGUAGES ===================== -->
+<section class="block" id="languages">
+  <div class="wrap lang-wrap">
+    <div class="reveal">
+      <span class="overline">Languages · speaks like a local</span>
+      <h2 class="section-title">One agent. Whatever language they pick up the phone in.</h2>
+      <p class="lang-note">It detects the caller's language each turn and <span class="em">mirrors it</span> — including the Hinglish code-mix Indians actually speak. <br/>Say <span class="em">"Marathi madhe bolu?"</span> and it switches, mid-sentence, without missing a beat.</p>
+    </div>
+    <div class="reveal">
+      <div class="lang-chips" data-stagger="55">
+        <span class="lang-chip on" data-mo="soft-scale-in">Hindi <span class="native">हिन्दी</span></span>
+        <span class="lang-chip on" data-mo="soft-scale-in">Hinglish</span>
+        <span class="lang-chip on" data-mo="soft-scale-in">English</span>
+        <span class="lang-chip" data-mo="soft-scale-in">Marathi <span class="native">मराठी</span></span>
+        <span class="lang-chip" data-mo="soft-scale-in">Tamil <span class="native">தமிழ்</span></span>
+        <span class="lang-chip" data-mo="soft-scale-in">Telugu <span class="native">తెలుగు</span></span>
+        <span class="lang-chip" data-mo="soft-scale-in">Kannada <span class="native">ಕನ್ನಡ</span></span>
+        <span class="lang-chip" data-mo="soft-scale-in">Bengali <span class="native">বাংলা</span></span>
+        <span class="lang-chip" data-mo="soft-scale-in">Gujarati <span class="native">ગુજરાતી</span></span>
+        <span class="lang-chip" data-mo="soft-scale-in">Malayalam <span class="native">മലയാളം</span></span>
+        <span class="lang-chip" data-mo="soft-scale-in">Punjabi <span class="native">ਪੰਜਾਬੀ</span></span>
+        <span class="lang-chip" data-mo="soft-scale-in">+ more</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRICING / ECONOMICS ===================== -->
+<section class="block" id="pricing">
+  <div class="wrap econ">
+    <div class="reveal">
+      <span class="overline">The economics</span>
+      <div class="econ-big">&lt;₹1.5<span class="u">/min</span></div>
+      <div class="econ-sub">AT 1 LAKH+ CALLS PER MONTH</div>
+    </div>
+    <div class="econ-list reveal" data-stagger="90">
+      <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>A fraction of a human calling team — and it never sleeps, never has an off day, and <b>never misses a lead.</b></div></div>
+      <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>Pay for talk time, not seats. Scale from a test batch to <b>lakhs of calls a month</b> without hiring.</div></div>
+      <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>Runs on your own telephony and stack. <b>No per-seat licences, no lock-in.</b></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FINAL CTA ===================== -->
+<section class="block cta" id="book">
+  <div class="cta-glow"></div>
+  <div class="wrap">
+    <span class="overline" style="justify-content:center">Start here</span>
+    <h2 style="margin-top:18px">Tell us who you want called.<br/><span class="em">We'll have it dialling by Friday.</span></h2>
+    <p>One conversation to scope it, one week to go live. Book a slot or message us — we'll place a test call you can listen to.</p>
+    <div class="cta-ctas">
+      <a class="btn btn-green" href="https://calendly.com/am-agentropic/15min" target="_blank" rel="noopener">Book a demo</a>
+      <a class="btn btn-ghost" href="https://wa.me/919833018465?text=Hi%2C%20I%27d%20like%20a%20Voicentropic%20voice%20AI%20demo." target="_blank" rel="noopener">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 20l1-5.5a8.5 8.5 0 0 1 8.5-12A8.38 8.38 0 0 1 21 11.5z"/></svg>
+        WhatsApp us
+      </a>
+    </div>
+    <div class="cta-mail">or email <a href="mailto:hello@agentropic.ai">hello@agentropic.ai</a></div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark"><i></i></span>
+      <span class="brand-name">Voic<b>entropic</b> AI</span>
+    </a>
+    <div class="footer-links">
+      <a href="#week">How it works</a>
+      <a href="#platform">Platform</a>
+      <a href="#languages">Languages</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#book">Book a demo</a>
+    </div>
+    <div class="footer-meta">© 2026 Agentropic · Mumbai &amp; Houston</div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   Voicentropic AI — interactions
+   - animated waveform bars
+   - cycling benefit-driven transcript scenes
+   - live call timer
+   - scroll reveal
+   ============================================================ */
+(function () {
+  "use strict";
+
+  /* ---------- waveform bars ---------- */
+  var wave = document.getElementById("wave");
+  if (wave) {
+    var BARS = 38;
+    for (var i = 0; i < BARS; i++) {
+      var s = document.createElement("span");
+      // explicit silhouette height so it reads as a waveform even when paused
+      var h = 8 + Math.round((Math.sin(i * 0.55) * 0.5 + 0.5) * 30 + (Math.sin(i * 1.7 + 1) * 0.5 + 0.5) * 12);
+      s.style.height = h + "px";
+      s.style.animationDelay = ((i % 11) * 0.06).toFixed(2) + "s";
+      s.style.animationDuration = (0.78 + (i % 6) * 0.09).toFixed(2) + "s";
+      wave.appendChild(s);
+    }
+  }
+
+  /* ---------- mini equalizers (platform visuals) ---------- */
+  [].slice.call(document.querySelectorAll(".eq")).forEach(function (eq) {
+    var n = parseInt(eq.getAttribute("data-bars") || "24", 10);
+    var noisy = eq.classList.contains("eq-noise");
+    for (var i = 0; i < n; i++) {
+      var b = document.createElement("span");
+      var hgt = noisy
+        ? 6 + Math.round(Math.random() * 26)
+        : 6 + Math.round((Math.sin(i * 0.5) * 0.5 + 0.5) * 26);
+      b.style.height = hgt + "px";
+      b.style.animationDelay = ((i % 9) * 0.07).toFixed(2) + "s";
+      b.style.animationDuration = (noisy ? 0.55 + (i % 7) * 0.06 : 0.8 + (i % 5) * 0.1).toFixed(2) + "s";
+      eq.appendChild(b);
+    }
+  });
+
+  /* ---------- cycling transcript scenes ---------- */
+  // Each scene proves a benefit through a short, human exchange.
+  // No product/route specifics — purely about how the agent behaves.
+  var scenes = [
+    {
+      tag: "Hears through the noise",
+      turns: [
+        { who: "LEAD", cls: "usr", lang: "EN", text: "Sorry — I'm on the road, it's pretty loud here." },
+        { who: "AGENT", cls: "bot", lang: "EN", text: "No problem at all, I can hear you perfectly. Shall we carry on?" }
+      ]
+    },
+    {
+      tag: "Switches language mid-call",
+      turns: [
+        { who: "LEAD", cls: "usr", lang: "MR", text: "Marathi madhe bolu shakta ka?" },
+        { who: "AGENT", cls: "bot", lang: "MR", text: "Nakkich! Aaponaapan Marathi madhech bolu. Sangaa, kashi madat karu?" }
+      ]
+    },
+    {
+      tag: "Interrupt it anytime",
+      turns: [
+        { who: "AGENT", cls: "bot", lang: "EN", text: "So you'd get priority onboarding and—" },
+        { who: "LEAD", cls: "usr", lang: "HI", text: "Ek second, wo dobara bataiye?" },
+        { who: "AGENT", cls: "bot", lang: "HI", text: "Bilkul — priority onboarding, koi setup fee nahi." }
+      ]
+    },
+    {
+      tag: "Replies in under 2 seconds",
+      turns: [
+        { who: "LEAD", cls: "usr", lang: "EN", text: "Hmm… let me think for a second." },
+        { who: "AGENT", cls: "bot", lang: "EN", text: "Take your time — I'm right here." }
+      ]
+    },
+    {
+      tag: "Talks like your best rep",
+      turns: [
+        { who: "LEAD", cls: "usr", lang: "HI", text: "Haan details WhatsApp pe bhej do." },
+        { who: "AGENT", cls: "bot", lang: "HI", text: "Done! Main abhi bhej rahi hoon. Aur kuch help karu?" }
+      ]
+    }
+  ];
+
+  var transcriptEl = document.getElementById("transcript");
+  var tagEl = document.getElementById("sceneTag");
+  var titleCard = document.getElementById("titleCard");
+  var tcTitle = document.getElementById("tcTitle");
+  var tcDots = document.getElementById("tcDots");
+  var idx = 0;
+
+  // build progress dots
+  if (tcDots) {
+    for (var d = 0; d < scenes.length; d++) tcDots.appendChild(document.createElement("i"));
+  }
+
+  function buildTurn(t, withCursor) {
+    var row = document.createElement("div");
+    row.className = "turn " + t.cls + " enter";
+
+    var who = document.createElement("span");
+    who.className = "who";
+    who.textContent = t.who;
+
+    var txt = document.createElement("span");
+    txt.className = "txt";
+    txt.textContent = t.text;
+
+    var lang = document.createElement("span");
+    lang.className = "lang";
+    lang.textContent = t.lang;
+    txt.appendChild(lang);
+
+    if (withCursor) {
+      var cur = document.createElement("span");
+      cur.className = "cursor";
+      txt.appendChild(cur);
+    }
+    row.appendChild(who);
+    row.appendChild(txt);
+    transcriptEl.appendChild(row);
+    // next frame: trigger entrance transition
+    requestAnimationFrame(function () { row.classList.add("in"); });
+  }
+
+  var timers = [];
+  function clearTimers() {
+    for (var i = 0; i < timers.length; i++) clearTimeout(timers[i]);
+    timers = [];
+  }
+
+  // Sequence per scene:
+  //   A) big title card alone  ->  B) dialogue line-by-line under a compact label  ->  C) hold -> transition
+  function runScene(n) {
+    if (!transcriptEl) return;
+    clearTimers();
+    var scene = scenes[n];
+
+    // Phase A — bold title card, dialogue hidden
+    transcriptEl.innerHTML = "";
+    transcriptEl.style.opacity = "0";
+    if (tagEl) { tagEl.textContent = scene.tag; tagEl.style.opacity = "0"; }
+    if (tcTitle) tcTitle.textContent = scene.tag;
+    if (tcDots) {
+      var dots = tcDots.children;
+      for (var k = 0; k < dots.length; k++) dots[k].classList.toggle("on", k === n);
+    }
+    if (titleCard) {
+      titleCard.classList.remove("show");
+      void titleCard.offsetWidth; // restart entrance animation
+      titleCard.classList.add("show");
+    }
+
+    // Phase B — dismiss title card, reveal dialogue lines one at a time
+    timers.push(setTimeout(function () {
+      if (titleCard) titleCard.classList.remove("show");
+      if (tagEl) tagEl.style.opacity = "1";
+      transcriptEl.style.opacity = "1";
+      var delay = 360;
+      scene.turns.forEach(function (t, i) {
+        var isLast = i === scene.turns.length - 1;
+        timers.push(setTimeout(function () { buildTurn(t, isLast); }, delay));
+        delay += 900;
+      });
+
+      // Phase C — hold, then fade out and advance
+      delay += 1900;
+      timers.push(setTimeout(function () {
+        transcriptEl.style.opacity = "0";
+        if (tagEl) tagEl.style.opacity = "0";
+        timers.push(setTimeout(function () {
+          idx = (idx + 1) % scenes.length;
+          runScene(idx);
+        }, 460));
+      }, delay));
+    }, 1700));
+  }
+
+  if (transcriptEl) runScene(0);
+
+  /* ---------- live call timer ---------- */
+  var timerEl = document.getElementById("callTimer");
+  if (timerEl) {
+    var secs = 41;
+    setInterval(function () {
+      secs++;
+      var m = String(Math.floor(secs / 60)).padStart(2, "0");
+      var s = String(secs % 60).padStart(2, "0");
+      timerEl.textContent = m + ":" + s + " · outbound";
+    }, 1000);
+  }
+
+  /* ============================================================
+     SCROLL-SCRUBBED MOTION
+     Every reveal is bound *directly* to scroll position. Progress is a pure
+     function of where the element sits in the viewport, so scrolling slowly
+     plays it slowly, scrolling up rewinds it, and stopping holds the exact
+     frame. No time-based transitions — the rAF loop paints the current
+     scroll offset each frame.
+     ============================================================ */
+  var docEl = document.documentElement;
+  var prefersReduced = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var progressBar = document.getElementById("scrollProgress");
+  var stepLines = [].slice.call(document.querySelectorAll("[data-step-progress]"));
+
+  // Collect every scrubbed element with its primitive + stagger metadata.
+  var items = [].slice.call(
+    document.querySelectorAll(".reveal, [data-mo], [data-grow], [data-count]")
+  ).map(function (el) {
+    var group = el.closest ? el.closest("[data-stagger]") : null;
+    var sibs = group ? [].slice.call(
+      group.querySelectorAll("[data-mo], [data-grow], .reveal")
+    ) : null;
+    var idx = sibs ? sibs.indexOf(el) : 0;
+    var count = sibs ? sibs.length : 1;
+    var stepFrac = group
+      ? parseInt(group.getAttribute("data-stagger") || "90", 10) / 1000
+      : 0;
+    var maxShift = (count - 1) * stepFrac;
+    if (maxShift > 0.6) { stepFrac *= 0.6 / maxShift; maxShift = 0.6; } // cap cascade
+    var type = el.hasAttribute("data-count") ? "count"
+      : el.getAttribute("data-mo") ||
+        (el.hasAttribute("data-grow") ? "grow" : "reveal");
+    var it = { el: el, type: type, idx: idx, stepFrac: stepFrac, maxShift: maxShift };
+    if (type === "count") {
+      it.target = parseFloat(el.getAttribute("data-count")) || 0;
+      it.prefix = el.getAttribute("data-prefix") || "";
+      it.comma = el.getAttribute("data-fmt") === "comma";
+      it.cfx = el.getAttribute("data-cfx") || "";   // optional count flavour
+      // number lives in the element's leading text node (suffix spans stay put)
+      it.node = (el.firstChild && el.firstChild.nodeType === 3)
+        ? el.firstChild
+        : el.insertBefore(document.createTextNode(""), el.firstChild);
+    }
+    return it;
+  });
+
+  if (prefersReduced) {
+    // Honour reduced-motion: show everything, no scrubbing.
+    items.forEach(function (it) {
+      it.el.style.opacity = "1";
+      it.el.style.transform = "none";
+      it.el.style.filter = "none";
+      if (it.type === "line" || it.type === "clip-up") it.el.style.clipPath = "none";
+    });
+  } else {
+    docEl.classList.add("scrub"); // disables CSS transitions so JS owns each frame
+
+    var START = 0.94;             // top enters the band at 94% of viewport height
+    var END = 0.50;               // reveal completes once it reaches 50%
+    var SPAN = START - END;
+    var vw = window.innerWidth;
+
+    function easeOut(p) { return 1 - Math.pow(1 - p, 3); }
+
+    function apply(it, vh, atBottom) {
+      var r = it.el.getBoundingClientRect();
+      var d = (START * vh - r.top) / (SPAN * vh);          // raw 0..1 drive
+      d = d < 0 ? 0 : d > 1 ? 1 : d;
+      var p = (d - it.idx * it.stepFrac) / (1 - it.maxShift); // windowed stagger
+      p = p < 0 ? 0 : p > 1 ? 1 : p;
+      if (atBottom) p = 1;                                  // last screen always completes
+      var e = easeOut(p);
+      var s = it.el.style;
+
+      switch (it.type) {
+        case "count":
+          var val = Math.round(e * it.target);
+          it.node.nodeValue = it.prefix + (it.comma ? val.toLocaleString("en-US") : String(val));
+          if (it.cfx === "blur") {
+            s.opacity = Math.min(1, e * 1.4).toFixed(3);
+            s.filter = "blur(" + ((1 - e) * 5).toFixed(2) + "px)";
+          } else if (it.cfx === "rise") {
+            s.opacity = Math.min(1, e * 1.4).toFixed(3);
+            s.transform = "translateY(" + ((1 - e) * 12).toFixed(1) + "px)";
+          }
+          break;
+        case "clip-up":
+          s.opacity = Math.min(1, e * 1.6).toFixed(3);
+          s.clipPath = "inset(0 0 " + ((1 - e) * 100).toFixed(2) + "% 0)";
+          break;
+        case "tilt-up":
+          s.opacity = e.toFixed(3);
+          s.transform = "perspective(1100px) rotateX(" + ((1 - e) * 14).toFixed(2) +
+            "deg) translateY(" + ((1 - e) * 34).toFixed(1) + "px)";
+          break;
+        case "blur-up":
+          s.opacity = e.toFixed(3);
+          s.transform = "translateY(" + ((1 - e) * 26).toFixed(1) + "px)";
+          s.filter = "blur(" + ((1 - e) * 12).toFixed(2) + "px)";
+          break;
+        case "scale-up":
+          s.opacity = e.toFixed(3);
+          s.transform = "scale(" + (0.9 + 0.1 * e).toFixed(4) + ")";
+          break;
+        case "grow":
+          s.transform = "scaleX(" + e.toFixed(4) + ")";
+          break;
+        case "line":
+          s.clipPath = "inset(0 0 " + (102 - 114 * e).toFixed(2) + "% 0)";
+          break;
+        case "soft-scale-in":
+          s.opacity = e.toFixed(3);
+          s.transform = "scale(" + (0.94 + 0.06 * e).toFixed(4) + ")";
+          break;
+        case "slide-r":
+          s.opacity = e.toFixed(3);
+          s.transform = vw <= 800
+            ? "translateY(" + (28 * (1 - e)).toFixed(1) + "px)"
+            : "translateX(" + (52 * (1 - e)).toFixed(1) + "px)";
+          break;
+        case "slide-l":
+          s.opacity = e.toFixed(3);
+          s.transform = vw <= 800
+            ? "translateY(" + (28 * (1 - e)).toFixed(1) + "px)"
+            : "translateX(" + (-52 * (1 - e)).toFixed(1) + "px)";
+          break;
+        case "fade":
+          s.opacity = e.toFixed(3);
+          break;
+        case "fade-up":
+          s.opacity = e.toFixed(3);
+          s.transform = "translateY(" + (32 * (1 - e)).toFixed(1) + "px)";
+          break;
+        default: // .reveal
+          s.opacity = e.toFixed(3);
+          s.transform = "translateY(" + (30 * (1 - e)).toFixed(1) + "px)";
+      }
+    }
+
+    window.addEventListener("resize", function () { vw = window.innerWidth; });
+
+    function frameUpdate() {
+      var vh = window.innerHeight || 800;
+      var scrollTop = window.pageYOffset || docEl.scrollTop || 0;
+      var max = (docEl.scrollHeight - docEl.clientHeight) || 1;
+      var atBottom = (max - scrollTop) < 4;
+
+      // page progress bar — strictly bound to scroll position
+      var gp = scrollTop / max; gp = gp < 0 ? 0 : gp > 1 ? 1 : gp;
+      if (progressBar) progressBar.style.transform = "scaleX(" + gp.toFixed(4) + ")";
+
+      for (var i = 0; i < items.length; i++) apply(items[i], vh, atBottom);
+
+      // step connector — bound to its own viewport position
+      for (var j = 0; j < stepLines.length; j++) {
+        var bar = stepLines[j].firstElementChild;
+        if (!bar) continue;
+        var rr = stepLines[j].getBoundingClientRect();
+        var sp = (vh * 0.85 - rr.top) / (vh * 0.5);
+        sp = sp < 0 ? 0 : sp > 1 ? 1 : sp;
+        bar.style.transform = "scaleX(" + sp.toFixed(4) + ")";
+      }
+    }
+
+    (function loop() { frameUpdate(); requestAnimationFrame(loop); })();
+    frameUpdate();
+  }
+})();
+
+</script>
+</body>
+</html>
