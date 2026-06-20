@@ -1,16 +1,16 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <script>document.documentElement.className += " js";</script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Voicentropic AI — a voice agent on every lead, live in a week</title>
+<title>Voicentropic AI: a voice agent on every lead, live in a week</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
 /* ============================================================
-   Voicentropic AI — landing page
+   Voicentropic AI landing page
    Dark editorial · warm ink + cream + electric green
    ============================================================ */
 
@@ -28,7 +28,7 @@
   --green-soft: #7CEDB3;
   --green-deep: #07210F;
   --red:        #E0564E;
-  /* dashboard categorical accents — shared chroma/lightness, varied hue */
+  /* dashboard categorical accents with shared chroma/lightness, varied hue */
   --d-cyan:     oklch(0.83 0.13 195);
   --d-violet:   oklch(0.78 0.15 300);
   --d-amber:    oklch(0.84 0.15 88);
@@ -38,7 +38,7 @@
   --font-mono:  'JetBrains Mono', ui-monospace, monospace;
   --maxw:       1180px;
   --pad:        clamp(20px, 5vw, 56px);
-  /* dashboard "product surface" — cool-toned so the snapshot lifts off the warm page */
+  /* dashboard "product surface" in a cool tone so the snapshot lifts off the warm page */
   --app-canvas: #0E1314;
   --app-bar:    #1A2123;
   --app-panel:  #141B1D;
@@ -87,8 +87,20 @@ h1, h2, h3 { font-family: var(--font-disp); font-weight: 700; letter-spacing: -0
   border: 1px solid transparent; white-space: nowrap; transition: transform .15s ease, background .15s ease, border-color .15s ease;
 }
 .btn:active { transform: translateY(1px); }
-.btn-green { background: var(--green); color: var(--green-deep); }
-.btn-green:hover { background: var(--green-soft); }
+.btn-green {
+  position: relative;
+  overflow: hidden;
+  background: var(--green) url("assets/cta-book-demo.gif") center / cover;
+  color: var(--green-deep);
+}
+.btn-green::before {
+  content: ""; position: absolute; inset: 0;
+  background: rgba(52,224,138,0.2);
+  pointer-events: none;
+}
+.btn-green > * ,
+.btn-green { isolation: isolate; }
+.btn-green:hover { filter: brightness(1.05); }
 .btn-ghost { background: transparent; color: var(--cream); border-color: var(--line-2); }
 .btn-ghost:hover { border-color: var(--cream-dim); }
 .btn .ic { width: 16px; height: 16px; display: inline-block; }
@@ -142,23 +154,78 @@ h1, h2, h3 { font-family: var(--font-disp); font-weight: 700; letter-spacing: -0
 @media (max-width: 940px) {
   .hero-grid { grid-template-columns: 1fr; gap: 40px; }
 }
+@media (min-width: 1200px) {
+  .hero-h1 { font-size: 38px; }
+}
 
 /* ---------- live call panel ---------- */
 .call-panel {
-  background: linear-gradient(180deg, var(--ink-2), var(--ink-1));
-  border: 1px solid var(--line-2); border-radius: 18px;
-  padding: 22px; box-shadow: 0 40px 90px -40px rgba(0,0,0,0.85);
+  position: relative;
+  background: linear-gradient(180deg, rgba(12,11,10,0.98), var(--ink-1));
+  border: 1px solid var(--line-2); border-radius: 34px;
+  padding: clamp(22px, 3vw, 30px); box-shadow: 0 40px 90px -40px rgba(0,0,0,0.85);
+  overflow: hidden;
 }
-.call-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.call-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
 .call-id { display: flex; align-items: center; gap: 10px; }
 .live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(52,224,138,0.6); animation: pulse 1.8s infinite; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52,224,138,0.5);} 70% { box-shadow: 0 0 0 9px rgba(52,224,138,0);} 100% { box-shadow: 0 0 0 0 rgba(52,224,138,0);} }
 .call-live { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: var(--green); }
-.call-timer { font-family: var(--font-mono); font-size: 12px; color: var(--cream-mute); }
+.call-timer {
+  font-family: var(--font-mono); font-size: 12px; color: var(--cream-mute);
+  background: rgba(243,238,228,0.025); padding: 11px 13px; border-radius: 2px;
+}
 
 .wave { display: flex; align-items: center; gap: 3px; height: 54px; padding: 0 2px; }
 .wave span { flex: 1; background: var(--green); border-radius: 3px; opacity: 0.9; transform-origin: center; animation: bar 0.9s ease-in-out infinite alternate; will-change: transform; }
 @keyframes bar { from { transform: scaleY(0.6); } to { transform: scaleY(1); } }
+
+.call-swipe-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 26px; }
+.call-swipe-label {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--cream-mute);
+  background: rgba(243,238,228,0.025); padding: 12px 8px;
+}
+.call-dots { position: absolute; right: clamp(22px, 3vw, 30px); bottom: clamp(22px, 3vw, 30px); display: flex; gap: 7px; align-items: center; z-index: 2; }
+.call-dot {
+  width: 7px; height: 7px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--line-2); cursor: pointer; transition: background .2s ease, transform .2s ease;
+}
+.call-dot.on { background: var(--green); transform: scale(1.35); }
+.call-track {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: 16px;
+  overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.call-track::-webkit-scrollbar { display: none; }
+.call-card {
+  scroll-snap-align: center;
+  min-height: 324px;
+  display: flex; flex-direction: column; gap: 24px;
+}
+.call-card .wave { height: 30px; max-width: 162px; width: 37%; margin-top: 2px; }
+.call-card .scene-tag { margin-bottom: 0; }
+.call-card .tc-title {
+  position: static; opacity: 1; transform: none; font-size: clamp(34px, 4vw, 44px);
+  color: var(--green); max-width: 100%;
+  transition: opacity .42s ease, transform .42s cubic-bezier(.2,.7,.2,1);
+}
+.call-card .tc-title.is-hidden { opacity: 0; transform: translateY(12px); }
+.call-card .transcript {
+  min-height: 118px; opacity: 1; padding-top: 2px; gap: 26px;
+  transition: opacity .28s ease;
+}
+.call-card .transcript.is-hidden { opacity: 0; }
+.call-card .turn,
+.viz-type .turn { transition: opacity .34s ease, transform .34s ease; }
+.call-card .turn.is-hidden,
+.viz-type .turn.is-hidden { opacity: 0; transform: translateY(7px); }
+.turn.bot .txt.is-typing { color: var(--green); }
+.typing-cursor {
+  display: inline-block; width: 6px; height: 15px; background: var(--green);
+  margin-left: 4px; vertical-align: -2px; animation: blink 1s steps(1) infinite;
+}
+.call-foot { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: auto; }
+.call-hint { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream-mute); }
 
 .scene-tag {
   font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
@@ -191,14 +258,14 @@ h1, h2, h3 { font-family: var(--font-disp); font-weight: 700; letter-spacing: -0
   min-height: 116px; display: flex; flex-direction: column; gap: 13px;
   transition: opacity .4s ease;
 }
-.turn { display: flex; gap: 10px; align-items: flex-start; }
+.turn { display: flex; gap: 14px; align-items: flex-start; }
 .turn .who {
   font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.07em;
   padding: 3px 7px; border-radius: 5px; flex: 0 0 auto; margin-top: 2px;
 }
 .turn.bot .who { background: rgba(52,224,138,0.14); color: var(--green); }
 .turn.usr .who { background: rgba(243,238,228,0.07); color: var(--cream-dim); }
-.turn .txt { font-size: 14.5px; line-height: 1.45; color: var(--cream); }
+.turn .txt { font-size: 16px; line-height: 1.5; color: var(--cream); }
 .turn.usr .txt { color: var(--cream-dim); }
 .turn .lang { font-family: var(--font-mono); font-size: 9px; color: var(--cream-mute); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; margin-left: 7px; vertical-align: 1px; }
 .turn.enter { opacity: 0; transform: translateY(7px); }
@@ -222,6 +289,19 @@ h1, h2, h3 { font-family: var(--font-disp); font-weight: 700; letter-spacing: -0
   .proof-cell:nth-child(2) { border-right: none; }
   .proof-cell:nth-child(1), .proof-cell:nth-child(2) { border-bottom: 1px solid var(--line); }
 }
+@media (min-width: 761px) {
+  .proof { background: transparent; padding: 28px var(--pad); }
+  .proof-grid {
+    max-width: 1320px; padding-inline: 0;
+    background: linear-gradient(180deg, rgba(20,18,16,0.96), rgba(15,14,13,0.96));
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .proof-cell { padding: 44px clamp(26px, 4vw, 64px); }
+  .proof-cell:first-child { padding-left: clamp(34px, 5vw, 76px); }
+  .proof-cell:last-child { padding-right: clamp(34px, 5vw, 76px); }
+}
 
 /* ============================================================
    SECTION scaffolding
@@ -233,16 +313,40 @@ section.block { padding-block: clamp(72px, 9vw, 116px); border-bottom: 1px solid
 /* ---------- The Week (how it works) ---------- */
 .week-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 52px; }
 .week-card {
-  background: var(--ink-1); border: 1px solid var(--line); border-radius: 14px;
-  padding: 26px 24px 28px; position: relative; overflow: hidden;
+  background: linear-gradient(180deg, rgba(12,11,10,0.98), var(--ink-1));
+  border: 1px solid var(--line-2); border-radius: 34px;
+  padding: clamp(28px, 3vw, 38px); position: relative; overflow: hidden;
+  min-height: 430px; display: flex; flex-direction: column; align-items: flex-start;
+  box-shadow: 0 38px 90px -54px rgba(0,0,0,0.9);
 }
-.week-day { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); }
-.week-card h3 { font-size: 22px; margin: 16px 0 10px; letter-spacing: -0.02em; }
-.week-card p { color: var(--cream-dim); font-size: 15px; line-height: 1.55; margin: 0; }
-.week-num { position: absolute; right: 18px; top: 12px; font-family: var(--font-disp); font-size: 56px; font-weight: 700; color: var(--line-2); line-height: 1; }
+.week-icon-wrap {
+  position: relative; width: 50px; height: 50px; margin-bottom: 28px;
+  display: grid; place-items: center;
+}
+.week-icon-wrap::before {
+  content: ""; position: absolute; inset: -10px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(52,224,138,0.18), transparent 68%);
+  filter: blur(8px); opacity: 0.85;
+}
+.week-ic { position: relative; z-index: 1; width: 50px; height: 50px; color: var(--green); overflow: visible; }
+.week-ic * { vector-effect: non-scaling-stroke; }
+.week-day { font-size: 20px; color: var(--cream); margin-bottom: 34px; line-height: 1.2; }
+.week-card h3 { font-size: clamp(38px, 4.2vw, 58px); line-height: 1.08; margin: 0 0 28px; letter-spacing: -0.03em; max-width: 340px; }
+.week-card p { color: var(--cream); font-size: clamp(20px, 2vw, 26px); line-height: 1.18; margin: 0; max-width: 360px; }
+.week-num { position: absolute; right: 28px; top: 72px; font-family: var(--font-disp); font-size: clamp(58px, 6vw, 72px); font-weight: 700; color: var(--line-2); line-height: 1; }
 .week-foot { margin-top: 30px; font-family: var(--font-mono); font-size: 13px; color: var(--cream-mute); }
 .week-foot b { color: var(--cream); font-weight: 500; }
 @media (max-width: 820px) { .week-grid { grid-template-columns: 1fr; } }
+@media (min-width: 821px) {
+  .week-card { min-height: 360px; padding: 28px 32px 34px; }
+  .week-icon-wrap { width: 38px; height: 38px; margin-bottom: 22px; }
+  .week-icon-wrap::before { inset: -8px; filter: blur(6px); opacity: 0.72; }
+  .week-ic { width: 38px; height: 38px; }
+  .week-day { font-size: 16px; margin-bottom: 28px; }
+  .week-card h3 { font-size: 32px; line-height: 1.08; margin-bottom: 22px; max-width: 280px; }
+  .week-card p { font-size: 16px; line-height: 1.28; max-width: 300px; }
+  .week-num { right: 28px; top: 70px; font-size: 54px; }
+}
 
 /* ---------- USP / why different ---------- */
 .usp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 52px; }
@@ -292,23 +396,38 @@ section.block { padding-block: clamp(72px, 9vw, 116px); border-bottom: 1px solid
 .lang-chip { will-change: transform; }
 
 /* ---------- Languages ---------- */
-.lang-wrap { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: center; }
-.lang-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.lang-wrap { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; align-items: center; }
+.lang-wrap > * { min-width: 0; }
+.lang-ticker {
+  position: relative; overflow: hidden; display: grid; gap: 14px; width: 100%; max-width: 100%;
+  padding-block: 8px; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.lang-row { display: flex; width: max-content; gap: 10px; }
+.lang-row:first-child { animation: lang-ticker-l 32s linear infinite; }
+.lang-row:nth-child(2) { animation: lang-ticker-r 36s linear infinite; }
+.lang-ticker:hover .lang-row { animation-play-state: paused; }
+.lang-chips { display: contents; }
 .lang-chip {
   border: 1px solid var(--line-2); border-radius: 999px; padding: 9px 16px;
   font-size: 14px; color: var(--cream); background: var(--ink-1);
-  display: inline-flex; align-items: center; gap: 8px;
+  display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
 }
 .lang-chip .native { color: var(--cream-mute); font-size: 13px; }
 .lang-chip.on { border-color: rgba(52,224,138,0.4); color: var(--green); background: rgba(52,224,138,0.06); }
-.lang-note { font-family: var(--font-mono); font-size: 12.5px; color: var(--cream-mute); margin-top: 26px; line-height: 1.7; }
+.lang-note { font-family: var(--font-body); font-size: 16px; color: var(--cream-mute); margin-top: 26px; line-height: 1.65; }
 .lang-note .em { color: var(--green); }
+@keyframes lang-ticker-l { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 5px)); } }
+@keyframes lang-ticker-r { from { transform: translateX(calc(-50% - 5px)); } to { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .lang-row { animation: none !important; flex-wrap: wrap; width: auto; }
+  .lang-ticker { mask-image: none; }
+}
 @media (max-width: 880px) { .lang-wrap { grid-template-columns: 1fr; gap: 36px; } }
 
 /* ============================================================
    DASHBOARD SNAPSHOTS
    ============================================================ */
-/* The whole dashboard is ONE product surface — a snapshot of the live app,
+/* The whole dashboard is ONE product surface: a snapshot of the live app,
    visually lifted off the warm marketing page (cool tone, chrome, elevation). */
 .app-shot {
   position: relative;
@@ -491,14 +610,14 @@ html.js [data-grow] { transform: scaleX(0); transform-origin: left center; trans
 html.js [data-grow].in { transform: scaleX(1); }
 
 /* When JS scroll-scrubbing is active it writes inline transform/opacity every
-   frame — kill the CSS transitions so motion is bound 1:1 to scroll (no lag). */
+   frame. Kill the CSS transitions so motion is bound 1:1 to scroll (no lag). */
 html.scrub [data-mo],
 html.scrub [data-grow],
 html.scrub .reveal { transition: none !important; }
 
 .count { font-variant-numeric: tabular-nums; }
 
-/* L1 utility — page scroll progress */
+/* L1 utility: page scroll progress */
 .scroll-progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: var(--green); transform: scaleX(0); transform-origin: 0 50%; z-index: 200; pointer-events: none; }
 
 /* page-2 step connector */
@@ -544,7 +663,7 @@ html.scrub .reveal { transition: none !important; }
     <div class="hero-copy">
       <span class="overline">Voice AI · built by Agentropic</span>
       <h1 class="hero-h1">More qualified leads,<br/>from calls you <span class="em">never had to make.</span></h1>
-      <p class="hero-sub">A voice agent that calls every lead, qualifies them and books the meeting — sounding like your best rep. You go live in a week.</p>
+      <p class="hero-sub">A voice agent that calls every lead, qualifies them and books the meeting, sounding like your best rep. You go live in a week.</p>
       <div class="hero-ctas">
         <a class="btn btn-green" href="#book">Book a demo</a>
         <a class="btn btn-ghost" href="https://wa.me/919833018465?text=Hi%2C%20I%27d%20like%20a%20Voicentropic%20voice%20AI%20demo." target="_blank" rel="noopener">
@@ -557,20 +676,66 @@ html.scrub .reveal { transition: none !important; }
     </div>
 
     <!-- live call panel -->
-    <div class="call-panel" aria-hidden="true">
+    <div class="call-panel">
       <div class="call-head">
-        <div class="call-id"><span class="live-dot"></span><span class="call-live">LIVE CALL</span></div>
+        <div class="call-swipe-label">Swipe call scenarios</div>
         <div class="call-timer" id="callTimer">00:41 · outbound</div>
       </div>
-      <div class="wave" id="wave"></div>
-      <div class="call-stage">
-        <div class="title-card" id="titleCard">
-          <div class="tc-over">Now demonstrating</div>
-          <div class="tc-title" id="tcTitle">Hears through the noise</div>
-          <div class="tc-dots" id="tcDots"></div>
-        </div>
-        <div class="scene-tag" id="sceneTag"></div>
-        <div class="transcript" id="transcript"></div>
+
+      <div class="call-track" id="callTrack" aria-label="Live call scenarios">
+        <article class="call-card">
+          <div class="wave" aria-hidden="true"></div>
+          <h2 class="tc-title">Hears through the noise</h2>
+          <div class="transcript">
+            <div class="turn usr"><span class="who">LEAD</span><span class="txt">Sorry, I'm on the road, it's pretty loud here.<span class="lang">EN</span></span></div>
+            <div class="turn bot"><span class="who">AGENT</span><span class="txt">No problem at all, I can hear you perfectly. Shall we carry on?<span class="lang">EN</span></span></div>
+          </div>
+          <div class="call-foot">
+            <div class="call-hint">01 / 05</div>
+            <div class="call-dots" id="callDots" aria-label="Live call scenario pagination"></div>
+          </div>
+        </article>
+
+        <article class="call-card">
+          <div class="wave" aria-hidden="true"></div>
+          <h2 class="tc-title">Switches language mid-call</h2>
+          <div class="transcript">
+            <div class="turn usr"><span class="who">LEAD</span><span class="txt">Marathi madhe bolu shakta ka?<span class="lang">MR</span></span></div>
+            <div class="turn bot"><span class="who">AGENT</span><span class="txt">Nakkich! Aaponaapan Marathi madhech bolu. Sangaa, kashi madat karu?<span class="lang">MR</span></span></div>
+          </div>
+          <div class="call-foot"><div class="call-hint">02 / 05</div></div>
+        </article>
+
+        <article class="call-card">
+          <div class="wave" aria-hidden="true"></div>
+          <h2 class="tc-title">Interrupt it anytime</h2>
+          <div class="transcript">
+            <div class="turn bot"><span class="who">AGENT</span><span class="txt">So you'd get priority onboarding and...<span class="lang">EN</span></span></div>
+            <div class="turn usr"><span class="who">LEAD</span><span class="txt">Ek second, wo dobara bataiye?<span class="lang">HI</span></span></div>
+            <div class="turn bot"><span class="who">AGENT</span><span class="txt">Bilkul. Priority onboarding, koi setup fee nahi.<span class="lang">HI</span></span></div>
+          </div>
+          <div class="call-foot"><div class="call-hint">03 / 05</div></div>
+        </article>
+
+        <article class="call-card">
+          <div class="wave" aria-hidden="true"></div>
+          <h2 class="tc-title">Replies in under 2 seconds</h2>
+          <div class="transcript">
+            <div class="turn usr"><span class="who">LEAD</span><span class="txt">Hmm… let me think for a second.<span class="lang">EN</span></span></div>
+            <div class="turn bot"><span class="who">AGENT</span><span class="txt">Take your time. I'm right here.<span class="lang">EN</span></span></div>
+          </div>
+          <div class="call-foot"><div class="call-hint">04 / 05</div></div>
+        </article>
+
+        <article class="call-card">
+          <div class="wave" aria-hidden="true"></div>
+          <h2 class="tc-title">Talks like your best rep</h2>
+          <div class="transcript">
+            <div class="turn usr"><span class="who">LEAD</span><span class="txt">Haan details WhatsApp pe bhej do.<span class="lang">HI</span></span></div>
+            <div class="turn bot"><span class="who">AGENT</span><span class="txt">Done! Main abhi bhej rahi hoon. Aur kuch help karu?<span class="lang">HI</span></span></div>
+          </div>
+          <div class="call-foot"><div class="call-hint">05 / 05</div></div>
+        </article>
       </div>
     </div>
   </div>
@@ -581,7 +746,7 @@ html.scrub .reveal { transition: none !important; }
   <div class="proof-grid" data-stagger="90">
     <div class="proof-cell" data-mo="clip-up">
       <div class="proof-v">1<span class="u"> week</span></div>
-      <div class="proof-l">to go live — first<br/>test call this week</div>
+      <div class="proof-l">to go live, first<br/>test call this week</div>
     </div>
     <div class="proof-cell" data-mo="clip-up">
       <div class="proof-v">&lt;₹1.5<span class="u">/min</span></div>
@@ -589,7 +754,7 @@ html.scrub .reveal { transition: none !important; }
     </div>
     <div class="proof-cell" data-mo="clip-up">
       <div class="proof-v">&lt;2<span class="u">s</span></div>
-      <div class="proof-l">response latency —<br/>feels like a person</div>
+      <div class="proof-l">response latency,<br/>feels like a person</div>
     </div>
     <div class="proof-cell" data-mo="clip-up">
       <div class="proof-v">10+<span class="u"> langs</span></div>
@@ -604,30 +769,52 @@ html.scrub .reveal { transition: none !important; }
     <div class="block-head reveal">
       <span class="overline">How it works · live by Friday</span>
       <h2 class="section-title" data-mo="line">A working voice agent, calling your leads in a week.</h2>
-      <p class="section-lead">No integration project. We build it on your offer, your scripts, your numbers — and you place the first real test call before the week is out.</p>
+      <p class="section-lead">No integration project. We build it on your offer, your scripts, your numbers, and you place the first real test call before the week is out.</p>
     </div>
     <div class="step-line" data-step-progress="week"><span></span></div>
     <div class="week-grid" data-stagger="130">
       <div class="week-card" data-mo="tilt-up">
+        <div class="week-icon-wrap">
+        <svg class="week-ic" viewBox="0 0 72 72" aria-hidden="true">
+          <path class="lock-shackle" d="M22 32V22c0-8 6-14 14-14s14 6 14 14v10" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+          <rect class="lock-body" x="16" y="30" width="40" height="32" rx="7" fill="currentColor"/>
+          <circle cx="36" cy="43" r="4" fill="var(--green-deep)"/>
+          <path d="M36 47v7" stroke="var(--green-deep)" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        </div>
         <span class="week-num">01</span>
         <div class="week-day">Day 1 · Lock the brief</div>
         <h3>What should it say?</h3>
         <p>We take your best pitch and objection handling and turn it into the agent's mission.</p>
       </div>
       <div class="week-card" data-mo="tilt-up">
+        <div class="week-icon-wrap">
+        <svg class="week-ic" viewBox="0 0 72 72" aria-hidden="true">
+          <circle cx="36" cy="21" r="16" fill="currentColor"/>
+          <path d="M11 66c1-18 12-28 25-28s24 10 25 28c-5 3-14 5-25 5s-20-2-25-5z" fill="currentColor"/>
+        </svg>
+        </div>
         <span class="week-num">02</span>
         <div class="week-day">Days 2–4 · Build &amp; tune</div>
         <h3>Make it sound human.</h3>
         <p>Voice, language and pacing tuned on real recordings until it sounds like your floor.</p>
       </div>
       <div class="week-card" data-mo="tilt-up">
+        <div class="week-icon-wrap">
+        <svg class="week-ic" viewBox="0 0 74 75" aria-hidden="true">
+          <path d="M10.8682 3.07256C12.8575 2.94899 17.0793 7.95671 18.5565 9.40546L23.7597 14.6017C24.8806 15.7175 26.064 16.8007 27.122 17.9764C27.516 18.4142 28.1191 19.0628 28.2877 19.6308C29.2828 22.9841 25.7205 24.0214 24.4812 26.4652C23.9994 27.415 24.0421 28.3635 24.3764 29.3507C25.7201 33.3181 32.7766 40.6111 36.0444 43.5542C38.2143 45.5087 41.4915 48.1802 44.0938 49.4657C47.2736 51.0364 48.7131 48.4903 50.8903 46.7097C51.6843 46.0604 52.506 45.5989 53.4745 45.2681C54.2817 45.6289 55.5482 46.4305 56.1657 47.0537C60.6141 51.5424 65.2266 55.9185 69.5603 60.5168C71.8021 62.8957 70.943 64.1988 68.928 66.285C67.6638 67.594 66.3539 68.9369 64.9882 70.1607C62.8729 72.0109 61.5943 72.9013 58.8908 73.6574C54.9317 74.8017 50.6788 74.3066 47.0886 72.2833C44.8809 71.0356 41.3563 68.4624 39.3339 66.9504C27.2776 57.7857 16.5021 47.0486 7.29425 35.0251C5.01416 32.0334 1.45565 27.1915 0.497948 23.6256C-0.535177 19.7785 -0.0646302 13.1932 2.89531 10.2413C4.74057 8.40082 8.40373 3.74359 10.8682 3.07256Z" fill="currentColor"/>
+          <path d="M43.33 0.0268396C45.8333 -0.230699 51.2318 1.42531 53.6998 2.41956C61.5194 5.56996 67.9667 11.992 71.3883 19.702C72.3668 21.9068 74.4661 28.4413 73.7991 31.0201C73.6104 31.7498 72.6513 32.3156 71.9499 32.6198C71.2623 32.6963 70.8944 32.6763 70.2652 32.314C68.5252 31.3536 68.7535 29.6808 68.4518 28.0318C68.0063 25.5955 67.1364 22.6081 66.0003 20.4188C64.298 17.1386 61.5032 13.6334 58.6295 11.2655C55.9967 9.09619 52.225 7.28015 49.0122 6.18997C46.8954 5.48294 43.4531 5.38441 41.7818 4.45046C41.4422 3.62775 41.3408 3.11304 41.2578 2.23819C41.2828 2.1751 41.3083 2.11229 41.3342 2.04958C41.7772 0.979531 42.2622 0.467792 43.33 0.0268396Z" fill="currentColor"/>
+          <path d="M41.7149 11.8996C43.5561 11.7309 45.4126 11.9203 47.182 12.4572C52.564 14.086 57.0935 17.7589 59.7992 22.6884C61.1692 25.2105 62.4446 28.7707 62.2072 31.7662C62.1387 32.629 61.3354 33.324 60.5925 33.7152C56.9205 34.4785 57.2101 30.2026 56.3946 27.8388C56.0621 26.6467 55.4808 25.5392 54.836 24.504C52.1823 20.2443 48.4961 17.7544 43.5423 17.062C41.9448 16.8387 39.8174 15.7574 40.3932 13.7946C40.6616 12.8797 40.8726 12.4157 41.7149 11.8996Z" fill="currentColor"/>
+          <path d="M41.4348 23.3062C42.8468 23.2744 44.534 23.753 45.8625 24.5256C48.5039 26.0615 51.93 30.4686 50.3685 33.6768C50.0799 34.2697 49.1034 34.9602 48.4376 35.1267C46.0624 35.0602 45.8645 32.9924 45.173 31.1906C44.5408 29.3822 42.9299 28.9041 41.2722 28.3142C38.0965 27.1841 38.3411 24.4537 41.4348 23.3062Z" fill="currentColor"/>
+        </svg>
+        </div>
         <span class="week-num">03</span>
         <div class="week-day">By Friday · First calls</div>
         <h3>It starts dialling.</h3>
         <p>The first calls go out live. You watch leads convert in the dashboard and decide when to scale.</p>
       </div>
     </div>
-    <p class="week-foot reveal">You own it after we leave — <b>no black box, no lock-in.</b></p>
+    <p class="week-foot reveal">You own it after we leave. <b>No black box, no lock-in.</b></p>
   </div>
 </section>
 
@@ -667,7 +854,7 @@ html.scrub .reveal { transition: none !important; }
           </div>
           <div class="sig-ai">
             <span class="spark">◆</span>
-            <span>Booked rate is tracking <b>5pp above</b> your last reactivation campaign. Connection rate is healthy — safe to scale the remaining list.</span>
+            <span>Booked rate is tracking <b>5pp above</b> your last reactivation campaign. Connection rate is healthy, safe to scale the remaining list.</span>
           </div>
           <div class="sig-bar" data-grow>
             <i style="width:46%;background:var(--green)"></i>
@@ -746,7 +933,7 @@ html.scrub .reveal { transition: none !important; }
         <div class="frow-text">
           <span class="overline">Noise-immune</span>
           <h3>It hears you through the chaos.</h3>
-          <p>Traffic, a crowd, a TV on in the back — it keeps listening and <b>never cuts the caller off.</b></p>
+          <p>Traffic, a crowd, a TV on in the back. It keeps listening and <b>never cuts the caller off.</b></p>
         </div>
         <div class="frow-viz">
           <div class="viz">
@@ -763,7 +950,7 @@ html.scrub .reveal { transition: none !important; }
         <div class="frow-text">
           <span class="overline">Sub-2-second</span>
           <h3>It answers like a person.</h3>
-          <p>Replies in under two seconds — no dead air, no "please wait." <b>Callers stay on the line.</b></p>
+          <p>Replies in under two seconds. No dead air, no "please wait." <b>Callers stay on the line.</b></p>
         </div>
         <div class="frow-viz">
           <div class="viz">
@@ -779,14 +966,14 @@ html.scrub .reveal { transition: none !important; }
         <div class="frow-text">
           <span class="overline">Barge-in</span>
           <h3>Interrupt it anytime.</h3>
-          <p>Talk over it or change your mind — it stops, listens, and <b>picks up naturally.</b></p>
+          <p>Talk over it or change your mind. It stops, listens, and <b>picks up naturally.</b></p>
         </div>
         <div class="frow-viz">
-          <div class="viz">
+          <div class="viz viz-type">
             <div class="viz-label"><span>Mid-sentence</span><span>caller cuts in</span></div>
-            <div class="turn bot" style="margin-bottom:11px"><span class="who">AGENT</span><span class="txt" style="opacity:.42">So you'd get priority onboard—</span></div>
+            <div class="turn bot" style="margin-bottom:11px"><span class="who">AGENT</span><span class="txt">So you'd get priority onboard...</span></div>
             <div class="turn usr" style="margin-bottom:11px"><span class="who">LEAD</span><span class="txt">Ek second, wo dobara?</span></div>
-            <div class="turn bot"><span class="who">AGENT</span><span class="txt">Of course — let me repeat that.</span></div>
+            <div class="turn bot"><span class="who">AGENT</span><span class="txt">Of course. Let me repeat that.</span></div>
           </div>
         </div>
       </div>
@@ -801,22 +988,46 @@ html.scrub .reveal { transition: none !important; }
     <div class="reveal">
       <span class="overline">Languages · speaks like a local</span>
       <h2 class="section-title">One agent. Whatever language they pick up the phone in.</h2>
-      <p class="lang-note">It detects the caller's language each turn and <span class="em">mirrors it</span> — including the Hinglish code-mix Indians actually speak. <br/>Say <span class="em">"Marathi madhe bolu?"</span> and it switches, mid-sentence, without missing a beat.</p>
+      <p class="lang-note">It detects the caller's language each turn and <span class="em">mirrors it</span>, including the Hinglish code-mix Indians actually speak. <br/>Say <span class="em">"Marathi madhe bolu?"</span> and it switches, mid-sentence, without missing a beat.</p>
     </div>
     <div class="reveal">
-      <div class="lang-chips" data-stagger="55">
-        <span class="lang-chip on" data-mo="soft-scale-in">Hindi <span class="native">हिन्दी</span></span>
-        <span class="lang-chip on" data-mo="soft-scale-in">Hinglish</span>
-        <span class="lang-chip on" data-mo="soft-scale-in">English</span>
-        <span class="lang-chip" data-mo="soft-scale-in">Marathi <span class="native">मराठी</span></span>
-        <span class="lang-chip" data-mo="soft-scale-in">Tamil <span class="native">தமிழ்</span></span>
-        <span class="lang-chip" data-mo="soft-scale-in">Telugu <span class="native">తెలుగు</span></span>
-        <span class="lang-chip" data-mo="soft-scale-in">Kannada <span class="native">ಕನ್ನಡ</span></span>
-        <span class="lang-chip" data-mo="soft-scale-in">Bengali <span class="native">বাংলা</span></span>
-        <span class="lang-chip" data-mo="soft-scale-in">Gujarati <span class="native">ગુજરાતી</span></span>
-        <span class="lang-chip" data-mo="soft-scale-in">Malayalam <span class="native">മലയാളം</span></span>
-        <span class="lang-chip" data-mo="soft-scale-in">Punjabi <span class="native">ਪੰਜਾਬੀ</span></span>
-        <span class="lang-chip" data-mo="soft-scale-in">+ more</span>
+      <div class="lang-ticker" aria-label="Supported languages">
+        <div class="lang-row">
+          <span class="lang-chip on">Hindi <span class="native">हिन्दी</span></span>
+          <span class="lang-chip on">Hinglish</span>
+          <span class="lang-chip on">English</span>
+          <span class="lang-chip">Marathi <span class="native">मराठी</span></span>
+          <span class="lang-chip">Tamil <span class="native">தமிழ்</span></span>
+          <span class="lang-chip">Telugu <span class="native">తెలుగు</span></span>
+          <span class="lang-chip">Kannada <span class="native">ಕನ್ನಡ</span></span>
+          <span class="lang-chip">Bengali <span class="native">বাংলা</span></span>
+          <span class="lang-chip on">Hindi <span class="native">हिन्दी</span></span>
+          <span class="lang-chip on">Hinglish</span>
+          <span class="lang-chip on">English</span>
+          <span class="lang-chip">Marathi <span class="native">मराठी</span></span>
+          <span class="lang-chip">Tamil <span class="native">தமிழ்</span></span>
+          <span class="lang-chip">Telugu <span class="native">తెలుగు</span></span>
+          <span class="lang-chip">Kannada <span class="native">ಕನ್ನಡ</span></span>
+          <span class="lang-chip">Bengali <span class="native">বাংলা</span></span>
+        </div>
+        <div class="lang-row">
+          <span class="lang-chip">Gujarati <span class="native">ગુજરાતી</span></span>
+          <span class="lang-chip">Malayalam <span class="native">മലയാളം</span></span>
+          <span class="lang-chip">Punjabi <span class="native">ਪੰਜਾਬੀ</span></span>
+          <span class="lang-chip">Odia <span class="native">ଓଡ଼ିଆ</span></span>
+          <span class="lang-chip">Assamese <span class="native">অসমীয়া</span></span>
+          <span class="lang-chip">Urdu <span class="native">اردو</span></span>
+          <span class="lang-chip">Konkani <span class="native">कोंकणी</span></span>
+          <span class="lang-chip">Bhojpuri <span class="native">भोजपुरी</span></span>
+          <span class="lang-chip">Gujarati <span class="native">ગુજરાતી</span></span>
+          <span class="lang-chip">Malayalam <span class="native">മലയാളം</span></span>
+          <span class="lang-chip">Punjabi <span class="native">ਪੰਜਾਬੀ</span></span>
+          <span class="lang-chip">Odia <span class="native">ଓଡ଼ିଆ</span></span>
+          <span class="lang-chip">Assamese <span class="native">অসমীয়া</span></span>
+          <span class="lang-chip">Urdu <span class="native">اردو</span></span>
+          <span class="lang-chip">Konkani <span class="native">कोंकणी</span></span>
+          <span class="lang-chip">Bhojpuri <span class="native">भोजपुरी</span></span>
+        </div>
       </div>
     </div>
   </div>
@@ -831,7 +1042,7 @@ html.scrub .reveal { transition: none !important; }
       <div class="econ-sub">AT 1 LAKH+ CALLS PER MONTH</div>
     </div>
     <div class="econ-list reveal" data-stagger="90">
-      <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>A fraction of a human calling team — and it never sleeps, never has an off day, and <b>never misses a lead.</b></div></div>
+      <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>A fraction of a human calling team. It never sleeps, never has an off day, and <b>never misses a lead.</b></div></div>
       <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>Pay for talk time, not seats. Scale from a test batch to <b>lakhs of calls a month</b> without hiring.</div></div>
       <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>Runs on your own telephony and stack. <b>No per-seat licences, no lock-in.</b></div></div>
     </div>
@@ -844,7 +1055,7 @@ html.scrub .reveal { transition: none !important; }
   <div class="wrap">
     <span class="overline" style="justify-content:center">Start here</span>
     <h2 style="margin-top:18px">Tell us who you want called.<br/><span class="em">We'll have it dialling by Friday.</span></h2>
-    <p>One conversation to scope it, one week to go live. Book a slot or message us — we'll place a test call you can listen to.</p>
+    <p>One conversation to scope it, one week to go live. Book a slot or message us, and we'll place a test call you can listen to.</p>
     <div class="cta-ctas">
       <a class="btn btn-green" href="https://calendly.com/am-agentropic/15min" target="_blank" rel="noopener">Book a demo</a>
       <a class="btn btn-ghost" href="https://wa.me/919833018465?text=Hi%2C%20I%27d%20like%20a%20Voicentropic%20voice%20AI%20demo." target="_blank" rel="noopener">
@@ -876,7 +1087,7 @@ html.scrub .reveal { transition: none !important; }
 
 <script>
 /* ============================================================
-   Voicentropic AI — interactions
+   Voicentropic AI interactions
    - animated waveform bars
    - cycling benefit-driven transcript scenes
    - live call timer
@@ -886,8 +1097,7 @@ html.scrub .reveal { transition: none !important; }
   "use strict";
 
   /* ---------- waveform bars ---------- */
-  var wave = document.getElementById("wave");
-  if (wave) {
+  function buildWave(wave) {
     var BARS = 38;
     for (var i = 0; i < BARS; i++) {
       var s = document.createElement("span");
@@ -899,6 +1109,7 @@ html.scrub .reveal { transition: none !important; }
       wave.appendChild(s);
     }
   }
+  [].slice.call(document.querySelectorAll(".wave")).forEach(buildWave);
 
   /* ---------- mini equalizers (platform visuals) ---------- */
   [].slice.call(document.querySelectorAll(".eq")).forEach(function (eq) {
@@ -916,143 +1127,192 @@ html.scrub .reveal { transition: none !important; }
     }
   });
 
-  /* ---------- cycling transcript scenes ---------- */
-  // Each scene proves a benefit through a short, human exchange.
-  // No product/route specifics — purely about how the agent behaves.
-  var scenes = [
-    {
-      tag: "Hears through the noise",
-      turns: [
-        { who: "LEAD", cls: "usr", lang: "EN", text: "Sorry — I'm on the road, it's pretty loud here." },
-        { who: "AGENT", cls: "bot", lang: "EN", text: "No problem at all, I can hear you perfectly. Shall we carry on?" }
-      ]
-    },
-    {
-      tag: "Switches language mid-call",
-      turns: [
-        { who: "LEAD", cls: "usr", lang: "MR", text: "Marathi madhe bolu shakta ka?" },
-        { who: "AGENT", cls: "bot", lang: "MR", text: "Nakkich! Aaponaapan Marathi madhech bolu. Sangaa, kashi madat karu?" }
-      ]
-    },
-    {
-      tag: "Interrupt it anytime",
-      turns: [
-        { who: "AGENT", cls: "bot", lang: "EN", text: "So you'd get priority onboarding and—" },
-        { who: "LEAD", cls: "usr", lang: "HI", text: "Ek second, wo dobara bataiye?" },
-        { who: "AGENT", cls: "bot", lang: "HI", text: "Bilkul — priority onboarding, koi setup fee nahi." }
-      ]
-    },
-    {
-      tag: "Replies in under 2 seconds",
-      turns: [
-        { who: "LEAD", cls: "usr", lang: "EN", text: "Hmm… let me think for a second." },
-        { who: "AGENT", cls: "bot", lang: "EN", text: "Take your time — I'm right here." }
-      ]
-    },
-    {
-      tag: "Talks like your best rep",
-      turns: [
-        { who: "LEAD", cls: "usr", lang: "HI", text: "Haan details WhatsApp pe bhej do." },
-        { who: "AGENT", cls: "bot", lang: "HI", text: "Done! Main abhi bhej rahi hoon. Aur kuch help karu?" }
-      ]
+  /* ---------- swipeable live call scenarios ---------- */
+  var callTrack = document.getElementById("callTrack");
+  var callDots = document.getElementById("callDots");
+  var advanceDesktopCall = null;
+  function prepareTypeTurn(turn) {
+    var txt = turn.querySelector(".txt");
+    var lang = txt ? txt.querySelector(".lang") : null;
+    if (txt) {
+      if (!txt.dataset.fullText) {
+        txt.dataset.fullText = Array.prototype.filter.call(txt.childNodes, function (node) {
+          return node.nodeType === 3;
+        }).map(function (node) { return node.textContent; }).join("").trim();
+      }
+      txt.classList.remove("is-typing");
+      txt.innerHTML = "";
+      txt.appendChild(document.createTextNode(txt.dataset.fullText));
+      if (lang) txt.appendChild(lang);
     }
-  ];
-
-  var transcriptEl = document.getElementById("transcript");
-  var tagEl = document.getElementById("sceneTag");
-  var titleCard = document.getElementById("titleCard");
-  var tcTitle = document.getElementById("tcTitle");
-  var tcDots = document.getElementById("tcDots");
-  var idx = 0;
-
-  // build progress dots
-  if (tcDots) {
-    for (var d = 0; d < scenes.length; d++) tcDots.appendChild(document.createElement("i"));
   }
 
-  function buildTurn(t, withCursor) {
-    var row = document.createElement("div");
-    row.className = "turn " + t.cls + " enter";
+  function typeBotTurn(turn, timerBucket, speed) {
+    var txt = turn.querySelector(".txt");
+    if (!txt) return;
+    var lang = txt.querySelector(".lang");
+    var fullText = txt.dataset.fullText || "";
+    var words = fullText.split(/\s+/).filter(Boolean);
+    var cursor = document.createElement("span");
+    cursor.className = "typing-cursor";
+    var typed = "";
 
-    var who = document.createElement("span");
-    who.className = "who";
-    who.textContent = t.who;
+    txt.classList.add("is-typing");
+    txt.innerHTML = "";
+    if (lang) lang.remove();
+    txt.appendChild(cursor);
 
-    var txt = document.createElement("span");
-    txt.className = "txt";
-    txt.textContent = t.text;
-
-    var lang = document.createElement("span");
-    lang.className = "lang";
-    lang.textContent = t.lang;
-    txt.appendChild(lang);
-
-    if (withCursor) {
-      var cur = document.createElement("span");
-      cur.className = "cursor";
-      txt.appendChild(cur);
-    }
-    row.appendChild(who);
-    row.appendChild(txt);
-    transcriptEl.appendChild(row);
-    // next frame: trigger entrance transition
-    requestAnimationFrame(function () { row.classList.add("in"); });
+    words.forEach(function (word, i) {
+      timerBucket.push(setTimeout(function () {
+        typed += (typed ? " " : "") + word;
+        txt.textContent = typed;
+        if (i === words.length - 1) {
+          txt.classList.remove("is-typing");
+          if (lang) txt.appendChild(lang);
+        } else {
+          txt.appendChild(cursor);
+        }
+      }, i * speed));
+    });
   }
 
-  var timers = [];
-  function clearTimers() {
-    for (var i = 0; i < timers.length; i++) clearTimeout(timers[i]);
-    timers = [];
-  }
+  if (callTrack && callDots) {
+    var callCards = [].slice.call(callTrack.querySelectorAll(".call-card"));
+    var activeCall = 0;
+    var dotEls = [];
+    var callTimers = [];
+    var desktopCalls = window.matchMedia ? window.matchMedia("(min-width: 941px)") : null;
 
-  // Sequence per scene:
-  //   A) big title card alone  ->  B) dialogue line-by-line under a compact label  ->  C) hold -> transition
-  function runScene(n) {
-    if (!transcriptEl) return;
-    clearTimers();
-    var scene = scenes[n];
-
-    // Phase A — bold title card, dialogue hidden
-    transcriptEl.innerHTML = "";
-    transcriptEl.style.opacity = "0";
-    if (tagEl) { tagEl.textContent = scene.tag; tagEl.style.opacity = "0"; }
-    if (tcTitle) tcTitle.textContent = scene.tag;
-    if (tcDots) {
-      var dots = tcDots.children;
-      for (var k = 0; k < dots.length; k++) dots[k].classList.toggle("on", k === n);
-    }
-    if (titleCard) {
-      titleCard.classList.remove("show");
-      void titleCard.offsetWidth; // restart entrance animation
-      titleCard.classList.add("show");
+    function clearCallTimers() {
+      callTimers.forEach(function (timer) { clearTimeout(timer); });
+      callTimers = [];
     }
 
-    // Phase B — dismiss title card, reveal dialogue lines one at a time
-    timers.push(setTimeout(function () {
-      if (titleCard) titleCard.classList.remove("show");
-      if (tagEl) tagEl.style.opacity = "1";
-      transcriptEl.style.opacity = "1";
-      var delay = 360;
-      scene.turns.forEach(function (t, i) {
-        var isLast = i === scene.turns.length - 1;
-        timers.push(setTimeout(function () { buildTurn(t, isLast); }, delay));
-        delay += 900;
+    function resetCard(card) {
+      var title = card.querySelector(".tc-title");
+      var transcript = card.querySelector(".transcript");
+      var turns = [].slice.call(card.querySelectorAll(".turn"));
+      if (title) title.classList.add("is-hidden");
+      if (transcript) transcript.classList.add("is-hidden");
+      turns.forEach(function (turn) {
+        turn.classList.add("is-hidden");
+        prepareTypeTurn(turn);
+      });
+    }
+
+    function animateCard(card) {
+      clearCallTimers();
+      callCards.forEach(resetCard);
+
+      var title = card.querySelector(".tc-title");
+      var transcript = card.querySelector(".transcript");
+      var turns = [].slice.call(card.querySelectorAll(".turn"));
+
+      requestAnimationFrame(function () {
+        if (title) title.classList.remove("is-hidden");
       });
 
-      // Phase C — hold, then fade out and advance
-      delay += 1900;
-      timers.push(setTimeout(function () {
-        transcriptEl.style.opacity = "0";
-        if (tagEl) tagEl.style.opacity = "0";
-        timers.push(setTimeout(function () {
-          idx = (idx + 1) % scenes.length;
-          runScene(idx);
-        }, 460));
-      }, delay));
-    }, 1700));
+      callTimers.push(setTimeout(function () {
+        if (transcript) transcript.classList.remove("is-hidden");
+        turns.forEach(function (turn, i) {
+          callTimers.push(setTimeout(function () {
+            turn.classList.remove("is-hidden");
+            if (turn.classList.contains("bot")) typeBotTurn(turn, callTimers, 170);
+          }, 260 + i * 680));
+        });
+      }, 900));
+    }
+
+    function setActiveCall(n, shouldAnimate) {
+      activeCall = n;
+      dotEls.forEach(function (dot, i) {
+        dot.classList.toggle("on", i === activeCall);
+        dot.setAttribute("aria-current", i === activeCall ? "true" : "false");
+      });
+      if (shouldAnimate !== false) animateCard(callCards[activeCall]);
+    }
+
+    function goToCall(n) {
+      var next = (n + callCards.length) % callCards.length;
+      var targetLeft = callCards[next].offsetLeft - callTrack.offsetLeft;
+      callTrack.scrollTo({ left: targetLeft, behavior: "smooth" });
+      callTrack.scrollLeft = targetLeft;
+      setActiveCall(next);
+    }
+
+    function isDesktopCallMode() {
+      return !desktopCalls || desktopCalls.matches;
+    }
+
+    callCards.forEach(function (_, i) {
+      var dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "call-dot" + (i === 0 ? " on" : "");
+      dot.setAttribute("aria-label", "Show live call scenario " + (i + 1));
+      dot.addEventListener("click", function () {
+        goToCall(i);
+      });
+      callDots.appendChild(dot);
+      dotEls.push(dot);
+    });
+
+    callTrack.addEventListener("scroll", function () {
+      var nearest = 0;
+      var best = Infinity;
+      callCards.forEach(function (card, i) {
+        var dist = Math.abs(card.offsetLeft - callTrack.offsetLeft - callTrack.scrollLeft);
+        if (dist < best) { best = dist; nearest = i; }
+      });
+      if (nearest !== activeCall) setActiveCall(nearest);
+    }, { passive: true });
+
+    callCards.forEach(resetCard);
+    setActiveCall(0);
+    advanceDesktopCall = function () {
+      if (isDesktopCallMode()) goToCall(activeCall + 1);
+    };
   }
 
-  if (transcriptEl) runScene(0);
+  /* ---------- platform mini transcript typing ---------- */
+  [].slice.call(document.querySelectorAll(".viz-type")).forEach(function (viz) {
+    var vizTimers = [];
+    var turns = [].slice.call(viz.querySelectorAll(".turn"));
+
+    function clearVizTimers() {
+      vizTimers.forEach(function (timer) { clearTimeout(timer); });
+      vizTimers = [];
+    }
+
+    function resetViz() {
+      clearVizTimers();
+      turns.forEach(function (turn) {
+        turn.classList.add("is-hidden");
+        prepareTypeTurn(turn);
+      });
+    }
+
+    function playViz() {
+      resetViz();
+      turns.forEach(function (turn, i) {
+        vizTimers.push(setTimeout(function () {
+          turn.classList.remove("is-hidden");
+          if (turn.classList.contains("bot")) typeBotTurn(turn, vizTimers, 150);
+        }, 280 + i * 620));
+      });
+    }
+
+    resetViz();
+    if ("IntersectionObserver" in window) {
+      var vizObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) playViz();
+        });
+      }, { threshold: 0.45 });
+      vizObserver.observe(viz);
+    } else {
+      playViz();
+    }
+  });
 
   /* ---------- live call timer ---------- */
   var timerEl = document.getElementById("callTimer");
@@ -1063,15 +1323,15 @@ html.scrub .reveal { transition: none !important; }
       var m = String(Math.floor(secs / 60)).padStart(2, "0");
       var s = String(secs % 60).padStart(2, "0");
       timerEl.textContent = m + ":" + s + " · outbound";
+      if (advanceDesktopCall && secs % 8 === 1) advanceDesktopCall();
     }, 1000);
   }
-
   /* ============================================================
      SCROLL-SCRUBBED MOTION
      Every reveal is bound *directly* to scroll position. Progress is a pure
      function of where the element sits in the viewport, so scrolling slowly
      plays it slowly, scrolling up rewinds it, and stopping holds the exact
-     frame. No time-based transitions — the rAF loop paints the current
+     frame. No time-based transitions. The rAF loop paints the current
      scroll offset each frame.
      ============================================================ */
   var docEl = document.documentElement;
@@ -1214,13 +1474,13 @@ html.scrub .reveal { transition: none !important; }
       var max = (docEl.scrollHeight - docEl.clientHeight) || 1;
       var atBottom = (max - scrollTop) < 4;
 
-      // page progress bar — strictly bound to scroll position
+      // page progress bar strictly bound to scroll position
       var gp = scrollTop / max; gp = gp < 0 ? 0 : gp > 1 ? 1 : gp;
       if (progressBar) progressBar.style.transform = "scaleX(" + gp.toFixed(4) + ")";
 
       for (var i = 0; i < items.length; i++) apply(items[i], vh, atBottom);
 
-      // step connector — bound to its own viewport position
+      // step connector bound to its own viewport position
       for (var j = 0; j < stepLines.length; j++) {
         var bar = stepLines[j].firstElementChild;
         if (!bar) continue;
