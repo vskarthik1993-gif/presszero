@@ -4,8 +4,8 @@
 <script>document.documentElement.className += " js";</script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Voicentropic AI — an AI receptionist on every inbound call. Live in a week.</title>
-<meta name="description" content="Replace your IVR with an AI voice receptionist that answers 24/7, sounds human, resolves the routine, and hands off to your team with full context. Built for hospitality and the Indian front desk. Live in a week." />
+<title>Voicentropic AI — the AI voice receptionist for hotels. Every call answered, live in a week.</title>
+<meta name="description" content="Voicentropic is an AI voice receptionist for the hospitality industry. It answers every hotel call 24/7, takes bookings, resolves guest questions, and hands off to your front desk warm with full context — in 10+ languages, under ₹1.5/min, live in a week." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -759,6 +759,15 @@ html.scrub .reveal { transition: none !important; }
 
 <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
+<style>
+/* hospitality rebuild · supplementary */
+.hero-meta { display:flex; flex-wrap:wrap; gap:9px; margin:0 0 30px; }
+.hero-meta span { font-family: var(--font-mono); font-size:12px; color: var(--cream-dim); border:1px solid var(--line-2); border-radius:999px; padding:7px 13px; display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
+.hero-meta span b { color: var(--green); font-weight:600; }
+.hero-meta .d { width:6px; height:6px; border-radius:50%; background: var(--green); flex:0 0 auto; box-shadow:0 0 0 0 rgba(52,224,138,0.6); animation: pulse 1.8s infinite; }
+.proof-src { font-family: var(--font-mono); font-size:11px; color: var(--cream-mute); text-align:center; letter-spacing:.03em; margin-top:22px; }
+</style>
+
 <!-- ===================== NAV ===================== -->
 <nav class="nav">
   <div class="wrap nav-inner">
@@ -767,9 +776,9 @@ html.scrub .reveal { transition: none !important; }
       <span class="brand-name">Voic<b>entropic</b> AI</span>
     </a>
     <div class="nav-links">
-      <a href="#ivr">Replace your IVR</a>
-      <a href="#week">How it works</a>
-      <a href="#hospitality">For hotels</a>
+      <a href="#problem">The problem</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#reception">See it live</a>
       <a href="#pricing">Pricing</a>
       <a class="nav-cta" href="#book">Book a demo →</a>
     </div>
@@ -781,40 +790,45 @@ html.scrub .reveal { transition: none !important; }
   <div class="hero-glow"></div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <span class="overline">Voice AI · inbound reception · built by Agentropic</span>
-      <h1 class="hero-h1">Retire the <span class="em">"press 1 for…"</span> menu. Put a receptionist on every call.</h1>
+      <span class="overline">AI voice reception · built for the hospitality industry</span>
+      <h1 class="hero-h1">Every call your front desk misses is a guest who <span class="em">books elsewhere.</span></h1>
 
-      <div class="hero-rotator" id="heroRotator" aria-label="What an AI receptionist changes on call one">
-        <span class="rot-eyebrow">From call one, your AI receptionist</span>
+      <div class="hero-rotator" id="heroRotator" aria-label="The calls a hotel front desk misses, answered">
+        <span class="rot-eyebrow">The call you'd have missed —</span>
         <div class="rot-viewport">
           <div class="rot-item on">
-            <span class="rot-idx">01 — Just talk, no menu</span>
-            <p class="rot-phrase">lets callers <span class="em">say what they need</span> and routes them right — no keypad, no dead ends.</p>
+            <span class="rot-idx">After midnight</span>
+            <p class="rot-phrase">the front desk is asleep — so it <span class="em">books the late arrival</span> before the phone rings out.</p>
           </div>
           <div class="rot-item">
-            <span class="rot-idx">02 — Handled on the call</span>
-            <p class="rot-phrase">settles the routine questions itself — <span class="em">hours, directions, availability, billing</span> — in seconds.</p>
+            <span class="rot-idx">Check-out rush</span>
+            <p class="rot-phrase">every line is busy — so it <span class="em">picks up the overflow</span> and no booking slips away.</p>
           </div>
           <div class="rot-item">
-            <span class="rot-idx">03 — Warm human handoff</span>
-            <p class="rot-phrase">hands your team the <span class="em">caller's name, intent and history</span> before they say hello.</p>
+            <span class="rot-idx">A language no one's on shift for</span>
+            <p class="rot-phrase">the guest switches tongue — so it <span class="em">replies in theirs</span> and keeps helping.</p>
           </div>
         </div>
         <div class="rot-ticks" id="rotTicks" aria-hidden="true"></div>
       </div>
 
-      <p class="hero-sub">An AI voice receptionist that picks up 24/7, sounds human, resolves what it can, and transfers the rest with full context. Live in a week.</p>
+      <p class="hero-sub">Voicentropic is an AI voice receptionist for hotels. It answers every call 24/7, takes the booking, handles the routine, and hands the guest to your team warm, with full context.</p>
+
+      <div class="hero-meta">
+        <span><span class="d"></span>Live in <b>a week</b></span>
+        <span><b>&lt;&#8377;1.5</b> / min at volume</span>
+        <span>24/7 · <b>every call answered</b></span>
+        <span><b>10+</b> languages</span>
+      </div>
+
       <div class="hero-ctas">
         <a class="btn btn-green" href="#book">Hear a live demo</a>
-        <a class="btn btn-ghost" href="https://wa.me/919833018465?text=Hi%2C%20I%27d%20like%20a%20Voicentropic%20voice%20AI%20demo." target="_blank" rel="noopener">
+        <a class="btn btn-ghost" href="https://wa.me/919833018465?text=Hi%2C%20I%27d%20like%20a%20Voicentropic%20AI%20reception%20demo%20for%20my%20hotel." target="_blank" rel="noopener">
           <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 20l1-5.5a8.5 8.5 0 0 1 8.5-12A8.38 8.38 0 0 1 21 11.5z"/></svg>
           WhatsApp us
         </a>
-        <span class="hero-note">
-</span>
       </div>
     </div>
-
     <!-- live call panel -->
     <div class="call-panel">
       <div class="call-head">
@@ -880,109 +894,86 @@ html.scrub .reveal { transition: none !important; }
   </div>
 </header>
 
-<!-- ===================== PROOF BAND ===================== -->
+<!-- ===================== PROOF · HOSPITALITY ===================== -->
 <section class="proof">
   <div class="proof-grid" data-stagger="90">
     <div class="proof-cell" data-mo="clip-up">
-      <div class="proof-v">24<span class="u">/7</span></div>
-      <div class="proof-l">picks up every call,<br/>after-hours included</div>
+      <div class="proof-v">40<span class="u">%</span></div>
+      <div class="proof-l">of hotel calls go<br/>unanswered</div>
     </div>
     <div class="proof-cell" data-mo="clip-up">
-      <div class="proof-v">0<span class="u"> menus</span></div>
-      <div class="proof-l">no "press 1 for…",<br/>no hold music</div>
+      <div class="proof-v">1<span class="u"> in 3</span></div>
+      <div class="proof-l">unanswered callers<br/>were ready to book</div>
     </div>
     <div class="proof-cell" data-mo="clip-up">
-      <div class="proof-v">&lt;2<span class="u">s</span></div>
-      <div class="proof-l">to answer &amp; reply,<br/>feels like a person</div>
+      <div class="proof-v">76<span class="u">%</span></div>
+      <div class="proof-l">who hit voicemail<br/>never call back</div>
     </div>
     <div class="proof-cell" data-mo="clip-up">
-      <div class="proof-v">10+<span class="u"> langs</span></div>
-      <div class="proof-l">Hindi, Hinglish &<br/>Indic, code-mixed</div>
+      <div class="proof-v">31<span class="u">%</span></div>
+      <div class="proof-l">of enquiries arrive<br/>after hours</div>
     </div>
   </div>
+  <div class="wrap"><p class="proof-src">Canary Technologies &amp; hospitality phone-call benchmarks, 2026</p></div>
 </section>
 
-<!-- ===================== REPLACE YOUR IVR ===================== -->
-<section class="block" id="ivr">
+<!-- ===================== THE PROBLEM ===================== -->
+<section class="block hosp" id="problem">
   <div class="wrap">
-    <div class="block-head reveal">
-      <span class="overline">Replace your IVR · inbound</span>
-      <h2 class="section-title" data-mo="line">The keypad menu was never the point. The caller was.</h2>
-      <p class="section-lead">"Press 1 for sales, press 2 for…" makes every caller do the routing. An AI receptionist flips it: the caller just talks, and the agent figures out where it goes — answering what it can and handing the rest to a human, warm.</p>
-    </div>
-
-    <div class="ivr-compare">
-      <div class="ivr-col ivr-old">
-        <span class="ivr-tag"><span class="pulse"></span>Yesterday · the IVR menu</span>
-        <h3 class="ivr-h">"Please listen carefully as our options have changed."</h3>
-        <div class="menu-line"><span class="menu-key">1</span><span>for new reservations</span></div>
-        <div class="menu-line"><span class="menu-key">2</span><span>for an existing booking</span></div>
-        <div class="menu-line"><span class="menu-key">3</span><span>for the front desk</span></div>
-        <div class="menu-line"><span class="menu-key">9</span><span>to hear this menu again</span></div>
-        <div class="menu-line"><span class="menu-key">0</span><span>for an operator… (please hold)</span></div>
-        <div class="menu-foot">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5M12 16h.01"/></svg>
-          Wrong department, dead air, and the caller hangs up.
-        </div>
+    <div class="hosp-hero">
+      <div class="block-head reveal" style="max-width:none">
+        <span class="overline">The hospitality phone problem</span>
+        <h2 class="section-title" data-mo="line">In a hotel, the phone is where your highest-value guest still shows up.</h2>
+        <p class="section-lead">The group booking, the suite upgrade, the late arrival, the change of plan — they call. And they call exactly when the front desk is slammed, short-staffed, or asleep. Miss it and they don't leave a message; they book the property next door, or an OTA takes its cut.</p>
       </div>
-
-      <div class="ivr-col ivr-new">
-        <span class="ivr-tag"><span class="pulse"></span>Today · the AI receptionist</span>
-        <h3 class="ivr-h">"Hello — how can I help you today?"</h3>
-        <div class="ivr-conv">
-          <div class="turn usr"><span class="who">CALLER</span><span class="txt">Hi, I want to book a room for two nights, and is the pool open?</span></div>
-          <div class="turn bot"><span class="who">RECEPTION</span><span class="txt">Happy to help with both. The pool's open 6 AM–8 PM — let me check rooms for your dates.</span></div>
-          <div class="turn usr"><span class="who">CALLER</span><span class="txt">And can I talk to someone about a corporate rate?</span></div>
-          <div class="turn bot"><span class="who">RECEPTION</span><span class="txt">Putting you through to reservations now — they'll already have your dates.</span></div>
-        </div>
-        <div class="ivr-win">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
-          Answered in one ring. Routed right, first time.
-        </div>
+      <div class="hosp-cred reveal">
+        <div class="cred-row"><span class="tick">&#9670;</span><div><b>65% of hotels</b> report staffing shortages, and the front desk is among the hardest roles to fill — this answers every call without a roster.</div></div>
+        <div class="cred-row"><span class="tick">&#9670;</span><div>A guest who phones is <b>3&#215; likelier to book</b> than a web visitor, at a <b>~23% higher room rate</b> than OTA channels.</div></div>
+        <div class="cred-row"><span class="tick">&#9670;</span><div><b>58% of travellers</b> still prefer to call for anything complex — and one missed call can become a one-star review.</div></div>
       </div>
     </div>
-
-    <div class="ivr-caps" data-stagger="80">
-      <div class="cap" data-mo="fade-up">
-        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 20l1-5.5a8.5 8.5 0 0 1 8.5-12A8.38 8.38 0 0 1 21 11.5z"/></svg></span>
-        <h4>Just talk — no keypad</h4>
-        <p>Callers describe what they need in their own words. The agent <b>understands intent and routes correctly</b>, every time.</p>
+    <div class="stat-grid" data-stagger="80">
+      <div class="stat" data-mo="fade-up">
+        <div class="stat-v">40<span class="u">%</span></div>
+        <div class="stat-l">of calls to hotels <b>go unanswered</b> — and up to 62% at properties without a dedicated reservations desk.</div>
+        <div class="stat-src">Canary Technologies · hotel call benchmarks</div>
       </div>
-      <div class="cap" data-mo="fade-up">
-        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
-        <h4>Verified before a human</h4>
-        <p>It confirms identity and account details up front, so by the time your team picks up, <b>the caller is already authenticated</b>.</p>
+      <div class="stat" data-mo="fade-up">
+        <div class="stat-v">1<span class="u"> in 3</span></div>
+        <div class="stat-l">of those unanswered callers <b>was ready to book</b> on that exact call.</div>
+        <div class="stat-src">Hospitality phone statistics, 2026</div>
       </div>
-      <div class="cap" data-mo="fade-up">
-        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 1.9 4.6L19 9l-3.6 3 1 5L12 14.5 7.6 17l1-5L5 9l5.1-1.4L12 3Z"/></svg></span>
-        <h4>Resolves the routine</h4>
-        <p>Hours, directions, availability, balance, booking status — the <b>everyday questions get handled on the call</b>, not queued.</p>
+      <div class="stat" data-mo="fade-up">
+        <div class="stat-v">76<span class="u">%</span></div>
+        <div class="stat-l">of callers who reach voicemail <b>never call back</b> — they book somewhere else.</div>
+        <div class="stat-src">Hospitality phone statistics, 2026</div>
       </div>
-      <div class="cap" data-mo="fade-up">
-        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></span>
-        <h4>Change it in minutes</h4>
-        <p>New routing rule, new department, a tweaked script — <b>edit it yourself in minutes</b>, not a two-week telco change request.</p>
+      <div class="stat" data-mo="fade-up">
+        <div class="stat-v">15–25<span class="u">%</span></div>
+        <div class="stat-l">the <b>OTA commission</b> on the booking you'd have kept direct, if only the phone had been answered.</div>
+        <div class="stat-src">OTA commission rates, India</div>
       </div>
-      <div class="cap" data-mo="fade-up">
-        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg></span>
-        <h4>Hands off, warm</h4>
-        <p>When a human is needed, the transfer carries <b>who's calling, why, and everything already said</b> — no "start over."</p>
+      <div class="stat" data-mo="fade-up">
+        <div class="stat-v">31<span class="u">%</span></div>
+        <div class="stat-l">of reservation enquiries arrive <b>after hours</b>, exactly when the desk is thinnest.</div>
+        <div class="stat-src">Hospitality phone statistics, 2026</div>
       </div>
-      <div class="cap" data-mo="fade-up">
-        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
-        <h4>Every call, in the open</h4>
-        <p>Each conversation is transcribed, tagged and searchable — <b>so you finally see what callers actually ask for</b>.</p>
+      <div class="stat" data-mo="fade-up">
+        <div class="stat-v">47<span class="u">%</span></div>
+        <div class="stat-l">of callers <b>abandon</b> once a hold passes two minutes — a lost booking and a sour first impression.</div>
+        <div class="stat-src">Hospitality phone statistics, 2026</div>
       </div>
     </div>
+
+    <p class="week-foot reveal" style="margin-top:34px">Every one of these is revenue that called you first. <b>Voicentropic answers all of it.</b></p>
   </div>
 </section>
-
 <!-- ===================== THE WEEK ===================== -->
 <section class="block" id="week">
   <div class="wrap">
     <div class="block-head reveal">
-      <span class="overline">How it works · live in a week</span>
-      <h2 class="section-title" data-mo="line">A receptionist answering your calls, live in a week.</h2>
+      <span class="overline">Go live in a week · no IT project</span>
+      <h2 class="section-title" data-mo="line">A receptionist answering your hotel's calls, live in a week.</h2>
       <p class="section-lead">No integration project. We build it on your real call flows, your FAQs and your systems — and it's answering live inbound calls before the week is out.</p>
     </div>
     <div class="step-line" data-step-progress="week"><span></span></div>
@@ -1031,12 +1022,196 @@ html.scrub .reveal { transition: none !important; }
     <p class="week-foot reveal">You own it after we leave. <b>No black box, no lock-in.</b></p>
   </div>
 </section>
+<!-- ===================== REPLACE YOUR IVR ===================== -->
+<section class="block" id="capabilities">
+  <div class="wrap">
+    <div class="block-head reveal">
+      <span class="overline">Capabilities · what your front desk gets</span>
+      <h2 class="section-title" data-mo="line">The phone tree was never the point. The guest was.</h2>
+      <p class="section-lead">"Press 1 for reservations, press 2 for…" makes every guest do the routing. An AI receptionist flips it: the guest just talks, and reception figures out where it goes — answering what it can and handing the rest to your team, warm.</p>
+    </div>
 
+    <div class="ivr-compare">
+      <div class="ivr-col ivr-old">
+        <span class="ivr-tag"><span class="pulse"></span>Yesterday · the IVR menu</span>
+        <h3 class="ivr-h">"Please listen carefully as our options have changed."</h3>
+        <div class="menu-line"><span class="menu-key">1</span><span>for new reservations</span></div>
+        <div class="menu-line"><span class="menu-key">2</span><span>for an existing booking</span></div>
+        <div class="menu-line"><span class="menu-key">3</span><span>for the front desk</span></div>
+        <div class="menu-line"><span class="menu-key">9</span><span>to hear this menu again</span></div>
+        <div class="menu-line"><span class="menu-key">0</span><span>for an operator… (please hold)</span></div>
+        <div class="menu-foot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5M12 16h.01"/></svg>
+          Wrong department, dead air, and the caller hangs up.
+        </div>
+      </div>
+
+      <div class="ivr-col ivr-new">
+        <span class="ivr-tag"><span class="pulse"></span>Today · the AI receptionist</span>
+        <h3 class="ivr-h">"Hello — how can I help you today?"</h3>
+        <div class="ivr-conv">
+          <div class="turn usr"><span class="who">CALLER</span><span class="txt">Hi, I want to book a room for two nights, and is the pool open?</span></div>
+          <div class="turn bot"><span class="who">RECEPTION</span><span class="txt">Happy to help with both. The pool's open 6 AM–8 PM — let me check rooms for your dates.</span></div>
+          <div class="turn usr"><span class="who">CALLER</span><span class="txt">And can I talk to someone about a corporate rate?</span></div>
+          <div class="turn bot"><span class="who">RECEPTION</span><span class="txt">Putting you through to reservations now — they'll already have your dates.</span></div>
+        </div>
+        <div class="ivr-win">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
+          Answered in one ring. Routed right, first time.
+        </div>
+      </div>
+    </div>
+
+    <div class="ivr-caps" data-stagger="80">
+      <div class="cap" data-mo="fade-up">
+        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 20l1-5.5a8.5 8.5 0 0 1 8.5-12A8.38 8.38 0 0 1 21 11.5z"/></svg></span>
+        <h4>Takes the booking</h4>
+        <p>Checks availability, quotes rooms and rates, and captures the booking — or <b>holds the room while it transfers</b>.</p>
+      </div>
+      <div class="cap" data-mo="fade-up">
+        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <h4>Verifies the guest</h4>
+        <p>Confirms the name, dates and mobile on file <b>before it pulls up or changes a reservation</b> — every time.</p>
+      </div>
+      <div class="cap" data-mo="fade-up">
+        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 1.9 4.6L19 9l-3.6 3 1 5L12 14.5 7.6 17l1-5L5 9l5.1-1.4L12 3Z"/></svg></span>
+        <h4>Answers the everyday</h4>
+        <p>Hours, directions, parking, pool timings, Wi-Fi, check-in — the <b>guest FAQs handled on the call</b>, not queued.</p>
+      </div>
+      <div class="cap" data-mo="fade-up">
+        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></span>
+        <h4>Never goes to voicemail</h4>
+        <p>Nights, weekends, and the third call ringing at once — <b>after-hours and overflow, all picked up</b>, not lost.</p>
+      </div>
+      <div class="cap" data-mo="fade-up">
+        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg></span>
+        <h4>Routes to the right desk</h4>
+        <p>Reservations, concierge, F&amp;B or housekeeping — to a human only when one's truly needed, carrying <b>the whole conversation</b>.</p>
+      </div>
+      <div class="cap" data-mo="fade-up">
+        <span class="cap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+        <h4>Every call, in the open</h4>
+        <p>Transcribed, tagged and searchable — <b>so you see what guests ask for</b> and where your bookings come from.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ===================== USP / PLATFORM ===================== -->
+<section class="block" id="platform">
+  <div class="wrap">
+    <div class="block-head reveal">
+      <span class="overline">Naturally human · why guests stay on the line</span>
+      <h2 class="section-title">Built to hold a real conversation.</h2>
+    </div>
+    <div class="feature-rows">
+
+      <div class="frow" data-mo="blur-up">
+        <div class="frow-text">
+          <span class="overline">Noise-immune</span>
+          <h3>It hears you through the chaos.</h3>
+          <p>A busy lobby, a wedding next door, traffic on a mobile. It keeps listening and <b>never cuts the guest off.</b></p>
+        </div>
+        <div class="frow-viz">
+          <div class="viz">
+            <div class="viz-label"><span>Guest's surroundings</span><span style="color:var(--d-coral)">● noisy</span></div>
+            <div class="eq eq-noise" data-bars="30"></div>
+            <div class="viz-divider"></div>
+            <div class="viz-label"><span>What the agent hears</span><span style="color:var(--green)">✓ you, clearly</span></div>
+            <div class="eq eq-clean" data-bars="30"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frow flip" data-mo="blur-up">
+        <div class="frow-text">
+          <span class="overline">Sub-2-second</span>
+          <h3>It answers like a person.</h3>
+          <p>Replies in under two seconds. No dead air, no "please wait." <b>Guests stay on the line.</b></p>
+        </div>
+        <div class="frow-viz">
+          <div class="viz">
+            <div class="viz-label"><span>Avg response time</span><span style="color:var(--green)">● live</span></div>
+            <div class="lat-big">1.4<span>s</span></div>
+            <div class="lat-bar"><i data-grow style="width:35%"></i></div>
+            <div class="lat-scale"><span>0s</span><span>human pace</span><span>typical bot · 4s</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="frow" data-mo="blur-up">
+        <div class="frow-text">
+          <span class="overline">Barge-in</span>
+          <h3>Interrupt it anytime.</h3>
+          <p>Talk over it or change your mind. It stops, listens, and <b>picks up naturally.</b></p>
+        </div>
+        <div class="frow-viz">
+          <div class="viz viz-type">
+            <div class="viz-label"><span>Mid-sentence</span><span>guest cuts in</span></div>
+            <div class="turn bot" style="margin-bottom:11px"><span class="who">RECEPTION</span><span class="txt">That room comes with breakfast and...</span></div>
+            <div class="turn usr" style="margin-bottom:11px"><span class="who">GUEST</span><span class="txt">Ek second, wo dobara?</span></div>
+            <div class="turn bot"><span class="who">RECEPTION</span><span class="txt">Of course. Let me repeat that.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<!-- ===================== LANGUAGES ===================== -->
+<section class="block" id="languages">
+  <div class="wrap lang-wrap">
+    <div class="reveal">
+      <span class="overline">Languages · greet every guest in theirs</span>
+      <h2 class="section-title">One receptionist. Whatever language the guest calls in.</h2>
+      <p class="lang-note">It detects the guest's language each turn and <span class="em">mirrors it</span>, including the Hinglish code-mix Indians actually speak — so a guest from anywhere feels at home. <br/>Say <span class="em">"Marathi madhe bolu?"</span> and it switches, mid-sentence, without missing a beat.</p>
+    </div>
+    <div class="reveal">
+      <div class="lang-ticker" aria-label="Supported languages">
+        <div class="lang-row">
+          <span class="lang-chip on">Hindi <span class="native">हिन्दी</span></span>
+          <span class="lang-chip on">Hinglish</span>
+          <span class="lang-chip on">English</span>
+          <span class="lang-chip">Marathi <span class="native">मराठी</span></span>
+          <span class="lang-chip">Tamil <span class="native">தமிழ்</span></span>
+          <span class="lang-chip">Telugu <span class="native">తెలుగు</span></span>
+          <span class="lang-chip">Kannada <span class="native">ಕನ್ನಡ</span></span>
+          <span class="lang-chip">Bengali <span class="native">বাংলা</span></span>
+          <span class="lang-chip on">Hindi <span class="native">हिन्दी</span></span>
+          <span class="lang-chip on">Hinglish</span>
+          <span class="lang-chip on">English</span>
+          <span class="lang-chip">Marathi <span class="native">मराठी</span></span>
+          <span class="lang-chip">Tamil <span class="native">தமிழ்</span></span>
+          <span class="lang-chip">Telugu <span class="native">తెలుగు</span></span>
+          <span class="lang-chip">Kannada <span class="native">ಕನ್ನಡ</span></span>
+          <span class="lang-chip">Bengali <span class="native">বাংলা</span></span>
+        </div>
+        <div class="lang-row">
+          <span class="lang-chip">Gujarati <span class="native">ગુજરાતી</span></span>
+          <span class="lang-chip">Malayalam <span class="native">മലയാളം</span></span>
+          <span class="lang-chip">Punjabi <span class="native">ਪੰਜਾਬੀ</span></span>
+          <span class="lang-chip">Odia <span class="native">ଓଡ଼ିଆ</span></span>
+          <span class="lang-chip">Assamese <span class="native">অসমীয়া</span></span>
+          <span class="lang-chip">Urdu <span class="native">اردو</span></span>
+          <span class="lang-chip">Konkani <span class="native">कोंकणी</span></span>
+          <span class="lang-chip">Bhojpuri <span class="native">भोजपुरी</span></span>
+          <span class="lang-chip">Gujarati <span class="native">ગુજરાતી</span></span>
+          <span class="lang-chip">Malayalam <span class="native">മലയാളം</span></span>
+          <span class="lang-chip">Punjabi <span class="native">ਪੰਜਾਬੀ</span></span>
+          <span class="lang-chip">Odia <span class="native">ଓଡ଼ିଆ</span></span>
+          <span class="lang-chip">Assamese <span class="native">অসমীয়া</span></span>
+          <span class="lang-chip">Urdu <span class="native">اردو</span></span>
+          <span class="lang-chip">Konkani <span class="native">कोंकणी</span></span>
+          <span class="lang-chip">Bhojpuri <span class="native">भोजपुरी</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <!-- ===================== DASHBOARD SNAPSHOTS ===================== -->
 <section class="block" id="dashboard">
   <div class="wrap">
     <div class="block-head reveal">
-      <span class="overline">The dashboard · you stay in control</span>
+      <span class="overline">The front-desk dashboard · you stay in control</span>
       <h2 class="section-title">Every call answered, every conversation in front of you.</h2>
       <p class="section-lead">The agent answers the phones. You see what callers ask for, how much it resolved on the call, and exactly where it handed off to your team — and you tune any of it.</p>
     </div>
@@ -1133,133 +1308,20 @@ html.scrub .reveal { transition: none !important; }
     </div>
   </div>
 </section>
-
-<!-- ===================== USP / PLATFORM ===================== -->
-<section class="block" id="platform">
+<!-- ===================== AI RECEPTION · LIVE DEMO ===================== -->
+<section class="block hosp" id="reception">
   <div class="wrap">
     <div class="block-head reveal">
-      <span class="overline">The platform · why callers stay on the line</span>
-      <h2 class="section-title">Built to hold a real conversation.</h2>
-    </div>
-    <div class="feature-rows">
-
-      <div class="frow" data-mo="blur-up">
-        <div class="frow-text">
-          <span class="overline">Noise-immune</span>
-          <h3>It hears you through the chaos.</h3>
-          <p>Traffic, a crowd, a TV on in the back. It keeps listening and <b>never cuts the caller off.</b></p>
-        </div>
-        <div class="frow-viz">
-          <div class="viz">
-            <div class="viz-label"><span>Caller environment</span><span style="color:var(--d-coral)">● noisy</span></div>
-            <div class="eq eq-noise" data-bars="30"></div>
-            <div class="viz-divider"></div>
-            <div class="viz-label"><span>What the agent hears</span><span style="color:var(--green)">✓ you, clearly</span></div>
-            <div class="eq eq-clean" data-bars="30"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="frow flip" data-mo="blur-up">
-        <div class="frow-text">
-          <span class="overline">Sub-2-second</span>
-          <h3>It answers like a person.</h3>
-          <p>Replies in under two seconds. No dead air, no "please wait." <b>Callers stay on the line.</b></p>
-        </div>
-        <div class="frow-viz">
-          <div class="viz">
-            <div class="viz-label"><span>Avg response time</span><span style="color:var(--green)">● live</span></div>
-            <div class="lat-big">1.4<span>s</span></div>
-            <div class="lat-bar"><i data-grow style="width:35%"></i></div>
-            <div class="lat-scale"><span>0s</span><span>human pace</span><span>typical bot · 4s</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="frow" data-mo="blur-up">
-        <div class="frow-text">
-          <span class="overline">Barge-in</span>
-          <h3>Interrupt it anytime.</h3>
-          <p>Talk over it or change your mind. It stops, listens, and <b>picks up naturally.</b></p>
-        </div>
-        <div class="frow-viz">
-          <div class="viz viz-type">
-            <div class="viz-label"><span>Mid-sentence</span><span>caller cuts in</span></div>
-            <div class="turn bot" style="margin-bottom:11px"><span class="who">RECEPTION</span><span class="txt">That room comes with breakfast and...</span></div>
-            <div class="turn usr" style="margin-bottom:11px"><span class="who">CALLER</span><span class="txt">Ek second, wo dobara?</span></div>
-            <div class="turn bot"><span class="who">RECEPTION</span><span class="txt">Of course. Let me repeat that.</span></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ===================== HOSPITALITY · AI HOTEL RECEPTION ===================== -->
-<section class="block hosp" id="hospitality">
-  <div class="wrap">
-    <div class="hosp-hero">
-      <div class="block-head reveal" style="max-width:none">
-        <span class="overline">For hotels · the front desk that never sleeps</span>
-        <h2 class="section-title" data-mo="line">We know the hotel phone. It rings at 2 AM, in five languages, mid-checkout.</h2>
-        <p class="section-lead">In hospitality the phone is still where the high-value, high-intent guest shows up — the group booking, the special request, the change of plan. Miss it, and they don't leave a message. They book the property next door, or an OTA takes its cut.</p>
-      </div>
-      <div class="hosp-cred reveal">
-        <div class="cred-row"><span class="tick">◆</span><div>Direct phone bookings carry <b>~23% higher room rates</b> than OTA channels — and every call you answer is commission you keep.</div></div>
-        <div class="cred-row"><span class="tick">◆</span><div>A guest who phones is <b>3× likelier to book</b> than a website visitor — they're ready to spend.</div></div>
-        <div class="cred-row"><span class="tick">◆</span><div><b>58% of travellers</b> still prefer to call for anything complex — suites, group stays, late arrivals.</div></div>
-      </div>
+      <span class="overline">AI reception · the whole point</span>
+      <h2 class="section-title" data-mo="line">It handles the routine, then hands the guest over warm — never cold.</h2>
+      <p class="section-lead">An AI receptionist doesn't replace your front desk — it protects your team's time for the moments that need a human. When it transfers, your agent picks up already knowing who's calling and what they want, so the first words are "Good evening Mr Mehta, about your suite for Friday&#8230;", not "Sorry, can you repeat that?"</p>
     </div>
 
-    <!-- the missed-call crisis -->
-    <div class="stat-grid" data-stagger="80">
-      <div class="stat" data-mo="fade-up">
-        <div class="stat-v">40<span class="u">%</span></div>
-        <div class="stat-l">of calls to hotels <b>go unanswered</b> — and up to 62% at properties without a dedicated reservations desk.</div>
-        <div class="stat-src">Canary Technologies · hotel call benchmarks</div>
-      </div>
-      <div class="stat" data-mo="fade-up">
-        <div class="stat-v">1<span class="u"> in 3</span></div>
-        <div class="stat-l">of those unanswered callers <b>was ready to book</b> on that exact call.</div>
-        <div class="stat-src">Hospitality phone statistics, 2026</div>
-      </div>
-      <div class="stat" data-mo="fade-up">
-        <div class="stat-v">76<span class="u">%</span></div>
-        <div class="stat-l">of callers who reach voicemail <b>never call back</b> — they book somewhere else.</div>
-        <div class="stat-src">Hospitality phone statistics, 2026</div>
-      </div>
-      <div class="stat" data-mo="fade-up">
-        <div class="stat-v">15–25<span class="u">%</span></div>
-        <div class="stat-l">the <b>OTA commission</b> on the booking you'd have kept direct, if only the phone had been answered.</div>
-        <div class="stat-src">OTA commission rates, India</div>
-      </div>
-      <div class="stat" data-mo="fade-up">
-        <div class="stat-v">31<span class="u">%</span></div>
-        <div class="stat-l">of reservation enquiries arrive <b>after hours</b>, exactly when the desk is thinnest.</div>
-        <div class="stat-src">Hospitality phone statistics, 2026</div>
-      </div>
-      <div class="stat" data-mo="fade-up">
-        <div class="stat-v">47<span class="u">%</span></div>
-        <div class="stat-l">of callers <b>abandon</b> once a hold passes two minutes — a lost booking and a sour first impression.</div>
-        <div class="stat-src">Hospitality phone statistics, 2026</div>
-      </div>
-    </div>
-
-    <!-- the handover is the whole game -->
-    <div class="block-head reveal" style="margin-top:clamp(64px,8vw,96px)">
-      <span class="overline">Delight is in the handover</span>
-      <h2 class="section-title" data-mo="line">It does the routine, then hands the guest over warm — never cold.</h2>
-      <p class="section-lead">An AI receptionist isn't there to replace your front desk. It's there to answer instantly, settle the everyday questions, and protect your team's time for the moments that need a human. When it does pass a guest over, your agent picks up already knowing who's calling, what they want, and what's been said — so the first words are "Good evening Mr Mehta, about your suite for Friday…", not "Sorry, can you repeat all that?"</p>
-    </div>
-
-    <!-- tailored Leela demo -->
     <div class="block-head reveal" style="margin-top:clamp(48px,6vw,72px)">
       <span class="overline">Tailored demo · The Leela Mumbai</span>
-      <h2 class="section-title" data-mo="line">Briefed on The Leela Mumbai — its rooms, its Royal Club, five minutes from the airport.</h2>
-      <p class="section-lead">The same receptionist, given The Leela Mumbai's real catalogue: room categories, the Royal Club lounge, Citrus dining, airport sedans. A late-night caller becomes a confirmed, verified, fully-briefed handoff to Reservations.</p>
+      <h2 class="section-title" data-mo="line">Briefed on a real property — its rooms, its Royal Club, five minutes from the airport.</h2>
+      <p class="section-lead">The same receptionist, given The Leela Mumbai's catalogue: room categories, the Royal Club lounge, Citrus dining, airport sedans. A late-night caller becomes a confirmed, verified, fully-briefed handoff to Reservations.</p>
     </div>
-
     <div class="leela reveal">
       <!-- live call -->
       <div class="leela-call">
@@ -1334,86 +1396,19 @@ html.scrub .reveal { transition: none !important; }
   </div>
 </section>
 
-<!-- ===================== OUTBOUND (SECONDARY) ===================== -->
-<section class="block" id="outbound">
-  <div class="wrap also">
-    <div class="reveal">
-      <span class="also-badge">Also available · outbound</span>
-      <h2 class="section-title" data-mo="line" style="margin-top:22px">The same voice can pick up the phone — or pick it up <span class="em">for you.</span></h2>
-      <p class="section-lead">Inbound reception is where we start. When you're ready, the same agent runs outbound too — on your numbers, your stack, your terms.</p>
-    </div>
-    <div class="also-chips reveal" data-stagger="80">
-      <div class="also-chip" data-mo="fade-up"><h4>Win-back &amp; reactivation</h4><p>Reach guests who lapsed and bring them back with an offer that lands.</p></div>
-      <div class="also-chip" data-mo="fade-up"><h4>Booking follow-ups</h4><p>Confirm, remind, upsell add-ons, and recover the abandoned enquiry.</p></div>
-      <div class="also-chip" data-mo="fade-up"><h4>Feedback &amp; reviews</h4><p>Call post-stay, capture how it went, and nudge a happy guest to review.</p></div>
-      <div class="also-chip" data-mo="fade-up"><h4>Lead qualification</h4><p>Dial new enquiries, qualify intent, and book the meeting — for any business.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- ===================== LANGUAGES ===================== -->
-<section class="block" id="languages">
-  <div class="wrap lang-wrap">
-    <div class="reveal">
-      <span class="overline">Languages · speaks like a local</span>
-      <h2 class="section-title">One agent. Whatever language they pick up the phone in.</h2>
-      <p class="lang-note">It detects the caller's language each turn and <span class="em">mirrors it</span>, including the Hinglish code-mix Indians actually speak. <br/>Say <span class="em">"Marathi madhe bolu?"</span> and it switches, mid-sentence, without missing a beat.</p>
-    </div>
-    <div class="reveal">
-      <div class="lang-ticker" aria-label="Supported languages">
-        <div class="lang-row">
-          <span class="lang-chip on">Hindi <span class="native">हिन्दी</span></span>
-          <span class="lang-chip on">Hinglish</span>
-          <span class="lang-chip on">English</span>
-          <span class="lang-chip">Marathi <span class="native">मराठी</span></span>
-          <span class="lang-chip">Tamil <span class="native">தமிழ்</span></span>
-          <span class="lang-chip">Telugu <span class="native">తెలుగు</span></span>
-          <span class="lang-chip">Kannada <span class="native">ಕನ್ನಡ</span></span>
-          <span class="lang-chip">Bengali <span class="native">বাংলা</span></span>
-          <span class="lang-chip on">Hindi <span class="native">हिन्दी</span></span>
-          <span class="lang-chip on">Hinglish</span>
-          <span class="lang-chip on">English</span>
-          <span class="lang-chip">Marathi <span class="native">मराठी</span></span>
-          <span class="lang-chip">Tamil <span class="native">தமிழ்</span></span>
-          <span class="lang-chip">Telugu <span class="native">తెలుగు</span></span>
-          <span class="lang-chip">Kannada <span class="native">ಕನ್ನಡ</span></span>
-          <span class="lang-chip">Bengali <span class="native">বাংলা</span></span>
-        </div>
-        <div class="lang-row">
-          <span class="lang-chip">Gujarati <span class="native">ગુજરાતી</span></span>
-          <span class="lang-chip">Malayalam <span class="native">മലയാളം</span></span>
-          <span class="lang-chip">Punjabi <span class="native">ਪੰਜਾਬੀ</span></span>
-          <span class="lang-chip">Odia <span class="native">ଓଡ଼ିଆ</span></span>
-          <span class="lang-chip">Assamese <span class="native">অসমীয়া</span></span>
-          <span class="lang-chip">Urdu <span class="native">اردو</span></span>
-          <span class="lang-chip">Konkani <span class="native">कोंकणी</span></span>
-          <span class="lang-chip">Bhojpuri <span class="native">भोजपुरी</span></span>
-          <span class="lang-chip">Gujarati <span class="native">ગુજરાતી</span></span>
-          <span class="lang-chip">Malayalam <span class="native">മലയാളം</span></span>
-          <span class="lang-chip">Punjabi <span class="native">ਪੰਜਾਬੀ</span></span>
-          <span class="lang-chip">Odia <span class="native">ଓଡ଼ିଆ</span></span>
-          <span class="lang-chip">Assamese <span class="native">অসমীয়া</span></span>
-          <span class="lang-chip">Urdu <span class="native">اردو</span></span>
-          <span class="lang-chip">Konkani <span class="native">कोंकणी</span></span>
-          <span class="lang-chip">Bhojpuri <span class="native">भोजपुरी</span></span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ===================== PRICING / ECONOMICS ===================== -->
 <section class="block" id="pricing">
   <div class="wrap econ">
     <div class="reveal">
       <span class="overline">The economics</span>
-      <div class="econ-big">&lt;₹1.5<span class="u">/min</span></div>
+      <div class="econ-big">&lt;&#8377;1.5<span class="u">/min</span></div>
       <div class="econ-sub">PER MINUTE OF TALK TIME, AT VOLUME</div>
     </div>
     <div class="econ-list reveal" data-stagger="90">
-      <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>A fraction of a 24/7 front-desk team. It never sleeps, never has an off day, and <b>never lets a call ring out.</b></div></div>
-      <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>Pay for talk time, not headcount. Cover nights, weekends and <b>festival-season spikes</b> without rostering anyone.</div></div>
-      <div class="econ-item" data-mo="slide-r"><span class="tick">✓</span><div>Runs on your own telephony and stack. <b>No per-seat licences, no lock-in.</b></div></div>
+      <div class="econ-item" data-mo="slide-r"><span class="tick">&#10003;</span><div>A fraction of a 24/7 front-desk team. It never sleeps, never calls in sick, and <b>never lets a call ring out.</b></div></div>
+      <div class="econ-item" data-mo="slide-r"><span class="tick">&#10003;</span><div>Every direct call it answers is a booking you keep — <b>no 15&#8211;25% OTA commission</b> on the ones you'd have missed.</div></div>
+      <div class="econ-item" data-mo="slide-r"><span class="tick">&#10003;</span><div>Pay for talk time, not headcount. Cover nights, weekends and <b>festival-season spikes</b> without rostering anyone.</div></div>
+      <div class="econ-item" data-mo="slide-r"><span class="tick">&#10003;</span><div>Runs on your telephony and PMS. The same agent can also run <b>outbound win-backs and review requests</b> when you're ready.</div></div>
     </div>
   </div>
 </section>
@@ -1423,11 +1418,11 @@ html.scrub .reveal { transition: none !important; }
   <div class="cta-glow"></div>
   <div class="wrap">
     <span class="overline" style="justify-content:center">Start here</span>
-    <h2 style="margin-top:18px">Put a real receptionist on every call.<br/><span class="em">Live in a week.</span></h2>
-    <p>One conversation to scope it, one week to go live. Book a slot or message us — and we'll stand up a number you can call yourself and hear it answer.</p>
+    <h2 style="margin-top:18px">Put a receptionist on every call.<br/><span class="em">Live for your hotel in a week.</span></h2>
+    <p>One conversation to scope it, one week to go live. Book a slot or message us — and we'll stand up a number you can call yourself and hear it answer as your front desk.</p>
     <div class="cta-ctas">
       <a class="btn btn-green" href="https://calendly.com/am-agentropic/15min" target="_blank" rel="noopener">Book a demo</a>
-      <a class="btn btn-ghost" href="https://wa.me/919833018465?text=Hi%2C%20I%27d%20like%20a%20Voicentropic%20voice%20AI%20demo." target="_blank" rel="noopener">
+      <a class="btn btn-ghost" href="https://wa.me/919833018465?text=Hi%2C%20I%27d%20like%20a%20Voicentropic%20AI%20reception%20demo%20for%20my%20hotel." target="_blank" rel="noopener">
         <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 20l1-5.5a8.5 8.5 0 0 1 8.5-12A8.38 8.38 0 0 1 21 11.5z"/></svg>
         WhatsApp us
       </a>
@@ -1444,13 +1439,13 @@ html.scrub .reveal { transition: none !important; }
       <span class="brand-name">Voic<b>entropic</b> AI</span>
     </a>
     <div class="footer-links">
-      <a href="#ivr">Replace your IVR</a>
-      <a href="#week">How it works</a>
-      <a href="#hospitality">For hotels</a>
+      <a href="#problem">The problem</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#reception">See it live</a>
       <a href="#pricing">Pricing</a>
       <a href="#book">Book a demo</a>
     </div>
-    <div class="footer-meta">© 2026 Agentropic · Mumbai &amp; Houston</div>
+    <div class="footer-meta">&#169; 2026 Agentropic · Mumbai &amp; Houston</div>
   </div>
 </footer>
 
