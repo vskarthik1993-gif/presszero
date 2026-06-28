@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">PressZero mark</title>
+  <desc id="desc">A geometric zero with a pressed corner</desc>
+  <rect width="64" height="64" rx="17" fill="#34E08A"/>
+  <path fill="#07210F" fill-rule="evenodd" d="M32 10C18.2 10 11 18.3 11 32s7.2 22 21 22 21-8.3 21-22S45.8 10 32 10Zm0 9c7.6 0 11.5 4.4 11.5 13S39.6 45 32 45 20.5 40.6 20.5 32 24.4 19 32 19Z"/>
+  <path d="M44.5 12.7 51.3 19.5 43.8 27" fill="none" stroke="#34E08A" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="46.7" cy="17.3" r="4.2" fill="#F3EEE4"/>
+</svg>
