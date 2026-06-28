@@ -21,10 +21,18 @@ contact/index.html     → https://presszero.in/contact/
 
 Add the new URL to `sitemap.xml` when the page should appear in search engines.
 
-## Deploy on Vercel
+## Hosting and automatic deployment
 
-Import this Git repository into Vercel as a static site. No framework preset, build command, or output directory is required. Every push to `main` deploys automatically.
+The site is hosted by GitHub Pages from the `main` branch. GitHub stores the code and serves the website; Hostinger manages the domain's DNS. Every push to `main` deploys automatically.
 
-Add `presszero.in` and `www.presszero.in` in the Vercel project's Domains settings, then apply the DNS records Vercel provides at the domain registrar. Keep the existing `CNAME` file until the Vercel deployment and DNS change are complete so the current GitHub Pages site remains available during the move.
+The custom domain is stored in `CNAME`. In Hostinger, configure these records:
 
-`vercel.json` enables clean trailing-slash URLs, redirects the old landing-page filename, adds security headers, and caches assets.
+```text
+A      @      185.199.108.153
+A      @      185.199.109.153
+A      @      185.199.110.153
+A      @      185.199.111.153
+CNAME  www    vskarthik1993-gif.github.io
+```
+
+Do not remove email-related MX or TXT records.
