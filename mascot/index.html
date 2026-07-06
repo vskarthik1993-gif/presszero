@@ -2,19 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0C0B0A" />
   <meta name="robots" content="noindex" />
-  <meta http-equiv="refresh" content="0; url=https://vskarthik1993-gif.github.io/voice-zero-mascot-demo/" />
-  <link rel="canonical" href="https://vskarthik1993-gif.github.io/voice-zero-mascot-demo/" />
-  <title>PressZero Mascot — redirecting</title>
-  <script>location.replace("https://vskarthik1993-gif.github.io/voice-zero-mascot-demo/");</script>
+  <title>PressZero Mascot — Zero Voice States</title>
+  <link rel="icon" href="/assets/presszero-mascot.png" type="image/png" />
   <style>
-    :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, sans-serif; }
-    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #0c0b0a; color: #f3eee4; }
-    a { color: #34e08a; }
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0c0b0a;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    .shell {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .loader {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #aba59b;
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      z-index: 1;
+    }
+    .loader.hidden { opacity: 0; }
+    iframe {
+      flex: 1 1 auto;
+      width: 100%;
+      border: 0;
+      display: block;
+      background: #0c0b0a;
+    }
   </style>
 </head>
 <body>
-  <p>Opening the PressZero mascot demo… <a href="https://vskarthik1993-gif.github.io/voice-zero-mascot-demo/">Continue</a></p>
+  <div class="shell">
+    <div class="loader" id="loader">Loading PressZero mascot…</div>
+    <iframe
+      id="frame"
+      src="https://vskarthik1993-gif.github.io/voice-zero-mascot-demo/"
+      title="PressZero Zero mascot demo"
+      allow="microphone; camera; autoplay; clipboard-write; fullscreen"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+  </div>
+  <script>
+    var frame = document.getElementById("frame");
+    var loader = document.getElementById("loader");
+    frame.addEventListener("load", function () {
+      loader.classList.add("hidden");
+    });
+  </script>
 </body>
 </html>
