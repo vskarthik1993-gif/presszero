@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PressZero mascot render</title>
+  <style>
+    html, body { margin: 0; background: transparent; }
+    #stage { width: 512px; height: 512px; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/three/build/three.module.js",
+      "three/addons/": "/three/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="stage"></div>
+  <script type="module">
+    import * as THREE from "three";
+    import { FontLoader } from "three/addons/loaders/FontLoader.js";
+    import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+
+    const GREEN = {
+      hot: "#D4FFE8",
+      mid: "#34E08A",
+      cool: "#22B86E",
+      light: "#7CEDB3",
+    };
+
+    const kelvinFragment = `
+      uniform vec3 colorHot;
+      uniform vec3 colorMid;
+      uniform vec3 colorCool;
+      uniform vec3 lightColor;
+      uniform vec3 lightDir;
+      uniform float lightIntensity;
+      uniform float bodyDim;
+      varying vec3 vNormal;
+      varying vec3 vView;
+      varying vec3 vPos;
+
+      vec3 smoothGradient(float t) {
+        t = clamp(t, 0.0, 1.0);
+        t = t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+        if (t < 0.5) {
+          float u = t * 2.0;
+          u = u * u * (3.0 - 2.0 * u);
+          return mix(colorCool, colorMid, u);
+        }
+        float u = (t - 0.5) * 2.0;
+        u = u * u * (3.0 - 2.0 * u);
+        return mix(colorMid, colorHot, u);
+      }
+
+      void main() {
+        vec3 n = normalize(vNormal);
+        float flow = dot(n, normalize(vec3(0.1, -0.82, 0.38))) * 0.5 + 0.5;
+        flow = mix(flow, 1.0 - (vPos.y * 0.016 + 0.5), 0.35);
+        flow = smoothstep(0.04, 0.96, flow);
+        vec3 base = smoothGradient(flow) * bodyDim;
+        float topLit = pow(max(dot(n, -lightDir), 0.0), 0.72);
+        vec3 col = base * (0.28 + topLit * lightIntensity) + lightColor * topLit * lightIntensity * 0.42;
+        col += colorHot * pow(topLit, 2.8) * 0.18;
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+
+    const kelvinVertex = `
+      varying vec3 vNormal;
+      varying vec3 vView;
+      varying vec3 vPos;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vNormal = normalize(normalMatrix * normal);
+        vView = normalize(-mv.xyz);
+        vPos = position;
+        gl_Position = projectionMatrix * mv;
+      }
+    `;
+
+    async function main() {
+      const stage = document.getElementById("stage");
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+      renderer.setSize(512, 512);
+      renderer.setPixelRatio(2);
+      renderer.setClearColor(0x000000, 0);
+      stage.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(82, 1, 0.1, 200);
+      camera.position.set(0, 0, 36);
+
+      const loader = new FontLoader();
+      const font = await new Promise((resolve, reject) => {
+        loader.load("/assets/mascot/bold.blob", resolve, undefined, reject);
+      });
+
+      const geometry = new TextGeometry("0", {
+        font,
+        size: 40,
+        height: 42,
+        curveSegments: 64,
+        bevelEnabled: true,
+        bevelThickness: 1.0,
+        bevelSize: 0.55,
+        bevelSegments: 24,
+      });
+      geometry.computeBoundingBox();
+      const center = new THREE.Vector3();
+      geometry.boundingBox.getCenter(center);
+      geometry.translate(-center.x, -center.y, -center.z);
+
+      const uniforms = {
+        colorHot: { value: new THREE.Color(GREEN.hot) },
+        colorMid: { value: new THREE.Color(GREEN.mid) },
+        colorCool: { value: new THREE.Color(GREEN.cool) },
+        lightColor: { value: new THREE.Color(GREEN.light) },
+        lightDir: { value: new THREE.Vector3(0, -1, 0.12).normalize() },
+        lightIntensity: { value: 1.15 },
+        bodyDim: { value: 0.92 },
+      };
+
+      const material = new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: kelvinVertex,
+        fragmentShader: kelvinFragment,
+      });
+
+      const mesh = new THREE.Mesh(geometry, material);
+      const group = new THREE.Group();
+      group.add(mesh);
+      group.scale.set(0.5, 0.5, 0.1);
+      group.rotation.set(-0.08, 0.22, 0.02);
+      scene.add(group);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.42));
+      const key = new THREE.DirectionalLight(0xffffff, 2.0);
+      key.position.set(0, 24, 8);
+      scene.add(key);
+      const rim = new THREE.DirectionalLight(0x7cedb3, 0.35);
+      rim.position.set(-10, 6, 14);
+      scene.add(rim);
+
+      renderer.render(scene, camera);
+      window.__MASCOT_READY__ = true;
+    }
+
+    main().catch((err) => {
+      console.error(err);
+      window.__MASCOT_ERROR__ = String(err);
+    });
+  </script>
+</body>
+</html>
