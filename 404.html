@@ -4,23 +4,69 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
-  <meta name="theme-color" content="#0C0B0A" />
-  <link rel="icon" href="/assets/presszero-mascot.png" type="image/png" />
+  <meta name="theme-color" content="#060401" />
+  <link rel="icon" href="/assets/favicon.png?v=4" type="image/png" />
+  <link rel="icon" href="/assets/favicon.gif?v=4" type="image/gif" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=4" />
   <title>Page not found — PressZero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, sans-serif; }
+    :root {
+      --void: #060401;
+      --gold: #ffb847;
+      --gold-light: #ffd080;
+      --gold-pale: #fff0c0;
+      --white: #fff8ee;
+      --amber-bright: #f5a030;
+      color-scheme: dark;
+    }
     * { box-sizing: border-box; }
-    body { min-height: 100vh; margin: 0; display: grid; place-items: center; background: #0c0b0a; color: #f3eee4; }
-    main { width: min(560px, calc(100% - 40px)); text-align: center; }
+    body {
+      min-height: 100vh; margin: 0; display: grid; place-items: center;
+      font-family: 'Open Sans', system-ui, sans-serif; font-weight: 300;
+      background: var(--void); color: var(--white);
+      background-image:
+        radial-gradient(ellipse 55% 40% at 20% 10%, rgba(255,140,0,0.12) 0%, transparent 58%),
+        radial-gradient(ellipse 40% 30% at 85% 85%, rgba(255,80,0,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 50% 50%, rgba(15,8,0,0.95) 40%, var(--void) 100%);
+      position: relative;
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+    }
+    main {
+      position: relative; z-index: 1; width: min(560px, calc(100% - 40px)); text-align: center;
+      padding: 40px 32px;
+      background: rgba(20,12,0,0.45);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border: 1px solid rgba(255,184,71,0.18);
+      border-radius: 16px;
+      box-shadow: 0 0 40px rgba(255,160,48,0.18), inset 0 1px 0 rgba(255,220,120,0.12);
+    }
     img { width: 72px; height: 72px; margin: 0 auto 24px; object-fit: contain; }
-    h1 { font-size: clamp(32px, 7vw, 52px); line-height: 1; letter-spacing: -0.04em; }
-    p { color: #aba59b; font-size: 18px; line-height: 1.6; }
-    a { display: inline-block; margin-top: 12px; border-radius: 999px; padding: 13px 22px; background: #34e08a; color: #07210f; font-weight: 700; text-decoration: none; }
+    h1 { font-size: clamp(32px, 7vw, 48px); line-height: 1.05; letter-spacing: -0.02em; font-weight: 300; margin: 0; color: var(--gold-pale); }
+    p { color: #d4a86a; font-size: 17px; line-height: 1.6; font-weight: 300; }
+    a {
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-top: 12px; border-radius: 12px; padding: 13px 22px;
+      background: linear-gradient(90deg, #f5a030, #ffb847, #f5a030);
+      color: #060401; font-weight: 600; letter-spacing: 0.06em; text-decoration: none;
+      box-shadow: 0 0 20px rgba(245,160,48,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+      transition: transform .3s ease, box-shadow .3s ease, filter .3s ease;
+    }
+    a:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 0 36px rgba(255,184,71,0.6); }
+    a:focus-visible { outline: 2px solid rgba(245,160,48,0.55); outline-offset: 3px; }
+    @media (prefers-reduced-motion: reduce) { a:hover { transform: none; } }
   </style>
 </head>
 <body>
   <main>
-    <img src="/assets/presszero-mascot.png" alt="PressZero" />
+    <img src="/assets/presszero-logo.gif?v=4" alt="PressZero" />
     <h1>That page pressed the wrong zero.</h1>
     <p>The address may have moved, or it may not exist yet.</p>
     <a href="/">Back to PressZero</a>
