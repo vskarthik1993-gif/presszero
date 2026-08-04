@@ -50,7 +50,7 @@
           <span>3D Mascot</span>
           <b>3D</b>
         </a>
-        <a class="${active === "design" ? "active" : ""}" href="/admin/design-system/" ${active === "design" ? 'aria-current="page"' : ""}>
+        <a class="${active === "design" ? "active" : ""}" href="/admin/design/" ${active === "design" ? 'aria-current="page"' : ""}>
           <span>Design System</span>
           <b>Brand</b>
         </a>

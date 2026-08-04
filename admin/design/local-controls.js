@@ -540,6 +540,69 @@
     };
   }
 
+  function outputDimensions(body = collectExportBody()) {
+    if (body.gleam && body.longEdge) {
+      return { width: Number(body.longEdge), height: Number(body.longEdge) };
+    }
+    const preset = qualityPreset();
+    const srcW = Math.max(1, Number(selectedMeta?.width) || 1);
+    const srcH = Math.max(1, Number(selectedMeta?.height) || 1);
+    if (preset.longEdge) {
+      const long = Math.max(srcW, srcH);
+      const scale = preset.longEdge / long;
+      return { width: Math.max(1, Math.round(srcW * scale)), height: Math.max(1, Math.round(srcH * scale)) };
+    }
+    return {
+      width: Math.max(1, Math.round(srcW * preset.scale)),
+      height: Math.max(1, Math.round(srcH * preset.scale))
+    };
+  }
+
+  function clientSideEstimate(body = collectExportBody()) {
+    const { width, height } = outputDimensions(body);
+    const pixels = width * height;
+    const quality = Math.max(0.05, Math.min(1, (Number(body.quality) || 92) / 100));
+    const fps = Math.max(1, Number(body.fps) || (body.mode === "gif" ? 16 : 30));
+    const duration = Math.max(0.2, Number(body.duration) || 3.4);
+    let bytes;
+    switch (body.mode) {
+      case "jpeg":
+      case "jpg":
+        bytes = Math.round(pixels * (0.08 + 0.4 * quality));
+        break;
+      case "webp":
+        bytes = Math.round(pixels * (0.05 + 0.28 * quality));
+        break;
+      case "gif":
+        bytes = Math.round(pixels * 0.28 * Math.min(fps, 24) * Math.min(duration, 4) * 0.12);
+        break;
+      case "mp4":
+        bytes = Math.round(pixels * 0.1 * duration);
+        break;
+      default:
+        bytes = Math.round(pixels * (body.transparent || body.nativeAlpha ? 2.1 : 1.35));
+    }
+    return { bytes: Math.max(1024, bytes), width, height, approx: true };
+  }
+
+  async function readExportPayload(response) {
+    const text = await response.text();
+    const type = (response.headers.get("content-type") || "").toLowerCase();
+    const trimmed = text.trim();
+    if (!type.includes("application/json") && !trimmed.startsWith("{") && !trimmed.startsWith("[")) {
+      const err = new Error("Export API unavailable on this host");
+      err.code = "EXPORT_API_UNAVAILABLE";
+      throw err;
+    }
+    try {
+      return JSON.parse(text);
+    } catch {
+      const err = new Error("Export API unavailable on this host");
+      err.code = "EXPORT_API_UNAVAILABLE";
+      throw err;
+    }
+  }
+
   function queueEstimate() {
     clearTimeout(estimateTimer);
     const estimateEl = document.getElementById("pz-estimate");
@@ -547,15 +610,8 @@
       estimateEl.textContent = "Estimated size: —";
       return;
     }
-    const preset = qualityPreset();
-    const outW = preset.longEdge
-      ? Math.round(Math.max(selectedMeta.width, selectedMeta.height) ?
-          (Math.max(selectedMeta.width, selectedMeta.height) === selectedMeta.width
-            ? preset.longEdge
-            : (selectedMeta.width / selectedMeta.height) * preset.longEdge)
-        : preset.longEdge)
-      : selectedMeta.width * preset.scale;
-    estimateEl.textContent = `Estimating… target ~${preset.longEdge || selectedMeta.width * preset.scale}px long edge`;
+    const dims = outputDimensions();
+    estimateEl.textContent = `Estimating… target ~${Math.max(dims.width, dims.height)}px long edge`;
     estimateTimer = setTimeout(runEstimate, 260);
   }
 
@@ -565,18 +621,23 @@
       estimateEl.textContent = "Estimated size: —";
       return;
     }
+    const body = { ...collectExportBody(), estimate: true };
     try {
-      const body = { ...collectExportBody(), estimate: true };
       const response = await fetch("/api/export", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(body)
       });
-      const payload = await response.json();
+      const payload = await readExportPayload(response);
       if (!response.ok) throw new Error(payload.error || "Estimate failed");
       const dims = payload.width && payload.height ? ` · ${payload.width}×${payload.height}px` : "";
       estimateEl.textContent = `Estimated size: ${formatBytes(payload.bytes)}${dims}`;
     } catch (error) {
+      if (error?.code === "EXPORT_API_UNAVAILABLE" || /Unexpected token|is not valid JSON|failed to fetch/i.test(String(error.message || error))) {
+        const approx = clientSideEstimate(body);
+        estimateEl.textContent = `Estimated size: ~${formatBytes(approx.bytes)} · ${approx.width}×${approx.height}px (approx)`;
+        return;
+      }
       estimateEl.textContent = `Estimate unavailable (${String(error.message || error)})`;
     }
   }
@@ -921,7 +982,7 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
                     headers: { "content-type": "application/json" },
                     body: JSON.stringify(body)
                   });
-                  const payload = await response.json();
+                  const payload = await readExportPayload(response);
                   if (!response.ok) throw new Error(payload.error || "Export failed");
                   if ((payload.bytes || 0) < 8000 && (body.mode === "gif" || body.mode === "mp4")) {
                     throw new Error("Export looked empty/too small. Select the logo ring itself, enable gleam, then export GIF.");
@@ -941,7 +1002,12 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
                   document.getElementById("pz-estimate").textContent =
                     `Estimated size: ${formatBytes(payload.bytes)}${payload.width ? ` · ${payload.width}×${payload.height}px` : ""}`;
                 } catch (error) {
-                  status.textContent = String(error.message || error);
+                  if (error?.code === "EXPORT_API_UNAVAILABLE" || /Unexpected token|is not valid JSON|failed to fetch/i.test(String(error.message || error))) {
+                    status.textContent =
+                      "Server export isn’t available on this static host. Run the local design handoff server for PNG/GIF/MP4 exports.";
+                  } else {
+                    status.textContent = String(error.message || error);
+                  }
                 }
               }
             }, ["Export"]),

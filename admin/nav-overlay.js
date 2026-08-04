@@ -20,7 +20,7 @@
   function detectActive() {
     const path = location.pathname || "";
     if (path.startsWith("/admin/call-history")) return "history";
-    if (path.startsWith("/admin/design-system") || path.includes("design-system")) return "design";
+    if (path.startsWith("/admin/design") || path.includes("design-system")) return "design";
     if (path.startsWith("/admin/mascot")) return "mascot";
     return "";
   }
@@ -162,7 +162,7 @@
             <span>3D Mascot</span>
             <b>3D</b>
           </a>
-          <a class="${active === "design" ? "active" : ""}" href="/admin/design-system/" ${active === "design" ? 'aria-current="page"' : ""}>
+          <a class="${active === "design" ? "active" : ""}" href="/admin/design/" ${active === "design" ? 'aria-current="page"' : ""}>
             <span>Design System</span>
             <b>Brand</b>
           </a>
