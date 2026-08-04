@@ -79,6 +79,14 @@
 
   async function canvasToBlob(canvas, mode, quality) {
     const q = Math.max(0.05, Math.min(1, (Number(quality) || 92) / 100));
+    if ((mode === "png" || !mode) && window.UPNG?.encode) {
+      const ctx = canvas.getContext("2d");
+      const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // ps=0 → truecolor lossless; lower quality → fewer palette colors (smaller file).
+      const ps = q >= 0.97 ? 0 : Math.max(8, Math.min(256, Math.round(Math.pow(q, 1.6) * 256)));
+      const compressed = window.UPNG.encode([data.buffer], width, height, ps);
+      return new Blob([compressed], { type: "image/png" });
+    }
     const type =
       mode === "jpeg" || mode === "jpg"
         ? "image/jpeg"
@@ -120,8 +128,9 @@
     const { img: decoded, objectUrl } = await loadImage(sourceUrl);
     try {
       const naturalLong = Math.max(decoded.naturalWidth, decoded.naturalHeight, 1);
-      const targetLong = body.longEdge || naturalLong;
-      const scale = Math.min(MAX_EDGE / naturalLong, targetLong / naturalLong);
+      const targetLong = Number(body.longEdge) > 0 ? Number(body.longEdge) : naturalLong;
+      // Don't invent detail past the source file.
+      const scale = Math.min(MAX_EDGE / naturalLong, targetLong / naturalLong, 1);
       const width = Math.max(1, Math.round(decoded.naturalWidth * scale));
       const height = Math.max(1, Math.round(decoded.naturalHeight * scale));
       const canvas = document.createElement("canvas");
@@ -463,20 +472,29 @@
 
   function estimateSelection(el, body) {
     if (!el) return null;
+    const logo = body.nativeAlpha || body.gleam ? findLogoImg(el) : null;
     const rect = el.getBoundingClientRect();
+    let srcW = Math.max(1, rect.width);
+    let srcH = Math.max(1, rect.height);
+    if (logo && logo.naturalWidth > 0) {
+      srcW = logo.naturalWidth;
+      srcH = logo.naturalHeight;
+    }
     let width;
     let height;
-    if (body.gleam && body.longEdge) {
-      width = height = Number(body.longEdge) || 256;
-    } else if (body.longEdge) {
-      const long = Math.max(rect.width, rect.height, 1);
-      const scale = body.longEdge / long;
-      width = Math.max(1, Math.round(rect.width * scale));
-      height = Math.max(1, Math.round(rect.height * scale));
+    const longEdge = Number(body.longEdge) || 0;
+    if (body.gleam && longEdge) {
+      width = height = longEdge;
+    } else if (longEdge) {
+      const long = Math.max(srcW, srcH, 1);
+      // Source assets: don't upscale past natural pixels.
+      const scale = logo ? Math.min(1, longEdge / long) : longEdge / long;
+      width = Math.max(1, Math.round(srcW * scale));
+      height = Math.max(1, Math.round(srcH * scale));
     } else {
       const scale = Number(body.scale) || 2;
-      width = Math.max(1, Math.round(rect.width * scale));
-      height = Math.max(1, Math.round(rect.height * scale));
+      width = Math.max(1, Math.round(srcW * scale));
+      height = Math.max(1, Math.round(srcH * scale));
     }
     width = Math.min(MAX_EDGE, width);
     height = Math.min(MAX_EDGE, height);
@@ -486,20 +504,38 @@
     const duration = Math.max(0.2, Number(body.duration) || 3.4);
     let bytes;
     if (body.mode === "gif") {
-      bytes = Math.round(pixels * 0.22 * Math.min(fps, 20) * Math.min(duration, 3.4) * 0.12);
+      const colors = Math.max(32, Math.min(256, Math.round(quality * 256)));
+      bytes = Math.round(pixels * (0.08 + 0.35 * (colors / 256)) * Math.min(fps, 20) * Math.min(duration, 3.4) * 0.14);
     } else if (body.mode === "jpeg" || body.mode === "jpg") {
-      bytes = Math.round(pixels * (0.08 + 0.4 * quality));
+      bytes = Math.round(pixels * (0.04 + 0.32 * quality));
     } else if (body.mode === "webp") {
-      bytes = Math.round(pixels * (0.05 + 0.28 * quality));
+      bytes = Math.round(pixels * (0.03 + 0.22 * quality));
     } else {
-      bytes = Math.round(pixels * (body.transparent || body.nativeAlpha || body.gleam ? 2.1 : 1.35));
+      // PNG: truecolor ~0.5–1.2 bpp compressed; palette much less.
+      const bpp = quality >= 0.97 ? 0.55 : 0.12 + 0.4 * quality;
+      bytes = Math.round(pixels * bpp);
     }
     return { bytes: Math.max(1024, bytes), width, height, approx: true };
+  }
+
+  async function measureSelection(el, body, { onProgress } = {}) {
+    // Real encode for stills so the estimate matches Export.
+    if (body.mode === "gif" || body.gleam) {
+      return estimateSelection(el, body);
+    }
+    const result = await exportSelection(el, body, { onProgress });
+    return {
+      bytes: result.blob.size,
+      width: result.width,
+      height: result.height,
+      approx: false
+    };
   }
 
   window.PressZeroBrowserExport = {
     exportSelection,
     estimateSelection,
+    measureSelection,
     findLogoImg
   };
 })();

@@ -41,12 +41,6 @@
     obsidian: "#0B0B0D",
     paper: "#F5F3EF"
   };
-  const QUALITY_PRESETS = {
-    standard: { label: "Standard", scale: 2, longEdge: 0 },
-    high: { label: "High", scale: 3, longEdge: 2048 },
-    ultra: { label: "Ultra", scale: 2, longEdge: 4096 },
-    max: { label: "Max", scale: 2, longEdge: 8192 }
-  };
 
   const STORAGE_KEY = "presszero-tweaks-v2";
   let state = loadState();
@@ -497,38 +491,39 @@
 
     const isMotion = format.value === "mp4" || format.value === "gif";
     document.getElementById("pz-motion-fields").hidden = !isMotion;
-    const gleamSizeRow = document.getElementById("pz-gleam-size-row");
-    if (gleamSizeRow) gleamSizeRow.hidden = !gleam;
+    const sizeRow = document.getElementById("pz-export-size-row");
+    if (sizeRow) sizeRow.hidden = false;
+    const sizeLabel = document.getElementById("pz-export-size-label");
+    if (sizeLabel) {
+      sizeLabel.textContent = gleam ? "Export size (square)" : "Export size (long edge)";
+    }
     const qualityRow = document.getElementById("pz-quality-row");
     qualityRow.hidden = !(format.value === "jpeg" || format.value === "png" || format.value === "gif");
     const qualityLabel = document.getElementById("pz-quality-label");
     if (format.value === "jpeg") qualityLabel.textContent = "JPEG quality";
-    else if (format.value === "png") qualityLabel.textContent = "PNG compression";
+    else if (format.value === "png") qualityLabel.textContent = "PNG colors / compression";
     else qualityLabel.textContent = "GIF colors";
   }
 
-  function qualityPreset() {
-    return QUALITY_PRESETS.ultra;
+  function exportSizePx() {
+    return Number(document.getElementById("pz-export-size")?.value || 1024);
   }
 
   function collectExportBody() {
     const colors = activeColors();
     const format = document.getElementById("pz-format").value;
-    const preset = qualityPreset();
     const gleam = !!document.getElementById("pz-gleam")?.checked;
-    const gleamSize = Number(document.getElementById("pz-gleam-size")?.value || 256);
+    const size = exportSizePx();
     const mascotNative = !!(selectedMeta && selectedMeta.logoLike);
     return {
       mode: format,
       target: selectedMeta?.slug || selectedMeta?.exportId || "element",
       selector: selectedMeta?.selector,
-      scale: preset.scale,
-      longEdge: gleam ? gleamSize : preset.longEdge,
+      scale: 2,
+      longEdge: size,
       fps: Number(document.getElementById("pz-fps").value || (format === "gif" ? 16 : 30)),
       duration: Number(document.getElementById("pz-duration").value || 3.4),
       quality: Number(document.getElementById("pz-quality").value || 92),
-      // Logo/mascot assets are already transparent PNGs.
-      // Still exports use the source file; gleam builds a square GIF over it.
       transparent: mascotNative || gleam,
       nativeAlpha: mascotNative || gleam,
       gleam,
@@ -545,21 +540,36 @@
     if (body.gleam && body.longEdge) {
       return { width: Number(body.longEdge), height: Number(body.longEdge) };
     }
-    const preset = qualityPreset();
-    const srcW = Math.max(1, Number(selectedMeta?.width) || 1);
-    const srcH = Math.max(1, Number(selectedMeta?.height) || 1);
-    if (preset.longEdge) {
+    let srcW = Math.max(1, Number(selectedMeta?.width) || 1);
+    let srcH = Math.max(1, Number(selectedMeta?.height) || 1);
+    if (body.nativeAlpha && selectedEl) {
+      const logo = findLogoImg(selectedEl);
+      if (logo?.naturalWidth) {
+        srcW = logo.naturalWidth;
+        srcH = logo.naturalHeight;
+      }
+    }
+    if (body.longEdge) {
       const long = Math.max(srcW, srcH);
-      const scale = preset.longEdge / long;
-      return { width: Math.max(1, Math.round(srcW * scale)), height: Math.max(1, Math.round(srcH * scale)) };
+      const scale = body.nativeAlpha
+        ? Math.min(1, body.longEdge / long)
+        : body.longEdge / long;
+      return {
+        width: Math.max(1, Math.round(srcW * scale)),
+        height: Math.max(1, Math.round(srcH * scale))
+      };
     }
     return {
-      width: Math.max(1, Math.round(srcW * preset.scale)),
-      height: Math.max(1, Math.round(srcH * preset.scale))
+      width: Math.max(1, Math.round(srcW * 2)),
+      height: Math.max(1, Math.round(srcH * 2))
     };
   }
 
   function clientSideEstimate(body = collectExportBody()) {
+    const exporter = window.PressZeroBrowserExport;
+    if (exporter?.estimateSelection && selectedEl) {
+      return exporter.estimateSelection(selectedEl, body);
+    }
     const { width, height } = outputDimensions(body);
     const pixels = width * height;
     const quality = Math.max(0.05, Math.min(1, (Number(body.quality) || 92) / 100));
@@ -569,39 +579,18 @@
     switch (body.mode) {
       case "jpeg":
       case "jpg":
-        bytes = Math.round(pixels * (0.08 + 0.4 * quality));
+        bytes = Math.round(pixels * (0.04 + 0.32 * quality));
         break;
       case "webp":
-        bytes = Math.round(pixels * (0.05 + 0.28 * quality));
+        bytes = Math.round(pixels * (0.03 + 0.22 * quality));
         break;
       case "gif":
-        bytes = Math.round(pixels * 0.28 * Math.min(fps, 24) * Math.min(duration, 4) * 0.12);
-        break;
-      case "mp4":
-        bytes = Math.round(pixels * 0.1 * duration);
+        bytes = Math.round(pixels * 0.2 * Math.min(fps, 24) * Math.min(duration, 4) * 0.12);
         break;
       default:
-        bytes = Math.round(pixels * (body.transparent || body.nativeAlpha ? 2.1 : 1.35));
+        bytes = Math.round(pixels * (quality >= 0.97 ? 0.55 : 0.12 + 0.4 * quality));
     }
     return { bytes: Math.max(1024, bytes), width, height, approx: true };
-  }
-
-  async function readExportPayload(response) {
-    const text = await response.text();
-    const type = (response.headers.get("content-type") || "").toLowerCase();
-    const trimmed = text.trim();
-    if (!type.includes("application/json") && !trimmed.startsWith("{") && !trimmed.startsWith("[")) {
-      const err = new Error("Export API unavailable on this host");
-      err.code = "EXPORT_API_UNAVAILABLE";
-      throw err;
-    }
-    try {
-      return JSON.parse(text);
-    } catch {
-      const err = new Error("Export API unavailable on this host");
-      err.code = "EXPORT_API_UNAVAILABLE";
-      throw err;
-    }
   }
 
   function queueEstimate() {
@@ -623,12 +612,37 @@
       return;
     }
     const body = collectExportBody();
+    const dims = outputDimensions(body);
+    estimateEl.textContent = `Estimating… target ${Math.max(dims.width, dims.height)}px long edge`;
     const exporter = window.PressZeroBrowserExport;
-    const approx =
-      (exporter?.estimateSelection && exporter.estimateSelection(selectedEl, body)) ||
-      clientSideEstimate(body);
-    const dims = approx.width && approx.height ? ` · ${approx.width}×${approx.height}px` : "";
-    estimateEl.textContent = `Estimated size: ~${formatBytes(approx.bytes)}${dims}`;
+    try {
+      let result;
+      if (exporter?.measureSelection && body.mode !== "gif" && !body.gleam) {
+        // Real encode for stills so estimate === Export.
+        result = await exporter.measureSelection(selectedEl, body);
+      } else {
+        result =
+          (exporter?.estimateSelection && exporter.estimateSelection(selectedEl, body)) ||
+          clientSideEstimate(body);
+      }
+      // Ignore stale responses if the selection/settings changed mid-flight.
+      const latest = collectExportBody();
+      if (
+        latest.target !== body.target ||
+        latest.longEdge !== body.longEdge ||
+        latest.quality !== body.quality ||
+        latest.mode !== body.mode ||
+        latest.gleam !== body.gleam
+      ) {
+        return;
+      }
+      const dimText = result.width && result.height ? ` · ${result.width}×${result.height}px` : "";
+      const approx = result.approx ? "~" : "";
+      estimateEl.textContent = `Estimated size: ${approx}${formatBytes(result.bytes)}${dimText}`;
+    } catch (error) {
+      const approx = clientSideEstimate(body);
+      estimateEl.textContent = `Estimated size: ~${formatBytes(approx.bytes)} · ${approx.width}×${approx.height}px`;
+    }
   }
 
   async function runBrowserExport(body, status) {
@@ -898,13 +912,15 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
               "Preview sweeps on the selected logo. Export is a square animated GIF."
             ])
           ]),
-          el("div", { className: "pz-field", id: "pz-gleam-size-row", hidden: true }, [
-            el("div", { className: "pz-key" }, ["Gleam GIF size"]),
-            el("select", { id: "pz-gleam-size", onChange: queueEstimate }, [
+          el("div", { className: "pz-field", id: "pz-export-size-row" }, [
+            el("div", { className: "pz-key", id: "pz-export-size-label" }, ["Export size (long edge)"]),
+            el("select", { id: "pz-export-size", onChange: queueEstimate }, [
               el("option", { value: "128" }, ["Favicon · 128px"]),
-              el("option", { value: "256", selected: true }, ["Email / social · 256px"]),
+              el("option", { value: "256" }, ["Email / social · 256px"]),
               el("option", { value: "512" }, ["Large · 512px"]),
-              el("option", { value: "1024" }, ["XL · 1024px"])
+              el("option", { value: "1024", selected: true }, ["HD · 1024px"]),
+              el("option", { value: "2048" }, ["2K · 2048px"]),
+              el("option", { value: "4096" }, ["4K · 4096px"])
             ])
           ]),
           el("div", { className: "pz-field" }, [
@@ -916,7 +932,7 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
           ]),
           el("div", { className: "pz-field", id: "pz-quality-row" }, [
             el("div", { className: "pz-row" }, [
-              el("span", { className: "pz-key", id: "pz-quality-label" }, ["PNG compression"]),
+              el("span", { className: "pz-key", id: "pz-quality-label" }, ["PNG colors / compression"]),
               el("span", { className: "pz-val", id: "pz-quality-val" }, ["92"])
             ]),
             el("input", {
@@ -929,7 +945,8 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
               onInput: (event) => {
                 document.getElementById("pz-quality-val").textContent = event.target.value;
                 queueEstimate();
-              }
+              },
+              onChange: queueEstimate
             })
           ]),
           el("div", { id: "pz-motion-fields", hidden: true }, [
