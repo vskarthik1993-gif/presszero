@@ -384,7 +384,8 @@
   }
 
   function stillFormats({ motion, transparent, gleam }) {
-    if (gleam || motion) return ["gif", "mp4"];
+    // Browser export ships stills + GIF first; MP4 comes later.
+    if (gleam || motion) return ["gif"];
     if (transparent) return ["png"];
     return ["png", "jpeg"];
   }
@@ -617,29 +618,40 @@
 
   async function runEstimate() {
     const estimateEl = document.getElementById("pz-estimate");
-    if (!selectedMeta) {
+    if (!selectedMeta || !selectedEl) {
       estimateEl.textContent = "Estimated size: —";
       return;
     }
-    const body = { ...collectExportBody(), estimate: true };
-    try {
-      const response = await fetch("/api/export", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      const payload = await readExportPayload(response);
-      if (!response.ok) throw new Error(payload.error || "Estimate failed");
-      const dims = payload.width && payload.height ? ` · ${payload.width}×${payload.height}px` : "";
-      estimateEl.textContent = `Estimated size: ${formatBytes(payload.bytes)}${dims}`;
-    } catch (error) {
-      if (error?.code === "EXPORT_API_UNAVAILABLE" || /Unexpected token|is not valid JSON|failed to fetch/i.test(String(error.message || error))) {
-        const approx = clientSideEstimate(body);
-        estimateEl.textContent = `Estimated size: ~${formatBytes(approx.bytes)} · ${approx.width}×${approx.height}px (approx)`;
-        return;
-      }
-      estimateEl.textContent = `Estimate unavailable (${String(error.message || error)})`;
+    const body = collectExportBody();
+    const exporter = window.PressZeroBrowserExport;
+    const approx =
+      (exporter?.estimateSelection && exporter.estimateSelection(selectedEl, body)) ||
+      clientSideEstimate(body);
+    const dims = approx.width && approx.height ? ` · ${approx.width}×${approx.height}px` : "";
+    estimateEl.textContent = `Estimated size: ~${formatBytes(approx.bytes)}${dims}`;
+  }
+
+  async function runBrowserExport(body, status) {
+    const exporter = window.PressZeroBrowserExport;
+    if (!exporter?.exportSelection) {
+      throw new Error("Browser export failed to load. Refresh and try again.");
     }
+    const result = await exporter.exportSelection(selectedEl, body, {
+      onProgress: (done, total) => {
+        status.textContent = `Exporting frame ${done}/${total}…`;
+      }
+    });
+    const url = URL.createObjectURL(result.blob);
+    const dims = result.width && result.height ? ` ${result.width}×${result.height}px · ` : " ";
+    const sourceNote = result.sourceAsset ? " (source PNG) " : " ";
+    status.textContent = "";
+    status.append(
+      document.createTextNode(`Saved${dims}${formatBytes(result.blob.size)}.${sourceNote}`),
+      el("a", { className: "pz-link", href: url, download: result.filename }, ["Download"])
+    );
+    document.getElementById("pz-estimate").textContent =
+      `Estimated size: ${formatBytes(result.blob.size)}${result.width ? ` · ${result.width}×${result.height}px` : ""}`;
+    return result;
   }
 
   function updateHistoryButtons() {
@@ -847,7 +859,7 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
         el("div", {}, [
           el("div", { className: "pz-section-label" }, ["Export"]),
           el("div", { className: "pz-hint" }, [
-            "Select a mascot → PNG uses the source asset (already transparent). Optional gleam → GIF."
+            "Select any element → Export PNG/JPEG in-browser. Logo marks: PNG from source asset. Optional gleam → GIF."
           ]),
           el("label", { className: "pz-check", style: { marginTop: "8px" } }, [
             el("input", {
@@ -960,7 +972,7 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
               type: "button",
               onClick: async () => {
                 const status = document.getElementById("pz-status");
-                if (!selectedMeta) {
+                if (!selectedMeta || !selectedEl) {
                   status.textContent = "Select an element first.";
                   return;
                 }
@@ -969,45 +981,19 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
                   return;
                 }
                 const body = collectExportBody();
-                if (body.gleam && body.mode !== "gif" && body.mode !== "mp4") {
-                  status.textContent = "Gleam export needs GIF (or MP4).";
+                if (body.gleam && body.mode !== "gif") {
+                  status.textContent = "Gleam export needs GIF.";
                   return;
                 }
                 status.textContent = body.gleam
                   ? `Exporting gleam GIF (${body.longEdge}px)…`
-                  : `Exporting ${body.target} as ${body.mode.toUpperCase()}…`;
+                  : body.mode === "gif"
+                    ? `Exporting ${body.target} as GIF…`
+                    : `Exporting ${body.target} as ${body.mode.toUpperCase()}…`;
                 try {
-                  const response = await fetch("/api/export", {
-                    method: "POST",
-                    headers: { "content-type": "application/json" },
-                    body: JSON.stringify(body)
-                  });
-                  const payload = await readExportPayload(response);
-                  if (!response.ok) throw new Error(payload.error || "Export failed");
-                  if ((payload.bytes || 0) < 8000 && (body.mode === "gif" || body.mode === "mp4")) {
-                    throw new Error("Export looked empty/too small. Select the logo ring itself, enable gleam, then export GIF.");
-                  }
-                  if (body.gleam && payload.width && payload.height && payload.width !== payload.height) {
-                    throw new Error(
-                      `Gleam did not apply (got ${payload.width}×${payload.height}, expected square). Re-select the logo ring, keep gleam checked, export again.`
-                    );
-                  }
-                  const dims = payload.width && payload.height ? ` ${payload.width}×${payload.height}px · ` : " ";
-                  const sourceNote = payload.sourceAsset ? " (source PNG) " : " ";
-                  status.textContent = "";
-                  status.append(
-                    document.createTextNode(`Saved${dims}${formatBytes(payload.bytes)}.${sourceNote}`),
-                    el("a", { className: "pz-link", href: payload.url, download: payload.filename }, ["Download"])
-                  );
-                  document.getElementById("pz-estimate").textContent =
-                    `Estimated size: ${formatBytes(payload.bytes)}${payload.width ? ` · ${payload.width}×${payload.height}px` : ""}`;
+                  await runBrowserExport(body, status);
                 } catch (error) {
-                  if (error?.code === "EXPORT_API_UNAVAILABLE" || /Unexpected token|is not valid JSON|failed to fetch/i.test(String(error.message || error))) {
-                    status.textContent =
-                      "Server export isn’t available on this static host. Run the local design handoff server for PNG/GIF/MP4 exports.";
-                  } else {
-                    status.textContent = String(error.message || error);
-                  }
+                  status.textContent = String(error.message || error);
                 }
               }
             }, ["Export"]),
