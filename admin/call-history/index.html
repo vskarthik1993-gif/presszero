@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0B0B0D" />
+  <title>Call History — PressZero Admin</title>
+  <link rel="icon" href="/assets/favicon-32.png?v=6" type="image/png" sizes="32x32" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-rail" id="admin-rail"></aside>
+    <main class="admin-main">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Conversation Archive</p>
+          <h1>Call History</h1>
+          <p class="lede">Saved transcripts, quotes, payment links, and recordings from Leela voice tests.</p>
+        </div>
+        <label class="history-filter">
+          <input type="checkbox" id="hide-short" checked />
+          Hide under 30s
+        </label>
+      </header>
+      <section class="history-layout">
+        <aside class="history-list panel">
+          <div class="panel-head">
+            <h3>Saved Calls</h3>
+            <span id="list-meta">Loading</span>
+          </div>
+          <div id="call-list"></div>
+        </aside>
+        <section class="history-detail" id="call-detail">
+          <div class="panel empty-state">Select a saved call to review.</div>
+        </section>
+      </section>
+    </main>
+  </div>
+  <script src="/admin/admin.js"></script>
+  <script src="/admin/call-history/history.js"></script>
+</body>
+</html>

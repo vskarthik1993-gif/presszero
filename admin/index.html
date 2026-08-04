@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0B0B0D" />
+  <title>Admin — PressZero</title>
+  <link rel="icon" href="/assets/favicon-32.png?v=6" type="image/png" sizes="32x32" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body>
+  <div class="lock-screen" id="lock-screen">
+    <div class="lock-card">
+      <img src="/assets/presszero-transparent-zero.png" alt="PressZero" />
+      <p class="eyebrow">PressZero Ops</p>
+      <h1>Admin locked</h1>
+      <p class="lede">Enter the operator passcode to open Call History, the 3D mascot, and Design System.</p>
+      <form class="passcode-form" id="passcode-form">
+        <input
+          type="password"
+          inputmode="text"
+          autocomplete="current-password"
+          autofocus
+          placeholder="Passcode"
+          aria-label="Admin passcode"
+          id="passcode-input"
+        />
+        <button type="submit">Unlock</button>
+      </form>
+      <p class="passcode-error" id="passcode-error" hidden>Incorrect passcode. Try again.</p>
+    </div>
+  </div>
+  <script src="/admin/admin.js"></script>
+  <script>
+    (() => {
+      const { isUnlocked, setUnlocked, PASSCODE } = window.PressZeroAdmin;
+      const params = new URLSearchParams(location.search);
+      const rawNext = params.get("next") || "/admin/call-history/";
+      const safeNext =
+        rawNext.startsWith("/admin") || rawNext.startsWith("/mascot")
+          ? rawNext
+          : "/admin/call-history/";
+
+      if (isUnlocked()) {
+        location.replace(safeNext);
+        return;
+      }
+
+      const form = document.getElementById("passcode-form");
+      const input = document.getElementById("passcode-input");
+      const error = document.getElementById("passcode-error");
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (input.value === PASSCODE) {
+          setUnlocked();
+          location.replace(safeNext);
+          return;
+        }
+        error.hidden = false;
+        input.value = "";
+        input.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

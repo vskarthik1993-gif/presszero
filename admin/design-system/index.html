@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#0B0B0D" />
+  <title>Design System — PressZero Admin</title>
+  <link rel="icon" href="/assets/favicon-32.png?v=6" type="image/png" sizes="32x32" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-rail" id="admin-rail"></aside>
+    <main class="admin-main">
+      <iframe class="admin-frame" title="PressZero Design System" src="./canvas.html"></iframe>
+    </main>
+  </div>
+  <script src="/admin/admin.js"></script>
+  <script>
+    (() => {
+      const { requireAuth, renderSidebar, refreshCallCount } = window.PressZeroAdmin;
+      if (!requireAuth({ redirectTo: "/admin/design-system/" })) return;
+      renderSidebar("design");
+      refreshCallCount();
+    })();
+  </script>
+</body>
+</html>
