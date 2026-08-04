@@ -46,7 +46,7 @@
           <span>Call History</span>
           <b id="admin-call-count">···</b>
         </a>
-        <a href="/mascot/">
+        <a class="${active === "mascot" ? "active" : ""}" href="/mascot/" ${active === "mascot" ? 'aria-current="page"' : ""}>
           <span>3D Mascot</span>
           <b>/mascot</b>
         </a>

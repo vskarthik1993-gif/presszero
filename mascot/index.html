@@ -34,6 +34,7 @@
   <noscript>You need to enable JavaScript to run this app.</noscript>
 
   <div id="root"></div>
+  <script src="/admin/nav-overlay.js"></script>
 
   <div id="crash-overlay" style="display:none;position:fixed;inset:0;background:#200;color:#f88;font:12px monospace;white-space:pre-wrap;padding:16px;z-index:99999;overflow:auto"></div><script type="text/javascript">
 function showCrash(e){var n=document.getElementById("crash-overlay");n.style.display="block",n.textContent+=e+"\n\n"}window.addEventListener("error",function(e){showCrash("ERROR: "+e.message+"\n"+(e.error&&e.error.stack||""))}),window.addEventListener("unhandledrejection",function(e){showCrash("UNHANDLED REJECTION: "+(e.reason&&(e.reason.stack||e.reason.message||e.reason)))})
