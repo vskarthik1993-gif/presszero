@@ -344,7 +344,7 @@ async function init() {
   applyPreset(activePreset);
 
   try {
-    const fontUrl = new URL("../mascot/assets/mascot/zero-mascot.typeface.json", import.meta.url);
+    const fontUrl = new URL("./mascot/zero-mascot.typeface.json", import.meta.url);
     const font = await new FontLoader().loadAsync(fontUrl.href);
     const rawGeometry = new TextGeometry("0", {
       font,

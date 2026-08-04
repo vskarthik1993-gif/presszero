@@ -21,7 +21,7 @@
     const path = location.pathname || "";
     if (path.startsWith("/admin/call-history")) return "history";
     if (path.startsWith("/admin/design-system") || path.includes("design-system")) return "design";
-    if (path.startsWith("/mascot")) return "mascot";
+    if (path.startsWith("/admin/mascot")) return "mascot";
     return "";
   }
 
@@ -158,9 +158,9 @@
             <span>Call History</span>
             <b id="pz-overlay-call-count">···</b>
           </a>
-          <a class="${active === "mascot" ? "active" : ""}" href="/mascot/" ${active === "mascot" ? 'aria-current="page"' : ""}>
+          <a class="${active === "mascot" ? "active" : ""}" href="/admin/mascot/" ${active === "mascot" ? 'aria-current="page"' : ""}>
             <span>3D Mascot</span>
-            <b>/mascot</b>
+            <b>3D</b>
           </a>
           <a class="${active === "design" ? "active" : ""}" href="/admin/design-system/" ${active === "design" ? 'aria-current="page"' : ""}>
             <span>Design System</span>

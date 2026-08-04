@@ -46,9 +46,9 @@
           <span>Call History</span>
           <b id="admin-call-count">···</b>
         </a>
-        <a class="${active === "mascot" ? "active" : ""}" href="/mascot/" ${active === "mascot" ? 'aria-current="page"' : ""}>
+        <a class="${active === "mascot" ? "active" : ""}" href="/admin/mascot/" ${active === "mascot" ? 'aria-current="page"' : ""}>
           <span>3D Mascot</span>
-          <b>/mascot</b>
+          <b>3D</b>
         </a>
         <a class="${active === "design" ? "active" : ""}" href="/admin/design-system/" ${active === "design" ? 'aria-current="page"' : ""}>
           <span>Design System</span>
