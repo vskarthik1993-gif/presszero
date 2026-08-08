@@ -10,13 +10,13 @@
   "scope": "./",
   "icons": [
     {
-      "src": "/assets/pwa-icon-512.png?v=11",
+      "src": "/assets/pwa/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/pwa-maskable-512.png?v=11",
+      "src": "/assets/pwa/maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
