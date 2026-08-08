@@ -20,7 +20,7 @@
   function detectActive() {
     const path = location.pathname || "";
     if (path.startsWith("/admin/call-history")) return "history";
-    if (path.startsWith("/admin/design") || path.includes("design-system")) return "design";
+    if (path.startsWith("/admin/design")) return "design";
     if (path.startsWith("/admin/mascot")) return "mascot";
     return "";
   }

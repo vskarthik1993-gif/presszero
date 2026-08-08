@@ -1,6 +1,7 @@
 (() => {
   const ASSETS = ["Tilted V1", "Tilted V2", "Non-Tilted"];
   const MOTION_IDS = new Set(["shine-dark", "shine-light"]);
+  // Ember V1 = frozen logo tint (fiery coral). Original Gold kept as optional preset.
   const COLOR_EMBER = { gold: "#F8300D", sat: 1.2, bright: 1.25 };
   const COLOR_ORIGINAL = { gold: "#E8892E", sat: 1, bright: 1 };
   const PRESETS = {
@@ -41,8 +42,15 @@
     obsidian: "#0B0B0D",
     paper: "#F5F3EF"
   };
+  const QUALITY_PRESETS = {
+    // Capture sharpness (deviceScaleFactor). Output pixel size comes from Export size.
+    standard: { label: "Standard", scale: 2 },
+    high: { label: "High", scale: 2 },
+    ultra: { label: "Ultra", scale: 2 },
+    max: { label: "Max", scale: 3 }
+  };
 
-  const STORAGE_KEY = "presszero-tweaks-v2";
+  const STORAGE_KEY = "presszero-tweaks-v5";
   let state = loadState();
   let history = [clone(state)];
   let historyIndex = 0;
@@ -263,7 +271,11 @@
     );
     const hasShine = !!node.querySelector("[style*='pz-shine'], [data-shine-mask]") ||
       MOTION_IDS.has(exportId || "");
-    const logoLike = imgs.some((img) => /logo-ring/i.test(img.getAttribute("src") || img.currentSrc || ""));
+    const logoImg = imgs.find((img) => /logo-ring/i.test(img.getAttribute("src") || img.currentSrc || ""));
+    const logoLike = !!logoImg;
+    // Source-PNG export only when the clicked node is the mascot <img> itself.
+    // Icon tiles / cards that wrap the img export as screenshots of the selection.
+    const mascotOnly = node.tagName === "IMG" && logoLike;
     return {
       exportId,
       selector: cssPath(node),
@@ -275,7 +287,8 @@
       svgCount: svgs.length,
       maxNatural,
       motion: hasShine,
-      logoLike
+      logoLike,
+      mascotOnly
     };
   }
 
@@ -378,8 +391,7 @@
   }
 
   function stillFormats({ motion, transparent, gleam }) {
-    // Browser export ships stills + GIF first; MP4 comes later.
-    if (gleam || motion) return ["gif"];
+    if (gleam || motion) return ["gif", "mp4"];
     if (transparent) return ["png"];
     return ["png", "jpeg"];
   }
@@ -424,6 +436,8 @@
       }
       if (selectedMeta.svgCount) bits.push(`${selectedMeta.svgCount} SVG`);
       if (!selectedMeta.imgCount && !selectedMeta.svgCount) bits.push("HTML/CSS only");
+      if (selectedMeta.mascotOnly) bits.push("Export = source PNG");
+      else if (selectedMeta.logoLike) bits.push("Export = selected tile/frame");
       bits.push("Logo mark assets are PNG, not SVG");
       info.textContent = bits.join(" · ");
     }
@@ -480,7 +494,7 @@
     if (!format) return;
     const motion = !!(selectedMeta && selectedMeta.motion);
     const gleam = document.getElementById("pz-gleam")?.checked;
-    const mascotNative = !!(selectedMeta && selectedMeta.logoLike);
+    const mascotNative = !!(selectedMeta && selectedMeta.mascotOnly);
     const transparent = mascotNative || gleam;
     const allowed = stillFormats({ motion, transparent, gleam });
     const current = format.value;
@@ -492,21 +506,23 @@
     const isMotion = format.value === "mp4" || format.value === "gif";
     document.getElementById("pz-motion-fields").hidden = !isMotion;
     const sizeRow = document.getElementById("pz-export-size-row");
-    if (sizeRow) sizeRow.hidden = false;
+    if (sizeRow) sizeRow.hidden = !selectedMeta;
     const sizeLabel = document.getElementById("pz-export-size-label");
-    if (sizeLabel) {
-      sizeLabel.textContent = gleam ? "Export size (square)" : "Export size (long edge)";
-    }
+    if (sizeLabel) sizeLabel.textContent = gleam ? "Gleam GIF size" : "Export size";
     const qualityRow = document.getElementById("pz-quality-row");
     qualityRow.hidden = !(format.value === "jpeg" || format.value === "png" || format.value === "gif");
     const qualityLabel = document.getElementById("pz-quality-label");
     if (format.value === "jpeg") qualityLabel.textContent = "JPEG quality";
-    else if (format.value === "png") qualityLabel.textContent = "PNG colors / compression";
+    else if (format.value === "png") qualityLabel.textContent = "PNG colors (lower = smaller)";
     else qualityLabel.textContent = "GIF colors";
   }
 
+  function qualityPreset() {
+    return QUALITY_PRESETS.ultra;
+  }
+
   function exportSizePx() {
-    return Number(document.getElementById("pz-export-size")?.value || 1024);
+    return Math.max(64, Number(document.getElementById("pz-export-size")?.value || 512));
   }
 
   function collectExportBody() {
@@ -514,16 +530,17 @@
     const format = document.getElementById("pz-format").value;
     const gleam = !!document.getElementById("pz-gleam")?.checked;
     const size = exportSizePx();
-    const mascotNative = !!(selectedMeta && selectedMeta.logoLike);
+    const mascotNative = !!(selectedMeta && selectedMeta.mascotOnly);
     return {
       mode: format,
       target: selectedMeta?.slug || selectedMeta?.exportId || "element",
       selector: selectedMeta?.selector,
-      scale: 2,
+      // scale 1 so Export size maps 1:1 to output pixels (was Ultra×2 → 3240 from 256 intent).
+      scale: 1,
       longEdge: size,
       fps: Number(document.getElementById("pz-fps").value || (format === "gif" ? 16 : 30)),
       duration: Number(document.getElementById("pz-duration").value || 3.4),
-      quality: Number(document.getElementById("pz-quality").value || 92),
+      quality: Number(document.getElementById("pz-quality").value || 100),
       transparent: mascotNative || gleam,
       nativeAlpha: mascotNative || gleam,
       gleam,
@@ -537,39 +554,21 @@
   }
 
   function outputDimensions(body = collectExportBody()) {
-    if (body.gleam && body.longEdge) {
-      return { width: Number(body.longEdge), height: Number(body.longEdge) };
+    const edge = Math.max(64, Number(body.longEdge) || exportSizePx());
+    if (body.gleam) {
+      return { width: edge, height: edge };
     }
-    let srcW = Math.max(1, Number(selectedMeta?.width) || 1);
-    let srcH = Math.max(1, Number(selectedMeta?.height) || 1);
-    if (body.nativeAlpha && selectedEl) {
-      const logo = findLogoImg(selectedEl);
-      if (logo?.naturalWidth) {
-        srcW = logo.naturalWidth;
-        srcH = logo.naturalHeight;
-      }
-    }
-    if (body.longEdge) {
-      const long = Math.max(srcW, srcH);
-      const scale = body.nativeAlpha
-        ? Math.min(1, body.longEdge / long)
-        : body.longEdge / long;
-      return {
-        width: Math.max(1, Math.round(srcW * scale)),
-        height: Math.max(1, Math.round(srcH * scale))
-      };
-    }
+    const srcW = Math.max(1, Number(selectedMeta?.width) || 1);
+    const srcH = Math.max(1, Number(selectedMeta?.height) || 1);
+    const long = Math.max(srcW, srcH);
+    const scale = edge / long;
     return {
-      width: Math.max(1, Math.round(srcW * 2)),
-      height: Math.max(1, Math.round(srcH * 2))
+      width: Math.max(1, Math.round(srcW * scale)),
+      height: Math.max(1, Math.round(srcH * scale))
     };
   }
 
   function clientSideEstimate(body = collectExportBody()) {
-    const exporter = window.PressZeroBrowserExport;
-    if (exporter?.estimateSelection && selectedEl) {
-      return exporter.estimateSelection(selectedEl, body);
-    }
     const { width, height } = outputDimensions(body);
     const pixels = width * height;
     const quality = Math.max(0.05, Math.min(1, (Number(body.quality) || 92) / 100));
@@ -579,18 +578,39 @@
     switch (body.mode) {
       case "jpeg":
       case "jpg":
-        bytes = Math.round(pixels * (0.04 + 0.32 * quality));
+        bytes = Math.round(pixels * (0.08 + 0.4 * quality));
         break;
       case "webp":
-        bytes = Math.round(pixels * (0.03 + 0.22 * quality));
+        bytes = Math.round(pixels * (0.05 + 0.28 * quality));
         break;
       case "gif":
-        bytes = Math.round(pixels * 0.2 * Math.min(fps, 24) * Math.min(duration, 4) * 0.12);
+        bytes = Math.round(pixels * 0.28 * Math.min(fps, 24) * Math.min(duration, 4) * 0.12);
+        break;
+      case "mp4":
+        bytes = Math.round(pixels * 0.1 * duration);
         break;
       default:
-        bytes = Math.round(pixels * (quality >= 0.97 ? 0.55 : 0.12 + 0.4 * quality));
+        bytes = Math.round(pixels * (body.transparent || body.nativeAlpha ? 2.1 : 1.35));
     }
     return { bytes: Math.max(1024, bytes), width, height, approx: true };
+  }
+
+  async function readExportPayload(response) {
+    const text = await response.text();
+    const type = (response.headers.get("content-type") || "").toLowerCase();
+    const trimmed = text.trim();
+    if (!type.includes("application/json") && !trimmed.startsWith("{") && !trimmed.startsWith("[")) {
+      const err = new Error("Export API unavailable on this host");
+      err.code = "EXPORT_API_UNAVAILABLE";
+      throw err;
+    }
+    try {
+      return JSON.parse(text);
+    } catch {
+      const err = new Error("Export API unavailable on this host");
+      err.code = "EXPORT_API_UNAVAILABLE";
+      throw err;
+    }
   }
 
   function queueEstimate() {
@@ -618,14 +638,12 @@
     try {
       let result;
       if (exporter?.measureSelection && body.mode !== "gif" && !body.gleam) {
-        // Real encode for stills so estimate === Export.
         result = await exporter.measureSelection(selectedEl, body);
       } else {
         result =
           (exporter?.estimateSelection && exporter.estimateSelection(selectedEl, body)) ||
           clientSideEstimate(body);
       }
-      // Ignore stale responses if the selection/settings changed mid-flight.
       const latest = collectExportBody();
       if (
         latest.target !== body.target ||
@@ -755,112 +773,132 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
       el("div", { className: "pz-body" }, [
         el("div", {}, [
           el("div", { className: "pz-section-label" }, ["Logo"]),
-          el("div", { className: "pz-key", style: { marginBottom: "8px" } }, ["logoAsset"]),
-          el(
-            "div",
-            { className: "pz-seg" },
-            ASSETS.map((asset) =>
-              el(
-                "button",
-                {
-                  type: "button",
-                  "data-asset": asset,
-                  className: asset === state.logoAsset ? "is-active" : "",
-                  onClick: () => {
-                    if (asset === "Tilted V1" && (state.preset === "ember" || state.preset === "original")) {
-                      setState({ logoAsset: asset });
-                    } else {
-                      setState({ logoAsset: asset, preset: asset === "Tilted V1" ? state.preset || "ember" : "custom" });
-                    }
-                    const nest = document.getElementById("pz-v1-presets");
-                    if (nest) nest.hidden = asset !== "Tilted V1";
-                  }
-                },
-                [asset]
-              )
-            )
-          ),
-          el("div", {
-            id: "pz-v1-presets",
-            hidden: state.logoAsset !== "Tilted V1",
-            style: {
-              marginTop: "10px",
-              marginLeft: "10px",
-              paddingLeft: "12px",
-              borderLeft: "2px solid rgba(255,255,255,.12)"
+          el("div", { className: "pz-hint", id: "pz-default-note" }, [
+            "Default locked: Tilted V1 · Ember V1."
+          ]),
+          el("button", {
+            type: "button",
+            className: "pz-btn",
+            id: "pz-more-toggle",
+            style: { width: "100%", marginTop: "10px" },
+            onClick: () => {
+              const panelMore = document.getElementById("pz-more-options");
+              const btn = document.getElementById("pz-more-toggle");
+              if (!panelMore || !btn) return;
+              const open = panelMore.hidden;
+              panelMore.hidden = !open;
+              btn.textContent = open ? "Hide more options" : "More options";
             }
-          }, [
-            el("div", { className: "pz-key", style: { marginBottom: "8px" } }, ["Tilted V1 presets"]),
+          }, ["More options"]),
+          el("div", { id: "pz-more-options", hidden: true, style: { marginTop: "12px" } }, [
+            el("div", { className: "pz-key", style: { marginBottom: "8px" } }, ["logoAsset"]),
             el(
               "div",
-              { className: "pz-seg", style: { gridTemplateColumns: "1fr 1fr" } },
-              Object.values(PRESETS).map((preset) =>
+              { className: "pz-seg" },
+              ASSETS.map((asset) =>
                 el(
                   "button",
                   {
                     type: "button",
-                    "data-preset": preset.id,
-                    className: (state.preset || "ember") === preset.id ? "is-active" : "",
-                    onClick: () => applyPreset(preset.id)
+                    "data-asset": asset,
+                    className: asset === state.logoAsset ? "is-active" : "",
+                    onClick: () => {
+                      if (asset === "Tilted V1" && (state.preset === "ember" || state.preset === "original")) {
+                        setState({ logoAsset: asset });
+                      } else {
+                        setState({ logoAsset: asset, preset: asset === "Tilted V1" ? state.preset || "ember" : "custom" });
+                      }
+                      const nest = document.getElementById("pz-v1-presets");
+                      if (nest) nest.hidden = asset !== "Tilted V1";
+                    }
                   },
-                  [preset.label]
+                  [asset]
                 )
               )
             ),
-            el("div", { className: "pz-hint" }, ["Ember V1 is default. Original Gold is the prior freeze."])
-          ]),
-          el("div", { className: "pz-hint", id: "pz-asset-note" }, [`Colours apply only to ${state.logoAsset}.`])
-        ]),
-        el("div", {}, [
-          el("div", { className: "pz-section-label" }, ["Colours"]),
-          el("div", { className: "pz-field" }, [
-            el("div", { className: "pz-row" }, [
-              el("span", { className: "pz-key" }, ["gold"]),
-              el("input", {
-                id: "pz-gold",
-                type: "color",
-                value: activeColors().gold,
-                onInput: (event) => updateAssetColor({ gold: event.target.value }, { record: false }),
-                onChange: (event) => updateAssetColor({ gold: event.target.value })
-              })
+            el("div", {
+              id: "pz-v1-presets",
+              hidden: state.logoAsset !== "Tilted V1",
+              style: {
+                marginTop: "10px",
+                marginLeft: "10px",
+                paddingLeft: "12px",
+                borderLeft: "2px solid rgba(255,255,255,.12)"
+              }
+            }, [
+              el("div", { className: "pz-key", style: { marginBottom: "8px" } }, ["Tilted V1 presets"]),
+              el(
+                "div",
+                { className: "pz-seg", style: { gridTemplateColumns: "1fr 1fr" } },
+                Object.values(PRESETS).map((preset) =>
+                  el(
+                    "button",
+                    {
+                      type: "button",
+                      "data-preset": preset.id,
+                      className: (state.preset || "ember") === preset.id ? "is-active" : "",
+                      onClick: () => applyPreset(preset.id)
+                    },
+                    [preset.label]
+                  )
+                )
+              ),
+              el("div", { className: "pz-hint" }, ["Ember V1 = #F8300D · sat 1.2 · bright 1.25. Original Gold optional."])
             ]),
-            el("div", {}, [
-              el("div", { className: "pz-row" }, [
-                el("span", { className: "pz-key" }, ["sat"]),
-                el("span", { className: "pz-val", id: "pz-sat-val" }, [String(activeColors().sat)])
-              ]),
-              el("input", {
-                id: "pz-sat",
-                type: "range",
-                min: "0.4",
-                max: "1.6",
-                step: "0.05",
-                value: String(activeColors().sat),
-                onInput: (event) => {
-                  document.getElementById("pz-sat-val").textContent = event.target.value;
-                  updateAssetColor({ sat: Number(event.target.value) }, { record: false });
-                },
-                onChange: (event) => updateAssetColor({ sat: Number(event.target.value) })
-              })
+            el("div", { className: "pz-hint", id: "pz-asset-note", style: { marginTop: "8px" } }, [
+              `Colours apply only to ${state.logoAsset}.`
             ]),
-            el("div", {}, [
+            el("div", { className: "pz-divider", style: { margin: "12px 0" } }),
+            el("div", { className: "pz-section-label" }, ["Colours"]),
+            el("div", { className: "pz-field" }, [
               el("div", { className: "pz-row" }, [
-                el("span", { className: "pz-key" }, ["bright"]),
-                el("span", { className: "pz-val", id: "pz-bright-val" }, [String(activeColors().bright)])
+                el("span", { className: "pz-key" }, ["gold"]),
+                el("input", {
+                  id: "pz-gold",
+                  type: "color",
+                  value: activeColors().gold,
+                  onInput: (event) => updateAssetColor({ gold: event.target.value }, { record: false }),
+                  onChange: (event) => updateAssetColor({ gold: event.target.value })
+                })
               ]),
-              el("input", {
-                id: "pz-bright",
-                type: "range",
-                min: "0.6",
-                max: "1.5",
-                step: "0.05",
-                value: String(activeColors().bright),
-                onInput: (event) => {
-                  document.getElementById("pz-bright-val").textContent = event.target.value;
-                  updateAssetColor({ bright: Number(event.target.value) }, { record: false });
-                },
-                onChange: (event) => updateAssetColor({ bright: Number(event.target.value) })
-              })
+              el("div", {}, [
+                el("div", { className: "pz-row" }, [
+                  el("span", { className: "pz-key" }, ["sat"]),
+                  el("span", { className: "pz-val", id: "pz-sat-val" }, [String(activeColors().sat)])
+                ]),
+                el("input", {
+                  id: "pz-sat",
+                  type: "range",
+                  min: "0.4",
+                  max: "1.6",
+                  step: "0.05",
+                  value: String(activeColors().sat),
+                  onInput: (event) => {
+                    document.getElementById("pz-sat-val").textContent = event.target.value;
+                    updateAssetColor({ sat: Number(event.target.value) }, { record: false });
+                  },
+                  onChange: (event) => updateAssetColor({ sat: Number(event.target.value) })
+                })
+              ]),
+              el("div", {}, [
+                el("div", { className: "pz-row" }, [
+                  el("span", { className: "pz-key" }, ["bright"]),
+                  el("span", { className: "pz-val", id: "pz-bright-val" }, [String(activeColors().bright)])
+                ]),
+                el("input", {
+                  id: "pz-bright",
+                  type: "range",
+                  min: "0.6",
+                  max: "1.5",
+                  step: "0.05",
+                  value: String(activeColors().bright),
+                  onInput: (event) => {
+                    document.getElementById("pz-bright-val").textContent = event.target.value;
+                    updateAssetColor({ bright: Number(event.target.value) }, { record: false });
+                  },
+                  onChange: (event) => updateAssetColor({ bright: Number(event.target.value) })
+                })
+              ])
             ])
           ])
         ]),
@@ -873,7 +911,7 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
         el("div", {}, [
           el("div", { className: "pz-section-label" }, ["Export"]),
           el("div", { className: "pz-hint" }, [
-            "Select any element → Export PNG/JPEG in-browser. Logo marks: PNG from source asset. Optional gleam → GIF."
+            "Click the mascot <img> for source PNG. Click an icon tile to export that tile as shown."
           ]),
           el("label", { className: "pz-check", style: { marginTop: "8px" } }, [
             el("input", {
@@ -912,15 +950,14 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
               "Preview sweeps on the selected logo. Export is a square animated GIF."
             ])
           ]),
-          el("div", { className: "pz-field", id: "pz-export-size-row" }, [
-            el("div", { className: "pz-key", id: "pz-export-size-label" }, ["Export size (long edge)"]),
+          el("div", { className: "pz-field", id: "pz-export-size-row", hidden: true }, [
+            el("div", { className: "pz-key", id: "pz-export-size-label" }, ["Export size"]),
             el("select", { id: "pz-export-size", onChange: queueEstimate }, [
               el("option", { value: "128" }, ["Favicon · 128px"]),
-              el("option", { value: "256" }, ["Email / social · 256px"]),
+              el("option", { value: "256", selected: true }, ["Email / social · 256px"]),
               el("option", { value: "512" }, ["Large · 512px"]),
-              el("option", { value: "1024", selected: true }, ["HD · 1024px"]),
-              el("option", { value: "2048" }, ["2K · 2048px"]),
-              el("option", { value: "4096" }, ["4K · 4096px"])
+              el("option", { value: "1024" }, ["XL · 1024px"]),
+              el("option", { value: "2048" }, ["Print-ish · 2048px"])
             ])
           ]),
           el("div", { className: "pz-field" }, [
@@ -932,8 +969,8 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
           ]),
           el("div", { className: "pz-field", id: "pz-quality-row" }, [
             el("div", { className: "pz-row" }, [
-              el("span", { className: "pz-key", id: "pz-quality-label" }, ["PNG colors / compression"]),
-              el("span", { className: "pz-val", id: "pz-quality-val" }, ["92"])
+              el("span", { className: "pz-key", id: "pz-quality-label" }, ["PNG colors (lower = smaller)"]),
+              el("span", { className: "pz-val", id: "pz-quality-val" }, ["100"])
             ]),
             el("input", {
               id: "pz-quality",
@@ -941,12 +978,11 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
               min: "40",
               max: "100",
               step: "1",
-              value: "92",
+              value: "100",
               onInput: (event) => {
                 document.getElementById("pz-quality-val").textContent = event.target.value;
                 queueEstimate();
-              },
-              onChange: queueEstimate
+              }
             })
           ]),
           el("div", { id: "pz-motion-fields", hidden: true }, [
@@ -989,7 +1025,7 @@ body.pz-inspecting, body.pz-inspecting *{cursor:crosshair !important}`
               type: "button",
               onClick: async () => {
                 const status = document.getElementById("pz-status");
-                if (!selectedMeta || !selectedEl) {
+                if (!selectedMeta) {
                   status.textContent = "Select an element first.";
                   return;
                 }
