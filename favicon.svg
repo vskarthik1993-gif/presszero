@@ -1,7 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
   <title id="title">PressZero</title>
-  <desc id="desc">A geometric zero with a pressed button</desc>
-  <rect width="64" height="64" rx="18" fill="#34E08A"/>
-  <ellipse cx="32" cy="32" rx="15" ry="21" fill="none" stroke="#07210F" stroke-width="9"/>
-  <circle cx="45.5" cy="16.5" r="6" fill="#F3EEE4"/>
+  <rect width="64" height="64" rx="14" fill="#060401"/>
+  <ellipse cx="32" cy="32" rx="12" ry="18" fill="none" stroke="#f5a030" stroke-width="8"/>
 </svg>
