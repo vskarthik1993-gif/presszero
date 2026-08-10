@@ -186,11 +186,13 @@
       if (event.key === "Escape") setOpen(false);
     });
 
-    fetch(`${BACKEND}/api/call-history`)
+    fetch(`${BACKEND}/api/call-history?limit=0`)
       .then((r) => r.json())
       .then((data) => {
         const el = document.getElementById("pz-overlay-call-count");
-        if (el) el.textContent = String((data.calls || []).length);
+        if (!el) return;
+        const total = Number(data.total);
+        el.textContent = String(Number.isFinite(total) ? total : (data.calls || []).length);
       })
       .catch(() => {
         const el = document.getElementById("pz-overlay-call-count");

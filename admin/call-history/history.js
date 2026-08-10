@@ -13,22 +13,43 @@
   renderSidebar("history");
   refreshCallCount();
 
+  const PAGE_SIZE = 50;
   const listEl = document.getElementById("call-list");
   const metaEl = document.getElementById("list-meta");
   const detailEl = document.getElementById("call-detail");
   const hideShortEl = document.getElementById("hide-short");
+  const loadMoreWrap = document.getElementById("load-more-wrap");
+  const loadMoreBtn = document.getElementById("load-more");
 
   let allCalls = [];
   let selectedSlug = "";
+  let totalCalls = 0;
+  let hasMore = false;
+  let loading = false;
 
   function visibleCalls() {
     if (!hideShortEl.checked) return allCalls;
     return allCalls.filter((call) => durationSeconds(call) >= 30);
   }
 
+  function updateLoadMore() {
+    if (!loadMoreWrap || !loadMoreBtn) return;
+    loadMoreWrap.hidden = !hasMore;
+    loadMoreBtn.disabled = loading;
+    loadMoreBtn.textContent = loading ? "Loading…" : "Load more";
+  }
+
   function renderList() {
     const calls = visibleCalls();
-    metaEl.textContent = `${calls.length} records`;
+    const loaded = allCalls.length;
+    if (totalCalls > loaded) {
+      metaEl.textContent = `${calls.length} shown · ${loaded} of ${totalCalls} loaded`;
+    } else {
+      metaEl.textContent = `${calls.length} records`;
+    }
+
+    updateLoadMore();
+
     if (!calls.length) {
       listEl.innerHTML = `<div class="empty-state">No saved calls match the current filter.</div>`;
       return;
@@ -166,20 +187,49 @@
     renderDetail();
   });
 
-  async function load() {
-    metaEl.textContent = "Loading";
+  async function fetchPage(offset) {
+    const response = await fetch(
+      apiUrl(`/api/call-history?limit=${PAGE_SIZE}&offset=${offset}`)
+    );
+    if (!response.ok) throw new Error("Failed to load call history");
+    return response.json();
+  }
+
+  async function load({ append = false } = {}) {
+    if (loading) return;
+    loading = true;
+    updateLoadMore();
+    if (!append) metaEl.textContent = "Loading";
+
     try {
-      const response = await fetch(apiUrl("/api/call-history"));
-      const data = await response.json();
-      allCalls = data.calls || [];
+      const offset = append ? allCalls.length : 0;
+      const data = await fetchPage(offset);
+      const nextCalls = data.calls || [];
+      totalCalls = Number(data.total) || nextCalls.length;
+      hasMore = Boolean(data.has_more);
+      allCalls = append ? allCalls.concat(nextCalls) : nextCalls;
       renderList();
       renderDetail();
       refreshCallCount();
     } catch (_) {
-      metaEl.textContent = "Failed";
-      listEl.innerHTML = `<div class="empty-state">Could not load call history from Leela.</div>`;
+      if (!append) {
+        metaEl.textContent = "Failed";
+        listEl.innerHTML = `<div class="empty-state">Could not load call history from Leela.</div>`;
+        hasMore = false;
+        updateLoadMore();
+      } else {
+        metaEl.textContent = "Failed to load more";
+      }
+    } finally {
+      loading = false;
+      updateLoadMore();
     }
   }
+
+  loadMoreBtn?.addEventListener("click", () => {
+    if (!hasMore || loading) return;
+    load({ append: true });
+  });
 
   load();
 })();

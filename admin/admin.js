@@ -62,9 +62,10 @@
     const el = document.getElementById("admin-call-count");
     if (!el) return;
     try {
-      const response = await fetch(apiUrl("/api/call-history"));
+      const response = await fetch(apiUrl("/api/call-history?limit=0"));
       const data = await response.json();
-      el.textContent = String((data.calls || []).length);
+      const total = Number(data.total);
+      el.textContent = String(Number.isFinite(total) ? total : (data.calls || []).length);
     } catch (_) {
       el.textContent = "—";
     }
