@@ -1,25 +1,19 @@
 {
-  "name": "PressZero",
-  "short_name": "PressZero",
-  "description": "PressZero – Voice AI, Humanised",
+  "name": "Leela AI Receptionist",
+  "short_name": "Leela AI",
+  "description": "Leela AI Receptionist — powered by PressZero",
   "display": "fullscreen",
   "orientation": "portrait",
-  "background_color": "#060401",
-  "theme_color": "#060401",
+  "background_color": "#0e1014",
+  "theme_color": "#0e1014",
   "start_url": "./",
   "scope": "./",
   "icons": [
     {
-      "src": "/assets/pwa/icon-512.png",
-      "sizes": "512x512",
+      "src": "assets/metal-o-canvas.png",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
-    },
-    {
-      "src": "/assets/pwa/maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
     }
   ]
 }
