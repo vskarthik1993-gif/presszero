@@ -92,14 +92,7 @@ html.pz-intro #root {
 
 html.pz-reception .demo-callbtn--start,
 html.pz-live .demo-callbtn--start {
-  visibility: hidden !important;
-  pointer-events: none !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: 0 !important;
-  overflow: hidden !important;
+  display: none !important;
 }
 
 html.pz-reception .demo-callbtn--mute,

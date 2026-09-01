@@ -1,5 +1,5 @@
-import { createScrubber } from "./scrub.js?v=15";
-import { createReceptionMascot } from "./mascot.js?v=15";
+import { createScrubber } from "./scrub.js?v=16";
+import { createReceptionMascot } from "./mascot.js?v=16";
 
 const ASSET = (name) => new URL(`./assets/${name}`, import.meta.url).href;
 
