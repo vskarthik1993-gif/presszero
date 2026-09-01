@@ -6,19 +6,57 @@ const FONT_URL = new URL("../assets/mascot/bold.blob", import.meta.url).href;
 
 function makeGlowTexture() {
   const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
+  canvas.width = 512;
+  canvas.height = 512;
   const ctx = canvas.getContext("2d");
-  const g = ctx.createRadialGradient(128, 128, 10, 128, 128, 128);
-  g.addColorStop(0, "rgba(210, 236, 255, 0.72)");
-  g.addColorStop(0.28, "rgba(140, 196, 232, 0.32)");
-  g.addColorStop(0.62, "rgba(80, 150, 200, 0.12)");
+  const g = ctx.createRadialGradient(256, 256, 8, 256, 256, 256);
+  g.addColorStop(0, "rgba(210, 245, 255, 0.55)");
+  g.addColorStop(0.18, "rgba(150, 220, 255, 0.32)");
+  g.addColorStop(0.42, "rgba(110, 190, 235, 0.16)");
+  g.addColorStop(0.7, "rgba(80, 160, 210, 0.05)");
   g.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 256, 256);
+  ctx.fillRect(0, 0, 512, 512);
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
   return texture;
+}
+
+function makeRimMaterial() {
+  return new THREE.ShaderMaterial({
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: {
+      color: { value: new THREE.Color("#9ee7ff") },
+      pulse: { value: 0.8 },
+    },
+    vertexShader: `
+      varying vec3 vNormal;
+      varying vec3 vView;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vNormal = normalize(normalMatrix * normal);
+        vView = normalize(-mv.xyz);
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 color;
+      uniform float pulse;
+      varying vec3 vNormal;
+      varying vec3 vView;
+      void main() {
+        vec3 n = normalize(vNormal);
+        vec3 v = normalize(vView);
+        float fres = pow(1.0 - abs(dot(n, v)), 2.35);
+        float wrap = pow(1.0 - abs(dot(n, v)), 1.25);
+        vec3 col = color * (fres * 1.15 + wrap * 0.32) * pulse;
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `,
+  });
 }
 
 function makePlateTexture() {
@@ -169,12 +207,14 @@ function sampleBreathe(elapsed, speaking) {
   const squash = speaking ? 0.055 : 0.04;
   const floatPhase = (elapsed % 6.667) / 6.667;
   const float = 0.5 - 0.5 * Math.cos(floatPhase * Math.PI * 2);
+  const glow = 0.5 - 0.5 * Math.cos(elapsed * ((Math.PI * 2) / 3.9));
   return {
     posY: s * lift + float * 0.72,
     scaleY: 1 + s * squash,
     scaleX: 1 - s * (squash * 0.5),
     scaleZ: 1 - s * 0.015,
     rotY: Math.sin(elapsed * 0.42) * 0.05,
+    glow,
   };
 }
 
@@ -250,25 +290,51 @@ export async function createReceptionMascot(canvas) {
   );
   plate.position.set(13.4, -15.4, 11.4);
 
+  const glowMap = makeGlowTexture();
   const glow = new THREE.Sprite(
     new THREE.SpriteMaterial({
-      map: makeGlowTexture(),
+      map: glowMap,
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      opacity: 0.9,
+      opacity: 0.55,
+      color: new THREE.Color("#b7ecff"),
     }),
   );
-  glow.scale.set(78, 90, 1);
-  glow.position.set(0, 0, -6);
+  glow.scale.set(62, 74, 1);
+  glow.position.set(0, 0, -7);
+
+  const glowSoft = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: glowMap,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      opacity: 0.28,
+      color: new THREE.Color("#8fd4ff"),
+    }),
+  );
+  glowSoft.scale.set(88, 104, 1);
+  glowSoft.position.set(0, 0, -9);
+
+  const rimMat = makeRimMaterial();
+  const rimTight = new THREE.Mesh(geometry, rimMat);
+  rimTight.scale.setScalar(1.028);
+  rimTight.renderOrder = 1;
+  const rimSoft = new THREE.Mesh(geometry, rimMat);
+  rimSoft.scale.setScalar(1.075);
+  rimSoft.renderOrder = 0;
 
   const inner = new THREE.Group();
+  inner.add(rimSoft);
+  inner.add(rimTight);
   inner.add(mesh);
   inner.add(plate);
   inner.scale.set(0.32, 0.32, 0.07);
   inner.rotation.set(-0.05, 0.16, 0.02);
 
   const outer = new THREE.Group();
+  outer.add(glowSoft);
   outer.add(glow);
   outer.add(inner);
   outer.position.set(0, 0.55, 0);
@@ -301,9 +367,15 @@ export async function createReceptionMascot(canvas) {
     outer.position.y = 0.85 + pose.posY;
     inner.scale.set(0.32 * pose.scaleX, 0.32 * pose.scaleY, 0.07 * pose.scaleZ);
     inner.rotation.y = 0.16 + pose.rotY;
-    glow.material.opacity = speaking ? 1 : 0.95;
-    glow.scale.set(speaking ? 72 : 64, speaking ? 86 : 76, 1);
-    haloLight.intensity = speaking ? 1.55 : 1.05;
+    const pulse = speaking ? 0.7 + pose.glow * 0.32 : 0.48 + pose.glow * 0.3;
+    rimMat.uniforms.pulse.value = pulse;
+    glow.material.opacity = 0.32 + pose.glow * 0.26 + (speaking ? 0.1 : 0);
+    glowSoft.material.opacity = 0.14 + pose.glow * 0.16;
+    const spread = 1 + pose.glow * 0.12;
+    glow.scale.set(62 * spread, 74 * spread, 1);
+    glowSoft.scale.set(88 * spread, 104 * spread, 1);
+    haloLight.intensity = 0.55 + pose.glow * 0.55 + (speaking ? 0.28 : 0);
+    rim.intensity = 0.48 + pose.glow * 0.38;
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(render);
   }

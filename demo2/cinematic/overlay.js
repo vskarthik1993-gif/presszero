@@ -1,5 +1,5 @@
-import { createScrubber } from "./scrub.js?v=16";
-import { createReceptionMascot } from "./mascot.js?v=16";
+import { createScrubber } from "./scrub.js?v=17";
+import { createReceptionMascot } from "./mascot.js?v=17";
 
 const ASSET = (name) => new URL(`./assets/${name}`, import.meta.url).href;
 
@@ -77,7 +77,7 @@ function buildDom() {
       <img class="pz-poster" alt="" src="${ASSET("scene-1-poster.jpg")}" />
       <video class="pz-clip" data-clip="0" playsinline muted preload="auto" poster="${ASSET("scene-1-poster.jpg")}" src="${ASSET("scene-1.mp4")}"></video>
       <video class="pz-clip" data-clip="1" playsinline muted preload="auto" poster="${ASSET("scene-2-poster.jpg")}" src="${ASSET("scene-2.mp4")}"></video>
-      <video class="pz-clip" data-clip="2" playsinline muted preload="auto" src="${ASSET("scene-3.mp4")}"></video>
+      <video class="pz-clip" data-clip="2" playsinline muted preload="auto" poster="${ASSET("scene-3-poster.jpg")}" src="${ASSET("scene-3.mp4")}"></video>
     </div>
     <div class="pz-desk" data-layer="reception">
       <img class="pz-reception-bg" alt="" src="${ASSET("reception.jpg")}" />
