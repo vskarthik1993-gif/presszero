@@ -10,9 +10,9 @@ function makeGlowTexture() {
   canvas.height = 256;
   const ctx = canvas.getContext("2d");
   const g = ctx.createRadialGradient(128, 128, 10, 128, 128, 128);
-  g.addColorStop(0, "rgba(210, 236, 255, 0.55)");
-  g.addColorStop(0.28, "rgba(140, 196, 232, 0.22)");
-  g.addColorStop(0.62, "rgba(80, 150, 200, 0.08)");
+  g.addColorStop(0, "rgba(210, 236, 255, 0.72)");
+  g.addColorStop(0.28, "rgba(140, 196, 232, 0.32)");
+  g.addColorStop(0.62, "rgba(80, 150, 200, 0.12)");
   g.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 256, 256);
@@ -195,7 +195,7 @@ export async function createReceptionMascot(canvas) {
   const scene = new THREE.Scene();
   scene.background = null;
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 80);
-  camera.position.set(0, 0.35, 30);
+  camera.position.set(0, -0.4, 38);
 
   const cube = new THREE.CubeTexture(buildStudioFaces());
   cube.needsUpdate = true;
@@ -241,14 +241,14 @@ export async function createReceptionMascot(canvas) {
   const mesh = new THREE.Mesh(geometry, material);
 
   const plate = new THREE.Mesh(
-    new THREE.PlaneGeometry(9.6, 4.15),
+    new THREE.PlaneGeometry(12.4, 5.4),
     new THREE.MeshStandardMaterial({
       map: makePlateTexture(),
       metalness: 0.72,
       roughness: 0.38,
     }),
   );
-  plate.position.set(11.2, -14.6, 10.2);
+  plate.position.set(13.4, -15.4, 11.4);
 
   const glow = new THREE.Sprite(
     new THREE.SpriteMaterial({
@@ -265,8 +265,8 @@ export async function createReceptionMascot(canvas) {
   const inner = new THREE.Group();
   inner.add(mesh);
   inner.add(plate);
-  inner.scale.set(0.42, 0.42, 0.085);
-  inner.rotation.set(-0.06, 0.18, 0.02);
+  inner.scale.set(0.32, 0.32, 0.07);
+  inner.rotation.set(-0.05, 0.16, 0.02);
 
   const outer = new THREE.Group();
   outer.add(glow);
@@ -299,10 +299,10 @@ export async function createReceptionMascot(canvas) {
     const elapsed = (stamp - startedAt) / 1000;
     const pose = sampleBreathe(elapsed, speaking);
     outer.position.y = 0.85 + pose.posY;
-    inner.scale.set(0.42 * pose.scaleX, 0.42 * pose.scaleY, 0.085 * pose.scaleZ);
-    inner.rotation.y = 0.18 + pose.rotY;
-    glow.material.opacity = speaking ? 1 : 0.82;
-    glow.scale.set(speaking ? 86 : 78, speaking ? 98 : 90, 1);
+    inner.scale.set(0.32 * pose.scaleX, 0.32 * pose.scaleY, 0.07 * pose.scaleZ);
+    inner.rotation.y = 0.16 + pose.rotY;
+    glow.material.opacity = speaking ? 1 : 0.95;
+    glow.scale.set(speaking ? 72 : 64, speaking ? 86 : 76, 1);
     haloLight.intensity = speaking ? 1.55 : 1.05;
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(render);

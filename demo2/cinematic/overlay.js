@@ -1,5 +1,5 @@
-import { createScrubber } from "./scrub.js?v=13";
-import { createReceptionMascot } from "./mascot.js?v=13";
+import { createScrubber } from "./scrub.js?v=14";
+import { createReceptionMascot } from "./mascot.js?v=14";
 
 const ASSET = (name) => new URL(`./assets/${name}`, import.meta.url).href;
 
@@ -316,7 +316,9 @@ async function boot() {
     scrubber.playForward();
   });
 
-  speak.addEventListener("click", async () => {
+  speak.addEventListener("click", async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
     if (phase !== "reception") return;
     phase = "live";
     html.classList.remove("pz-reception");
@@ -324,17 +326,17 @@ async function boot() {
     await waitFor(".demo-callbtn--start");
     alignDock(dock);
     await morphSpeakToControls(speak);
+    let hadLiveCall = false;
     const watch = () => {
+      if (isCallLive()) hadLiveCall = true;
       mascot?.setSpeaking(isCallLive() && isAgentSpeaking());
-      if (!isCallLive() && phase === "live") {
-        const start = nativeButtons().start;
-        if (start && start.classList.contains("is-armed")) {
-          phase = "reception";
-          html.classList.remove("pz-live");
-          html.classList.add("pz-reception");
-          speak.hidden = false;
-          speak.classList.remove("is-morphing");
-        }
+      if (hadLiveCall && !isCallLive() && phase === "live") {
+        phase = "reception";
+        html.classList.remove("pz-live");
+        html.classList.add("pz-reception");
+        speak.hidden = false;
+        speak.classList.remove("is-morphing");
+        hadLiveCall = false;
       }
     };
     window.setInterval(watch, 240);
