@@ -164,15 +164,17 @@ const pbrSurfaceShader = {
 };
 
 function sampleBreathe(elapsed, speaking) {
-  const s = Math.sin(elapsed * 2.0);
-  const lift = speaking ? 0.22 : 0.16;
-  const squash = speaking ? 0.06 : 0.045;
+  const s = Math.sin(elapsed * 1.65);
+  const lift = speaking ? 0.28 : 0.2;
+  const squash = speaking ? 0.055 : 0.04;
+  const floatPhase = (elapsed % 6.667) / 6.667;
+  const float = 0.5 - 0.5 * Math.cos(floatPhase * Math.PI * 2);
   return {
-    posY: s * lift,
+    posY: s * lift + float * 0.72,
     scaleY: 1 + s * squash,
     scaleX: 1 - s * (squash * 0.5),
     scaleZ: 1 - s * 0.015,
-    rotY: Math.sin(elapsed * 0.5) * 0.04,
+    rotY: Math.sin(elapsed * 0.42) * 0.05,
   };
 }
 
@@ -181,15 +183,19 @@ export async function createReceptionMascot(canvas) {
     canvas,
     alpha: true,
     antialias: true,
+    premultipliedAlpha: false,
+    preserveDrawingBuffer: true,
     powerPreference: "high-performance",
   });
   renderer.setClearColor(0x000000, 0);
+  renderer.setClearAlpha(0);
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 80);
-  camera.position.set(0, 0.15, 28);
+  scene.background = null;
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 80);
+  camera.position.set(0, 0.35, 30);
 
   const cube = new THREE.CubeTexture(buildStudioFaces());
   cube.needsUpdate = true;
@@ -273,11 +279,17 @@ export async function createReceptionMascot(canvas) {
   let frameId = 0;
   let startedAt = 0;
 
+  canvas.style.display = "block";
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+
   function resize() {
-    const w = canvas.clientWidth || innerWidth;
-    const h = canvas.clientHeight || innerHeight;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(2, Math.round(rect.width) || innerWidth);
+    const h = Math.max(2, Math.round(rect.height) || innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
     renderer.setSize(w, h, false);
-    camera.aspect = w / Math.max(1, h);
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
 
@@ -286,7 +298,7 @@ export async function createReceptionMascot(canvas) {
     if (!startedAt) startedAt = stamp;
     const elapsed = (stamp - startedAt) / 1000;
     const pose = sampleBreathe(elapsed, speaking);
-    outer.position.y = 0.55 + pose.posY;
+    outer.position.y = 0.85 + pose.posY;
     inner.scale.set(0.42 * pose.scaleX, 0.42 * pose.scaleY, 0.085 * pose.scaleZ);
     inner.rotation.y = 0.18 + pose.rotY;
     glow.material.opacity = speaking ? 1 : 0.82;

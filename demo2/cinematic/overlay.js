@@ -1,5 +1,5 @@
-import { createScrubber } from "./scrub.js";
-import { createReceptionMascot } from "./mascot.js";
+import { createScrubber } from "./scrub.js?v=12";
+import { createReceptionMascot } from "./mascot.js?v=12";
 
 const ASSET = (name) => new URL(`./assets/${name}`, import.meta.url).href;
 
@@ -100,6 +100,10 @@ function buildDom() {
   const host = document.getElementById("root");
   if (host?.parentNode) host.parentNode.insertBefore(root, host);
   else document.body.appendChild(root);
+  const logo = root.querySelector(".pz-leela-logo");
+  const dock = root.querySelector(".pz-dock");
+  if (logo) document.body.appendChild(logo);
+  if (dock) document.body.appendChild(dock);
   return root;
 }
 
@@ -149,13 +153,13 @@ async function boot() {
   const html = document.documentElement;
   html.classList.add("pz-cinematic", "pz-intro");
   const root = buildDom();
-  const cue = root.querySelector(".pz-cue");
-  const speak = root.querySelector(".pz-speak");
+  const cue = document.querySelector(".pz-cue");
+  const speak = document.querySelector(".pz-speak");
   const poster = root.querySelector(".pz-poster");
   const loading = root.querySelector(".pz-loading");
   const videos = [...root.querySelectorAll("video.pz-clip")];
   const reception = root.querySelector(".pz-reception");
-  const dock = root.querySelector(".pz-dock");
+  const dock = document.querySelector(".pz-dock");
   const media = root.querySelector(".pz-media");
 
   let phase = "scene1";
@@ -190,15 +194,19 @@ async function boot() {
     media.style.pointerEvents = "none";
     speak.hidden = false;
     poster.classList.add("is-hidden");
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     if (!mascot) {
       try {
         mascot = await createReceptionMascot(document.getElementById("pz-mascot"));
         mascot.start();
+        mascot.resize();
+        window.__pzMascot = mascot;
       } catch (err) {
         console.warn("Mascot failed to start", err);
       }
     } else {
       mascot.start();
+      mascot.resize();
     }
     await waitFor(".demo-mobile-controls");
     alignDock(dock);
@@ -221,6 +229,7 @@ async function boot() {
   }
 
   await scrubber.prepare();
+  window.__pzScrub = scrubber;
   loading.hidden = true;
   videos[0].classList.add("is-active");
   window.setTimeout(() => poster.classList.add("is-hidden"), 180);

@@ -27,8 +27,6 @@ export function createScrubber({
   let lastStamp = 0;
   let halts = [0];
   let completed = false;
-  const seekState = clips.map(() => ({ lock: false, pending: null }));
-
   function refreshDurations() {
     let cursor = 0;
     clips.forEach((clip) => {
@@ -70,43 +68,49 @@ export function createScrubber({
 
   function seekVideo(index, localTime) {
     const clip = clips[index];
-    const state = seekState[index];
     const el = clip.el;
     const target = clamp(localTime, 0, Math.max(0, clip.duration - 0.04));
-    state.pending = target;
-    if (state.lock) return;
-    if (Math.abs((el.currentTime || 0) - target) < 1 / 48) {
-      state.pending = null;
-      return;
-    }
-    state.lock = true;
-    const finish = () => {
-      state.lock = false;
-      el.removeEventListener("seeked", finish);
-      if (state.pending != null && Math.abs(el.currentTime - state.pending) > 1 / 48) {
-        const again = state.pending;
-        state.pending = null;
-        seekVideo(index, again);
-      } else {
-        state.pending = null;
-      }
-    };
-    el.addEventListener("seeked", finish, { once: true });
+    if (Math.abs((el.currentTime || 0) - target) < 0.07) return;
     try {
       el.pause();
       el.currentTime = target;
     } catch {
-      state.lock = false;
+      /* Safari may reject until a user gesture */
     }
   }
 
-  function paint(t) {
-    const index = clipAt(t);
+  function pauseAll() {
+    clips.forEach((clip) => {
+      if (!clip.el.paused) clip.el.pause();
+    });
+  }
+
+  function activateClip(index, local, playing) {
     clips.forEach((clip, i) => {
       const on = i === index;
       clip.el.classList.toggle("is-active", on);
-      if (on) seekVideo(i, t - clip.start);
+      if (!on) {
+        if (!clip.el.paused) clip.el.pause();
+        return;
+      }
+      if (playing) {
+        if (Math.abs((clip.el.currentTime || 0) - local) > 0.18) {
+          try {
+            clip.el.currentTime = local;
+          } catch {
+            /* ignore */
+          }
+        }
+        clip.el.playbackRate = 1;
+        if (clip.el.paused) clip.el.play().catch(() => {});
+      } else {
+        seekVideo(i, local);
+      }
     });
+  }
+
+  function paint(t, playing = false) {
+    activateClip(clipAt(t), t - clips[clipAt(t)].start, playing);
   }
 
   function emitHalt() {
@@ -139,26 +143,114 @@ export function createScrubber({
     if (previous !== time && time <= 0.02) completed = false;
   }
 
+  function finishCoast(dest) {
+    window.clearInterval(coastTo.timer);
+    cancelAnimationFrame(raf);
+    pauseAll();
+    if (dir > 0 && dest >= total - 0.02) {
+      setTime(total);
+      return;
+    }
+    setTime(dest, { halt: true });
+  }
+
   function coastTo(target, direction) {
     dir = direction;
     mode = "coast";
+    completed = false;
     const dest = clamp(target, 0, total);
-    const tick = (stamp) => {
-      if (mode !== "coast") return;
-      if (!lastStamp) lastStamp = stamp;
-      const dt = Math.min(0.05, (stamp - lastStamp) / 1000);
-      lastStamp = stamp;
-      const next = time + dir * dt;
-      if ((dir > 0 && next >= dest) || (dir < 0 && next <= dest)) {
-        setTime(dest, { halt: dest < total - 0.02 });
+    cancelAnimationFrame(raf);
+    window.clearInterval(coastTo.timer);
+    lastStamp = performance.now();
+    let lastMedia = -1;
+    let stalled = 0;
+    const warmup = clipAt(time);
+    if (direction > 0 && clips[warmup + 1]) {
+      try {
+        clips[warmup + 1].el.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
+    }
+
+    if (direction > 0) {
+      const idx = clipAt(time);
+      activateClip(idx, time - clips[idx].start, true);
+    } else {
+      pauseAll();
+      paint(time);
+    }
+
+    const step = () => {
+      if (mode !== "coast") {
+        window.clearInterval(coastTo.timer);
         return;
       }
-      setTime(next);
-      raf = requestAnimationFrame(tick);
+      const stamp = performance.now();
+      const dt = Math.min(0.28, Math.max(0, (stamp - lastStamp) / 1000));
+      lastStamp = stamp;
+
+      if (dir > 0) {
+        const idx = clipAt(time);
+        const clip = clips[idx];
+        const el = clip.el;
+        clips.forEach((c, i) => c.el.classList.toggle("is-active", i === idx));
+        const local = clamp(time - clip.start, 0, Math.max(0, clip.duration - 0.001));
+        el.playbackRate = 1;
+        if (Math.abs((el.currentTime || 0) - local) > 0.4) {
+          try {
+            el.currentTime = local;
+          } catch {
+            /* ignore */
+          }
+        }
+        if (el.paused) el.play().catch(() => {});
+        const mediaT = el.currentTime || 0;
+        const ended = el.ended || mediaT >= clip.duration - 0.04;
+        if (ended && dest > clip.end + 0.01) {
+          time = clip.end + 0.001;
+          lastMedia = -1;
+          stalled = 0;
+          el.pause();
+          const nextIdx = clipAt(time);
+          try {
+            clips[nextIdx].el.currentTime = 0;
+          } catch {
+            /* ignore */
+          }
+          activateClip(nextIdx, 0, true);
+        } else if (mediaT > lastMedia + 0.0008) {
+          stalled = 0;
+          lastMedia = mediaT;
+          time = clip.start + mediaT;
+        } else {
+          stalled += dt;
+          if (stalled > 0.22) {
+            time += dt;
+            try {
+              el.currentTime = clamp(time - clip.start, 0, clip.duration - 0.04);
+            } catch {
+              /* ignore */
+            }
+          }
+        }
+      } else {
+        pauseAll();
+        time -= dt;
+        const idx = clipAt(clamp(time, 0, total));
+        seekVideo(idx, clamp(time, 0, total) - clips[idx].start);
+        clips.forEach((c, i) => c.el.classList.toggle("is-active", i === idx));
+      }
+
+      time = clamp(time, 0, total);
+      onTime?.(time, total);
+
+      if ((dir > 0 && time >= dest - 0.02) || (dir < 0 && time <= dest + 0.02)) {
+        finishCoast(dest);
+      }
     };
-    lastStamp = 0;
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(tick);
+    coastTo.timer = window.setInterval(step, 16);
+    step();
   }
 
   function playForward() {
@@ -171,6 +263,7 @@ export function createScrubber({
   }
 
   function playReverse() {
+    completed = false;
     if (time <= 0.03) {
       setTime(0, { halt: true });
       return;
@@ -182,6 +275,8 @@ export function createScrubber({
   function stopCoast() {
     mode = "halted";
     cancelAnimationFrame(raf);
+    window.clearInterval(coastTo.timer);
+    pauseAll();
   }
 
   const pointers = new Map();
@@ -192,9 +287,6 @@ export function createScrubber({
 
   function onPointerDown(event) {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    stopCoast();
-    mode = "dragging";
-    completed = false;
     pointers.set(event.pointerId, {
       y: event.clientY,
       t: time,
@@ -202,15 +294,26 @@ export function createScrubber({
       startY: event.clientY,
       lastY: event.clientY,
       lastDir: dir,
+      dragging: false,
+      wasCoasting: mode === "coast",
     });
     event.currentTarget?.setPointerCapture?.(event.pointerId);
   }
 
   function onPointerMove(event) {
     const p = pointers.get(event.pointerId);
-    if (!p || mode !== "dragging") return;
+    if (!p) return;
     const dy = event.clientY - p.lastY;
     p.lastY = event.clientY;
+    if (!p.dragging) {
+      if (Math.abs(event.clientY - p.startY) < TAP_PX) return;
+      p.dragging = true;
+      stopCoast();
+      mode = "dragging";
+      completed = false;
+      p.t = time;
+      p.startY = event.clientY;
+    }
     if (dy !== 0) p.lastDir = dy < 0 ? 1 : -1;
     const next = p.t + -(event.clientY - p.startY) / pxPerSecond();
     dir = p.lastDir;
@@ -223,12 +326,13 @@ export function createScrubber({
     if (!p) return;
     const elapsed = performance.now() - p.startedAt;
     const moved = Math.abs(event.clientY - p.startY);
-    const isTap = moved < TAP_PX && elapsed < TAP_MS;
+    const isTap = !p.dragging && moved < TAP_PX && elapsed < TAP_MS;
     if (isTap && treatTap) {
       playForward();
       return;
     }
     if (isTap) {
+      if (p.wasCoasting && mode === "coast") return;
       mode = "halted";
       emitHalt();
       return;
@@ -301,6 +405,9 @@ export function createScrubber({
     },
     get haltIndex() {
       return haltIndex;
+    },
+    debug() {
+      return { time, total, mode, dir, haltIndex, halts: halts.slice() };
     },
   };
 }
