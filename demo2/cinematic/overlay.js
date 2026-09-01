@@ -1,5 +1,5 @@
-import { createScrubber } from "./scrub.js?v=12";
-import { createReceptionMascot } from "./mascot.js?v=12";
+import { createScrubber } from "./scrub.js?v=13";
+import { createReceptionMascot } from "./mascot.js?v=13";
 
 const ASSET = (name) => new URL(`./assets/${name}`, import.meta.url).href;
 
@@ -79,7 +79,7 @@ function buildDom() {
       <video class="pz-clip" data-clip="1" playsinline muted preload="auto" poster="${ASSET("scene-2-poster.jpg")}" src="${ASSET("scene-2.mp4")}"></video>
       <video class="pz-clip" data-clip="2" playsinline muted preload="auto" src="${ASSET("scene-3.mp4")}"></video>
     </div>
-    <div class="pz-reception" data-layer="reception">
+    <div class="pz-desk" data-layer="reception">
       <img class="pz-reception-bg" alt="" src="${ASSET("reception.jpg")}" />
       <div class="pz-reception-dim"></div>
       <canvas id="pz-mascot"></canvas>
@@ -158,7 +158,7 @@ async function boot() {
   const poster = root.querySelector(".pz-poster");
   const loading = root.querySelector(".pz-loading");
   const videos = [...root.querySelectorAll("video.pz-clip")];
-  const reception = root.querySelector(".pz-reception");
+  const reception = root.querySelector("[data-layer='reception']");
   const dock = document.querySelector(".pz-dock");
   const media = root.querySelector(".pz-media");
 

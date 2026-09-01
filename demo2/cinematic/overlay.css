@@ -221,7 +221,7 @@ html.pz-live .pz-reverse-zone {
   pointer-events: none;
 }
 
-.pz-reception {
+.pz-desk {
   position: absolute;
   inset: 0;
   opacity: 0;
@@ -230,7 +230,7 @@ html.pz-live .pz-reverse-zone {
   background: #1a1612 url("./assets/reception.jpg") center 42% / cover no-repeat;
 }
 
-.pz-reception.is-on {
+.pz-desk.is-on {
   opacity: 1;
 }
 
@@ -449,7 +449,7 @@ html.pz-live .pz-reverse-zone {
 
 @media (prefers-reduced-motion: reduce) {
   .pz-cue-arrow,
-  .pz-reception,
+  .pz-desk,
   .pz-speak {
     animation: none;
     transition: none;
