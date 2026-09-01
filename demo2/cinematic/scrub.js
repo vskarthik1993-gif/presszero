@@ -130,7 +130,7 @@ export function createScrubber({
     time = clamp(next, 0, total);
     paint(time);
     onTime?.(time, total);
-    if (time >= total - 0.02 && dir > 0 && !completed) {
+    if (time >= total - 0.02 && !completed) {
       completed = true;
       mode = "halted";
       onComplete?.();
