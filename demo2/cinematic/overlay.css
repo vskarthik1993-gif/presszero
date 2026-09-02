@@ -6,10 +6,12 @@
 }
 
 html.pz-intro,
-html.pz-intro body {
+html.pz-intro body,
+html.pz-intro #pz-phone {
   overflow: hidden;
   height: 100%;
   overscroll-behavior: none;
+  touch-action: none;
 }
 
 html.pz-cinematic,
@@ -174,8 +176,47 @@ html.pz-live .demo-mobile-scroll {
   pointer-events: auto;
 }
 
-#pz-cinematic {
+#pz-phone {
   position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #07080a;
+}
+
+@media (min-width: 761px) {
+  html.pz-cinematic body {
+    background: #050608 !important;
+  }
+  #pz-phone {
+    inset: auto;
+    width: min(390px, calc(100vw - 24px));
+    height: min(844px, calc(100vh - 24px));
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 28px;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+  }
+  html.pz-cinematic .demo-stage--mobile,
+  html.pz-cinematic .demo-mobile-hero,
+  html.pz-cinematic .demo-stage__mascot-layer,
+  html.pz-cinematic .demo-stage__mascot-fs,
+  html.pz-cinematic .zero-mascot-canvas {
+    min-height: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+}
+
+html.pz-cinematic #root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+#pz-cinematic {
+  position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
@@ -190,10 +231,27 @@ html.pz-live #pz-cinematic {
   z-index: 1;
 }
 
+html.pz-handoff #pz-cinematic {
+  z-index: 24;
+}
+
 #pz-cinematic.is-intro {
   pointer-events: auto;
   z-index: 120;
   touch-action: none;
+}
+
+.pz-gestures {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  touch-action: none;
+  pointer-events: auto;
+}
+
+html.pz-live .pz-gestures {
+  pointer-events: none;
+  display: none;
 }
 
 .pz-reverse-zone {
@@ -285,24 +343,19 @@ html.pz-live .pz-reverse-zone {
 
 #pz-mascot {
   position: absolute;
-  left: 50%;
-  top: 2%;
+  inset: 0;
   width: 100%;
-  height: 70%;
-  transform: translateX(-50%);
+  height: 100%;
   display: block;
   pointer-events: none;
   background: transparent;
-  /* Ice-cyan contour halo (inner + outer edge) matching the reception still. */
   filter:
-    drop-shadow(0 0 3px rgba(168, 220, 242, 0.55))
-    drop-shadow(0 0 10px rgba(126, 200, 232, 0.42))
-    drop-shadow(0 0 22px rgba(110, 190, 230, 0.22));
-  animation: pz-mascot-breathe 4.2s ease-in-out infinite;
+    drop-shadow(0 0 6px rgba(160, 216, 239, 0.38))
+    drop-shadow(0 0 16px rgba(126, 200, 232, 0.2));
 }
 
 .pz-leela-logo {
-  position: fixed;
+  position: absolute;
   top: calc(10px + env(safe-area-inset-top, 0px));
   right: 14px;
   height: 46px;
@@ -313,7 +366,7 @@ html.pz-live .pz-reverse-zone {
 }
 
 .pz-dock {
-  position: fixed;
+  position: absolute;
   left: 50%;
   bottom: var(--pz-dock-bottom);
   transform: translateX(-50%);
@@ -486,27 +539,9 @@ html.pz-live .pz-reverse-zone {
   }
 }
 
-@keyframes pz-mascot-breathe {
-  0%,
-  100% {
-    filter:
-      drop-shadow(0 0 3px rgba(168, 220, 242, 0.42))
-      drop-shadow(0 0 10px rgba(126, 200, 232, 0.3))
-      drop-shadow(0 0 22px rgba(110, 190, 230, 0.14));
-  }
-  50% {
-    filter:
-      drop-shadow(0 0 5px rgba(176, 228, 248, 0.72))
-      drop-shadow(0 0 14px rgba(140, 210, 238, 0.5))
-      drop-shadow(0 0 28px rgba(120, 198, 236, 0.28));
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .pz-cue-arrow,
-  .pz-desk,
-  .pz-speak,
-  #pz-mascot {
+  .pz-desk {
     animation: none;
     transition: none;
   }

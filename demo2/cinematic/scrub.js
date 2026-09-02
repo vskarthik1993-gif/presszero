@@ -1,7 +1,5 @@
-const TAP_PX = 14;
-const TAP_MS = 280;
-/** Halt for the Enter The Leela cue: 1.00s into Scene 2, not the end of Scene 1. */
-const SCENE_TWO_CUE_AT = 1;
+const TAP_PX = 10;
+const TAP_MS = 320;
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -38,14 +36,12 @@ export function createScrubber({
       cursor = clip.end;
     });
     total = cursor;
-    halts = [0, sceneTwoCueTime(), total];
+    halts = [0, sceneThreeStart(), total];
   }
 
-  function sceneTwoCueTime() {
-    const start = clips[0]?.end || 0;
-    const sceneTwo = clips[1]?.duration || 0;
-    if (!sceneTwo) return start;
-    return start + Math.min(SCENE_TWO_CUE_AT, Math.max(0.05, sceneTwo - 0.05));
+  function sceneThreeStart() {
+    if (clips[2]) return clips[2].start;
+    return clips[1]?.end || total;
   }
 
   function clipAt(t) {
@@ -128,7 +124,7 @@ export function createScrubber({
       total,
       haltIndex,
       atStart: time <= 0.04,
-      atSceneTwo: Math.abs(time - sceneTwoCueTime()) < 0.12,
+      atSceneThree: Math.abs(time - sceneThreeStart()) < 0.12,
       atEnd: time >= total - 0.05,
     });
   }
@@ -290,7 +286,7 @@ export function createScrubber({
   const pointers = new Map();
 
   function pxPerSecond() {
-    return Math.max(220, window.innerHeight * 0.52);
+    return Math.max(160, window.innerHeight * 0.38);
   }
 
   function onPointerDown(event) {
@@ -305,7 +301,11 @@ export function createScrubber({
       dragging: false,
       wasCoasting: mode === "coast",
     });
-    event.currentTarget?.setPointerCapture?.(event.pointerId);
+    try {
+      event.currentTarget?.setPointerCapture?.(event.pointerId);
+    } catch {
+      /* some targets cannot capture */
+    }
   }
 
   function onPointerMove(event) {
@@ -353,13 +353,14 @@ export function createScrubber({
     event.preventDefault();
     stopCoast();
     completed = false;
-    const next = time + event.deltaY / pxPerSecond();
-    dir = event.deltaY < 0 ? 1 : -1;
-    setTime(next);
+    const unit = event.deltaMode === 1 ? 18 : event.deltaMode === 2 ? window.innerHeight : 1;
+    const pixels = event.deltaY * unit;
+    dir = pixels < 0 ? 1 : -1;
+    setTime(time - pixels / pxPerSecond());
     window.clearTimeout(onWheel._timer);
     onWheel._timer = window.setTimeout(() => {
       coastTo(nextHalt(time, dir), dir);
-    }, 80);
+    }, 280);
   }
 
   async function prepare() {
@@ -421,7 +422,7 @@ export function createScrubber({
         mode,
         dir,
         haltIndex,
-        sceneTwoCue: sceneTwoCueTime(),
+        sceneThreeStart: sceneThreeStart(),
         halts: halts.slice(),
       };
     },

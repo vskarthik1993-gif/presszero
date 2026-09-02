@@ -218,12 +218,12 @@ const pbrSurfaceShader = {
 };
 
 function sampleBreathe(elapsed, speaking) {
-  const s = Math.sin(elapsed * 1.65);
-  const lift = speaking ? 0.28 : 0.2;
-  const squash = speaking ? 0.055 : 0.04;
-  const floatPhase = (elapsed % 6.667) / 6.667;
+  const s = Math.sin(elapsed * 1.15);
+  const lift = speaking ? 0.18 : 0.12;
+  const squash = speaking ? 0.03 : 0.022;
+  const floatPhase = (elapsed % 7.2) / 7.2;
   const float = 0.5 - 0.5 * Math.cos(floatPhase * Math.PI * 2);
-  const glow = 0.5 - 0.5 * Math.cos(elapsed * ((Math.PI * 2) / 3.9));
+  const glow = 0.5 - 0.5 * Math.cos(elapsed * ((Math.PI * 2) / 5.4));
   return {
     posY: s * lift + float * 0.72,
     scaleY: 1 + s * squash,
@@ -250,11 +250,9 @@ export async function createReceptionMascot(canvas) {
 
   const scene = new THREE.Scene();
   scene.background = null;
-  // Native /demo2 mascot: PerspectiveCamera fov 82 at z=36, group y=8, scale 0.82.
-  // Reception canvas is the upper ~64% of the phone frame, so a tighter FOV keeps
-  // the same on-screen size as that full-bleed mascot (and the reception still).
-  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 200);
-  camera.position.set(0, 0.35, 36);
+  // Exact native /demo2 mobile mascot: fov 82 at z=36, group y=8, scale 0.82.
+  const camera = new THREE.PerspectiveCamera(82, 1, 0.1, 200);
+  camera.position.set(0, 0, 36);
 
   const cube = new THREE.CubeTexture(buildStudioFaces());
   cube.needsUpdate = true;
@@ -322,7 +320,7 @@ export async function createReceptionMascot(canvas) {
       color: new THREE.Color("#a0d8ef"),
     }),
   );
-  glow.scale.set(28, 36, 1);
+  glow.scale.set(22, 28, 1);
   glow.position.set(0, 0, -2.4);
 
   const glowSoft = new THREE.Sprite(
@@ -332,11 +330,11 @@ export async function createReceptionMascot(canvas) {
       depthWrite: false,
       depthTest: false,
       blending: THREE.AdditiveBlending,
-      opacity: 0.18,
+      opacity: 0.14,
       color: new THREE.Color("#7ec8e8"),
     }),
   );
-  glowSoft.scale.set(34, 44, 1);
+  glowSoft.scale.set(28, 36, 1);
   glowSoft.position.set(0, 0, -3.2);
 
   const rimMat = makeRimMaterial();
@@ -358,10 +356,8 @@ export async function createReceptionMascot(canvas) {
   outer.add(glowSoft);
   outer.add(glow);
   outer.add(inner);
-  // Native mascotOffsetY is 8 in the full-bleed canvas; this reception frame is
-  // already the upper two-thirds, so a modest lift keeps it off the marble.
-  outer.position.set(0, 1.15, 0);
-  outer.scale.setScalar(0.92);
+  outer.position.set(0, 8, 0);
+  outer.scale.setScalar(0.82);
   scene.add(outer);
 
   let speaking = false;
@@ -388,18 +384,17 @@ export async function createReceptionMascot(canvas) {
     if (!startedAt) startedAt = stamp;
     const elapsed = (stamp - startedAt) / 1000;
     const pose = sampleBreathe(elapsed, speaking);
-    outer.position.y = 1.15 + pose.posY;
+    outer.position.y = 8 + pose.posY * 0.45;
     inner.scale.set(BASE_XY * pose.scaleX, BASE_XY * pose.scaleY, BASE_Z * pose.scaleZ);
     inner.rotation.y = 0.16 + pose.rotY;
-    const pulse = speaking ? 0.62 + pose.glow * 0.28 : 0.48 + pose.glow * 0.22;
+    const pulse = speaking ? 0.58 + pose.glow * 0.08 : 0.52 + pose.glow * 0.06;
     rimMat.uniforms.pulse.value = pulse;
-    glow.material.opacity = 0.28 + pose.glow * 0.18 + (speaking ? 0.08 : 0);
-    glowSoft.material.opacity = 0.1 + pose.glow * 0.1;
-    const spread = 1 + pose.glow * 0.05;
-    glow.scale.set(28 * spread, 36 * spread, 1);
-    glowSoft.scale.set(34 * spread, 44 * spread, 1);
-    haloLight.intensity = 0.22 + pose.glow * 0.2 + (speaking ? 0.12 : 0);
-    rim.intensity = 0.22 + pose.glow * 0.12;
+    glow.material.opacity = 0.34 + pose.glow * 0.06;
+    glowSoft.material.opacity = 0.12 + pose.glow * 0.04;
+    glow.scale.set(22, 28, 1);
+    glowSoft.scale.set(28, 36, 1);
+    haloLight.intensity = 0.28 + pose.glow * 0.06;
+    rim.intensity = 0.24;
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(render);
   }

@@ -41,10 +41,30 @@
     </script>
     <script>
       document.documentElement.classList.add("pz-cinematic", "pz-intro");
+      (function () {
+        const orig = window.matchMedia.bind(window);
+        window.matchMedia = function (query) {
+          if (typeof query === "string" && /max-width:\s*760px/.test(query)) {
+            return {
+              matches: true,
+              media: query,
+              onchange: null,
+              addListener() {},
+              removeListener() {},
+              addEventListener() {},
+              removeEventListener() {},
+              dispatchEvent() {
+                return false;
+              },
+            };
+          }
+          return orig(query);
+        };
+      })();
     </script>
-    <link rel="stylesheet" href="cinematic/overlay.css?v=20" />
+    <link rel="stylesheet" href="cinematic/overlay.css?v=21" />
     <link rel="stylesheet" crossorigin href="/demo2/assets/index-BjMKp58f.css">
-    <script type="module" src="cinematic/overlay.js?v=20"></script>
+    <script type="module" src="cinematic/overlay.js?v=21"></script>
     <script type="module" crossorigin src="/demo2/assets/index-DuSKVcQi.js"></script>
   </head>
   <body>
