@@ -357,7 +357,7 @@ export async function createReceptionMascot(canvas) {
   outer.add(glow);
   outer.add(inner);
   outer.position.set(0, 8, 0);
-  outer.scale.setScalar(0.82);
+  outer.scale.setScalar(0.72);
   scene.add(outer);
 
   let speaking = false;
