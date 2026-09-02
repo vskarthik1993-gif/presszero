@@ -19,8 +19,8 @@ function makeHaloTexture() {
       const dx = (x - cx) / cx;
       const dy = (y - cy) / cy;
       const r = Math.hypot(dx / 0.7, dy / 0.92);
-      const outer = Math.exp(-((r - 0.82) / 0.09) ** 2);
-      const inner = Math.exp(-((r - 0.38) / 0.075) ** 2);
+      const outer = Math.exp(-(((r - 0.82) / 0.09) ** 2));
+      const inner = Math.exp(-(((r - 0.38) / 0.075) ** 2));
       const a = Math.max(outer, inner) * 0.42;
       const i = (y * size + x) * 4;
       img.data[i] = 160;
