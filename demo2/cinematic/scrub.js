@@ -258,6 +258,7 @@ export function createScrubber({
   }
 
   function playForward() {
+    if (mode === "coast" && dir > 0) return;
     if (time >= total - 0.03) {
       onComplete?.();
       return;
@@ -267,6 +268,7 @@ export function createScrubber({
   }
 
   function playReverse() {
+    if (mode === "coast" && dir < 0) return;
     completed = false;
     if (time <= 0.03) {
       setTime(0, { halt: true });

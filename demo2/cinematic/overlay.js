@@ -1,5 +1,5 @@
-import { createScrubber } from "./scrub.js?v=21";
-import { createReceptionMascot } from "./mascot.js?v=21";
+import { createScrubber } from "./scrub.js?v=22";
+import { createReceptionMascot } from "./mascot.js?v=22";
 
 const ASSET = (name) => new URL(`./assets/${name}`, import.meta.url).href;
 
@@ -188,15 +188,15 @@ async function boot() {
     media.style.opacity = "0";
     media.style.pointerEvents = "none";
     poster.classList.add("is-hidden");
+    window.setTimeout(() => {
+      html.classList.remove("pz-handoff");
+      fadingIn = false;
+    }, 900);
     await ensureMascot();
     await waitFor(".demo-mobile-controls");
     alignDock(dock);
     if (!warming) armNativeCall();
     window.addEventListener("resize", () => alignDock(dock), { passive: true });
-    window.setTimeout(() => {
-      html.classList.remove("pz-handoff");
-      fadingIn = false;
-    }, 900);
   }
 
   function maybeArmFromGesture() {
