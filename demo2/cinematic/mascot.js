@@ -5,13 +5,28 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 const FONT_URL = new URL("../assets/mascot/bold.blob", import.meta.url).href;
 
 /** Voice-concierge studio config: key #bf5f2b @ 45°, pool #e17c41 @ 21% / 83%. */
-const KEY_COLOR = 0xbf5f2b;
-const POOL_COLOR = 0xe17c41;
-const KEY_SWEEP = THREE.MathUtils.degToRad(45);
-const POOL_WIDTH = 0.21;
-const POOL_INTENSITY = 0.83;
-const YAW = THREE.MathUtils.degToRad(9);
-const PITCH = THREE.MathUtils.degToRad(3);
+export const DEFAULT_MASCOT_CONFIG = {
+  keyColor: "#bf5f2b",
+  keySweep: 45,
+  keyIntensity: 100,
+  poolColor: "#e17c41",
+  poolWidth: 21,
+  poolIntensity: 83,
+  yaw: 9,
+  pitch: 3,
+  zoom: 1,
+  exposure: 1.38,
+  fillIntensity: 155,
+  ambientIntensity: 62,
+  metalColor: "#e6ebf0",
+  metalness: 94,
+  roughness: 26,
+  envMapIntensity: 155,
+  breathe: true,
+};
+
+const KEY_DIST = 46;
+const KEY_ELEV = THREE.MathUtils.degToRad(36);
 
 function makePlateTexture() {
   const canvas = document.createElement("canvas");
@@ -145,7 +160,8 @@ function sampleBreathe(elapsed, speaking) {
   };
 }
 
-export async function createReceptionMascot(canvas) {
+export async function createReceptionMascot(canvas, initialConfig = {}) {
+  const cfg = { ...DEFAULT_MASCOT_CONFIG, ...initialConfig };
   const renderer = new THREE.WebGLRenderer({
     canvas,
     alpha: true,
@@ -159,12 +175,12 @@ export async function createReceptionMascot(canvas) {
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.38;
+  renderer.toneMappingExposure = cfg.exposure;
 
   const scene = new THREE.Scene();
   scene.background = null;
   const camera = new THREE.PerspectiveCamera(82, 1, 0.1, 200);
-  camera.position.set(0, 0, 36);
+  camera.position.set(0, 0, 36 / Math.max(0.4, cfg.zoom));
 
   const cube = new THREE.CubeTexture(buildLobbyEnvFaces());
   cube.needsUpdate = true;
@@ -174,21 +190,15 @@ export async function createReceptionMascot(canvas) {
   scene.environment = env;
   pmrem.dispose();
 
-  scene.add(new THREE.AmbientLight(0xe8e2d8, 0.62));
+  const ambient = new THREE.AmbientLight(0xe8e2d8, cfg.ambientIntensity / 100);
+  scene.add(ambient);
   const hemi = new THREE.HemisphereLight(0xfff2e4, 0xa89078, 0.7);
   scene.add(hemi);
 
-  const key = new THREE.DirectionalLight(KEY_COLOR, 2.6);
-  const keyDist = 46;
-  const keyElev = THREE.MathUtils.degToRad(36);
-  key.position.set(
-    Math.sin(KEY_SWEEP) * Math.cos(keyElev) * keyDist,
-    Math.sin(keyElev) * keyDist,
-    Math.cos(KEY_SWEEP) * Math.cos(keyElev) * keyDist,
-  );
+  const key = new THREE.DirectionalLight(cfg.keyColor, 2.6 * (cfg.keyIntensity / 100));
   scene.add(key);
 
-  const fill = new THREE.DirectionalLight(0xf4f7fb, 1.55);
+  const fill = new THREE.DirectionalLight(0xf4f7fb, cfg.fillIntensity / 100);
   fill.position.set(-10, 10, 28);
   scene.add(fill);
 
@@ -196,16 +206,25 @@ export async function createReceptionMascot(canvas) {
   bounce.position.set(8, -12, 18);
   scene.add(bounce);
 
-  const poolAngle = Math.atan(POOL_WIDTH * 1.35);
-  const pool = new THREE.SpotLight(POOL_COLOR, 120 * POOL_INTENSITY, 140, poolAngle, 0.48, 1.4);
-  pool.position.set(0, 46, 10);
+  const pool = new THREE.SpotLight(cfg.poolColor, 120 * (cfg.poolIntensity / 100), 140, Math.atan((cfg.poolWidth / 100) * 1.35), 0.48, 1.4);
   pool.target.position.set(0, 10, 0);
   scene.add(pool);
   scene.add(pool.target);
 
-  const poolFill = new THREE.PointLight(POOL_COLOR, 36 * POOL_INTENSITY, 90, 1.8);
+  const poolFill = new THREE.PointLight(cfg.poolColor, 36 * (cfg.poolIntensity / 100), 90, 1.8);
   poolFill.position.set(0, 38, 8);
   scene.add(poolFill);
+
+  function placeKey() {
+    const sweep = THREE.MathUtils.degToRad(cfg.keySweep);
+    key.position.set(
+      Math.sin(sweep) * Math.cos(KEY_ELEV) * KEY_DIST,
+      Math.sin(KEY_ELEV) * KEY_DIST,
+      Math.cos(sweep) * Math.cos(KEY_ELEV) * KEY_DIST,
+    );
+  }
+  placeKey();
+  pool.position.set(0, 46, 10);
 
   const font = await new FontLoader().loadAsync(FONT_URL);
   const geometry = new TextGeometry("0", {
@@ -277,13 +296,37 @@ export async function createReceptionMascot(canvas) {
   inner.add(mesh);
   inner.add(plate);
   inner.scale.set(BASE_XY, BASE_XY, BASE_Z);
-  inner.rotation.set(PITCH, YAW, 0);
+  inner.rotation.set(THREE.MathUtils.degToRad(cfg.pitch), THREE.MathUtils.degToRad(cfg.yaw), 0);
 
   const outer = new THREE.Group();
   outer.add(inner);
   outer.position.set(0, 8, 0);
   outer.scale.setScalar(0.72);
   scene.add(outer);
+
+  function applyConfig(partial = {}) {
+    Object.assign(cfg, partial);
+    key.color.set(cfg.keyColor);
+    placeKey();
+    pool.color.set(cfg.poolColor);
+    pool.angle = Math.atan((cfg.poolWidth / 100) * 1.35);
+    pool.position.set(0, 46, 10);
+    poolFill.color.set(cfg.poolColor);
+    fill.intensity = cfg.fillIntensity / 100;
+    ambient.intensity = cfg.ambientIntensity / 100;
+    renderer.toneMappingExposure = cfg.exposure;
+    camera.position.z = 36 / Math.max(0.4, cfg.zoom);
+    material.color.set(cfg.metalColor);
+    material.metalness = cfg.metalness / 100;
+    material.roughness = cfg.roughness / 100;
+    material.envMapIntensity = cfg.envMapIntensity / 100;
+    inner.rotation.set(
+      THREE.MathUtils.degToRad(cfg.pitch),
+      THREE.MathUtils.degToRad(cfg.yaw),
+      0,
+    );
+    camera.updateProjectionMatrix();
+  }
 
   let speaking = false;
   let running = false;
@@ -309,13 +352,22 @@ export async function createReceptionMascot(canvas) {
     if (!startedAt) startedAt = stamp;
     const elapsed = (stamp - startedAt) / 1000;
     const pose = sampleBreathe(elapsed, speaking);
-    outer.position.y = 8 + pose.posY * 0.45;
-    inner.scale.set(BASE_XY * pose.scaleX, BASE_XY * pose.scaleY, BASE_Z * pose.scaleZ);
-    inner.rotation.set(PITCH, YAW + pose.rotY, 0);
+    inner.scale.set(
+      BASE_XY * (cfg.breathe ? pose.scaleX : 1),
+      BASE_XY * (cfg.breathe ? pose.scaleY : 1),
+      BASE_Z * (cfg.breathe ? pose.scaleZ : 1),
+    );
+    outer.position.y = 8 + (cfg.breathe ? pose.posY * 0.45 : 0);
+    inner.rotation.set(
+      THREE.MathUtils.degToRad(cfg.pitch),
+      THREE.MathUtils.degToRad(cfg.yaw) + (cfg.breathe ? pose.rotY : 0),
+      0,
+    );
     const pulse = speaking ? 1.12 + pose.glow * 0.08 : 1 + pose.glow * 0.05;
-    pool.intensity = 120 * POOL_INTENSITY * pulse;
-    poolFill.intensity = 36 * POOL_INTENSITY * pulse;
-    key.intensity = speaking ? 2.9 : 2.6;
+    const livePulse = cfg.breathe ? pulse : 1;
+    pool.intensity = 120 * (cfg.poolIntensity / 100) * livePulse;
+    poolFill.intensity = 36 * (cfg.poolIntensity / 100) * livePulse;
+    key.intensity = 2.6 * (cfg.keyIntensity / 100) * (speaking ? 1.12 : 1);
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(render);
   }
@@ -341,6 +393,10 @@ export async function createReceptionMascot(canvas) {
     stop,
     setSpeaking(value) {
       speaking = Boolean(value);
+    },
+    applyConfig,
+    getConfig() {
+      return { ...cfg };
     },
     resize,
   };
