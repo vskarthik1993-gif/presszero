@@ -1,19 +1,42 @@
 {
+  "id": "/demo2/",
   "name": "Leela AI Receptionist",
   "short_name": "Leela AI",
-  "description": "Leela AI Receptionist — powered by PressZero",
-  "display": "fullscreen",
+  "description": "Voice AI reception for Leela Palaces & Hotels, Mumbai — powered by PressZero",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
   "orientation": "portrait",
   "background_color": "#0e1014",
   "theme_color": "#0e1014",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/demo2/",
+  "scope": "/demo2/",
+  "categories": ["business", "travel"],
   "icons": [
     {
-      "src": "assets/metal-o-canvas.png",
-      "sizes": "1024x1024",
+      "src": "/demo2/assets/favicon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/demo2/assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/demo2/assets/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/demo2/assets/favicon-android-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
