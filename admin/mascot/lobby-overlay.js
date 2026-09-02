@@ -9,8 +9,8 @@
   const DEFAULTS = {
     on: false,
     sheen: true,
-    zoom: 1.08,
-    shiftY: 0.02,
+    zoom: 1,
+    shiftY: 0,
     sheenX: 50,
     sheenY: 44,
     sheenW: 86,
