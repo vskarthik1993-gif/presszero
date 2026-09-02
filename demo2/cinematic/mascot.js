@@ -25,8 +25,30 @@ export const DEFAULT_MASCOT_CONFIG = {
   breathe: true,
 };
 
+/**
+ * Lab starting lights. Fill/env/exposure stay low so key + pool sliders
+ * have headroom. Live /demo2 still uses DEFAULT_MASCOT_CONFIG.
+ */
+export const LAB_STUDIO_CONFIG = {
+  ...DEFAULT_MASCOT_CONFIG,
+  fillIntensity: 32,
+  ambientIntensity: 18,
+  envMapIntensity: 72,
+  exposure: 1.05,
+  keyIntensity: 100,
+  poolIntensity: 83,
+};
+
 const KEY_DIST = 46;
 const KEY_ELEV = THREE.MathUtils.degToRad(36);
+const KEY_GAIN = 2.6;
+const POOL_GAIN = 140;
+const POOL_POINT_GAIN = 42;
+
+function num(value, fallback) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
 
 function makePlateTexture() {
   const canvas = document.createElement("canvas");
@@ -47,6 +69,24 @@ function makePlateTexture() {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("PressZero", 256, 148);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function makePoolGlowTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  const rad = ctx.createRadialGradient(128, 128, 6, 128, 128, 124);
+  rad.addColorStop(0, "rgba(255,255,255,1)");
+  rad.addColorStop(0.22, "rgba(255,230,200,0.75)");
+  rad.addColorStop(0.55, "rgba(255,160,80,0.28)");
+  rad.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = rad;
+  ctx.fillRect(0, 0, 256, 256);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.needsUpdate = true;
@@ -190,30 +230,56 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
   scene.environment = env;
   pmrem.dispose();
 
-  const ambient = new THREE.AmbientLight(0xe8e2d8, cfg.ambientIntensity / 100);
+  const ambient = new THREE.AmbientLight(0xe8e2d8, num(cfg.ambientIntensity, 62) / 100);
   scene.add(ambient);
-  const hemi = new THREE.HemisphereLight(0xfff2e4, 0xa89078, 0.7);
+  const hemi = new THREE.HemisphereLight(0xfff2e4, 0xa89078, 0.7 * (num(cfg.ambientIntensity, 62) / 62));
   scene.add(hemi);
 
-  const key = new THREE.DirectionalLight(cfg.keyColor, 2.6 * (cfg.keyIntensity / 100));
+  const key = new THREE.DirectionalLight(cfg.keyColor, (num(cfg.keyIntensity, 100) / 100) * KEY_GAIN);
   scene.add(key);
 
-  const fill = new THREE.DirectionalLight(0xf4f7fb, cfg.fillIntensity / 100);
+  const fill = new THREE.DirectionalLight(0xf4f7fb, num(cfg.fillIntensity, 155) / 100);
   fill.position.set(-10, 10, 28);
   scene.add(fill);
 
-  const bounce = new THREE.DirectionalLight(0xffe8d2, 0.85);
+  const bounce = new THREE.DirectionalLight(0xffe8d2, 0.85 * (num(cfg.fillIntensity, 155) / 155));
   bounce.position.set(8, -12, 18);
   scene.add(bounce);
 
-  const pool = new THREE.SpotLight(cfg.poolColor, 120 * (cfg.poolIntensity / 100), 140, Math.atan((cfg.poolWidth / 100) * 1.35), 0.48, 1.4);
+  const pool = new THREE.SpotLight(
+    cfg.poolColor,
+    (num(cfg.poolIntensity, 83) / 100) * POOL_GAIN,
+    140,
+    Math.atan((num(cfg.poolWidth, 21) / 100) * 1.35),
+    0.48,
+    1.4,
+  );
   pool.target.position.set(0, 10, 0);
   scene.add(pool);
   scene.add(pool.target);
 
-  const poolFill = new THREE.PointLight(cfg.poolColor, 36 * (cfg.poolIntensity / 100), 90, 1.8);
+  const poolFill = new THREE.PointLight(
+    cfg.poolColor,
+    (num(cfg.poolIntensity, 83) / 100) * POOL_POINT_GAIN,
+    90,
+    1.8,
+  );
   poolFill.position.set(0, 38, 8);
   scene.add(poolFill);
+
+  const glowMat = new THREE.MeshBasicMaterial({
+    map: makePoolGlowTexture(),
+    color: cfg.poolColor,
+    transparent: true,
+    opacity: 0.28,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(90, 90), glowMat);
+  glow.position.set(0, 10, -8);
+  glow.rotation.x = -0.72;
+  scene.add(glow);
 
   function placeKey() {
     const sweep = THREE.MathUtils.degToRad(cfg.keySweep);
@@ -262,14 +328,16 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
 
   const { roughness, bump } = makeBrushedMaps();
   const material = new THREE.MeshPhysicalMaterial({
-    color: 0xe6ebf0,
-    metalness: 0.94,
-    roughness: 0.26,
+    color: cfg.metalColor,
+    metalness: num(cfg.metalness, 94) / 100,
+    roughness: num(cfg.roughness, 26) / 100,
     roughnessMap: roughness,
     bumpMap: bump,
     bumpScale: 0.12,
     envMap: env,
-    envMapIntensity: 1.55,
+    envMapIntensity: num(cfg.envMapIntensity, 155) / 100,
+    emissive: new THREE.Color(cfg.poolColor),
+    emissiveIntensity: 0.12,
     clearcoat: 0.18,
     clearcoatRoughness: 0.32,
     anisotropy: canAniso ? 0.7 : 0,
@@ -304,34 +372,66 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
   outer.scale.setScalar(0.72);
   scene.add(outer);
 
-  function applyConfig(partial = {}) {
-    Object.assign(cfg, partial);
-    key.color.set(cfg.keyColor);
-    placeKey();
-    pool.color.set(cfg.poolColor);
-    pool.angle = Math.atan((cfg.poolWidth / 100) * 1.35);
-    pool.position.set(0, 46, 10);
-    poolFill.color.set(cfg.poolColor);
-    fill.intensity = cfg.fillIntensity / 100;
-    ambient.intensity = cfg.ambientIntensity / 100;
-    renderer.toneMappingExposure = cfg.exposure;
-    camera.position.z = 36 / Math.max(0.4, cfg.zoom);
-    material.color.set(cfg.metalColor);
-    material.metalness = cfg.metalness / 100;
-    material.roughness = cfg.roughness / 100;
-    material.envMapIntensity = cfg.envMapIntensity / 100;
-    inner.rotation.set(
-      THREE.MathUtils.degToRad(cfg.pitch),
-      THREE.MathUtils.degToRad(cfg.yaw),
-      0,
-    );
-    camera.updateProjectionMatrix();
-  }
-
   let speaking = false;
   let running = false;
   let frameId = 0;
   let startedAt = 0;
+
+  function applyLights(pulse = 1) {
+    const keyAmt = Math.max(0, num(cfg.keyIntensity, 100) / 100);
+    const poolAmt = Math.max(0, num(cfg.poolIntensity, 83) / 100);
+    const fillAmt = Math.max(0, num(cfg.fillIntensity, 155) / 100);
+    const ambAmt = Math.max(0, num(cfg.ambientIntensity, 62) / 100);
+    const poolW = Math.max(0.04, num(cfg.poolWidth, 21) / 100);
+    const keyHex = cfg.keyColor || "#bf5f2b";
+    const poolHex = cfg.poolColor || "#e17c41";
+
+    key.color.set(keyHex);
+    placeKey();
+    key.intensity = keyAmt * KEY_GAIN * (speaking ? 1.12 : 1);
+
+    fill.intensity = fillAmt;
+    bounce.intensity = 0.85 * (num(cfg.fillIntensity, 155) / 155);
+    ambient.intensity = ambAmt;
+    hemi.intensity = 0.7 * (num(cfg.ambientIntensity, 62) / 62);
+
+    pool.color.set(poolHex);
+    pool.angle = Math.max(0.05, Math.atan(poolW * 1.35));
+    pool.position.set(0, 46, 10);
+    pool.intensity = poolAmt * POOL_GAIN * pulse;
+    poolFill.color.set(poolHex);
+    poolFill.intensity = poolAmt * POOL_POINT_GAIN * pulse;
+
+    glowMat.color.set(poolHex);
+    glowMat.opacity = Math.min(0.9, poolAmt * 0.42);
+    glow.scale.setScalar(0.45 + poolW * 2.6);
+    glow.visible = poolAmt > 0.008;
+
+    material.color.set(cfg.metalColor || "#e6ebf0");
+    material.metalness = num(cfg.metalness, 94) / 100;
+    material.roughness = num(cfg.roughness, 26) / 100;
+    material.envMapIntensity = num(cfg.envMapIntensity, 155) / 100;
+    material.emissive.set(poolHex);
+    material.emissiveIntensity = poolAmt * 0.22 + keyAmt * 0.06;
+    material.needsUpdate = true;
+
+    renderer.toneMappingExposure = num(cfg.exposure, 1.38);
+    camera.position.z = 36 / Math.max(0.4, num(cfg.zoom, 1));
+    camera.updateProjectionMatrix();
+  }
+
+  function applyConfig(partial = {}) {
+    Object.assign(cfg, partial);
+    applyLights(1);
+    inner.rotation.set(
+      THREE.MathUtils.degToRad(num(cfg.pitch, 3)),
+      THREE.MathUtils.degToRad(num(cfg.yaw, 9)),
+      0,
+    );
+    renderer.render(scene, camera);
+  }
+
+  applyLights(1);
 
   canvas.style.display = "block";
   canvas.style.width = "100%";
@@ -365,9 +465,7 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
     );
     const pulse = speaking ? 1.12 + pose.glow * 0.08 : 1 + pose.glow * 0.05;
     const livePulse = cfg.breathe ? pulse : 1;
-    pool.intensity = 120 * (cfg.poolIntensity / 100) * livePulse;
-    poolFill.intensity = 36 * (cfg.poolIntensity / 100) * livePulse;
-    key.intensity = 2.6 * (cfg.keyIntensity / 100) * (speaking ? 1.12 : 1);
+    applyLights(livePulse);
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(render);
   }
@@ -385,6 +483,8 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
   }
 
   window.addEventListener("resize", resize, { passive: true });
+  const resizeObserver = typeof ResizeObserver === "function" ? new ResizeObserver(resize) : null;
+  resizeObserver?.observe(canvas);
   resize();
   renderer.render(scene, camera);
 
@@ -397,6 +497,19 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
     applyConfig,
     getConfig() {
       return { ...cfg };
+    },
+    getLightState() {
+      return {
+        key: key.intensity,
+        pool: pool.intensity,
+        fill: fill.intensity,
+        ambient: ambient.intensity,
+        glow: glowMat.opacity,
+        emissive: material.emissiveIntensity,
+        yaw: num(cfg.yaw, 9),
+        zoom: num(cfg.zoom, 1),
+        exposure: renderer.toneMappingExposure,
+      };
     },
     resize,
   };

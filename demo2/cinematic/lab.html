@@ -15,7 +15,7 @@
         }
       }
     </script>
-    <link rel="stylesheet" href="./lab.css?v=28" />
+    <link rel="stylesheet" href="./lab.css?v=29" />
   </head>
   <body>
     <main class="lab">
@@ -31,7 +31,8 @@
         <header>
           <p>Voice Concierge</p>
           <h1>Reception lighting lab</h1>
-          <span>Same lobby still as /demo2 — tune the pool and key on brushed steel</span>
+          <span>Studio start is darker than live /demo2 so key and pool can actually add light. Drag a lever — the 0 should change immediately.</span>
+          <p class="lab-status" id="lab-status">Starting…</p>
         </header>
         <label class="lab-row">
           Backdrop
@@ -63,13 +64,13 @@
           <label>Colour <input id="metalColor" type="color" value="#e6ebf0" /></label>
           <label>Metalness <output id="metalnessOut">94%</output><input id="metalness" type="range" min="0" max="100" value="94" /></label>
           <label>Roughness <output id="roughnessOut">26%</output><input id="roughness" type="range" min="4" max="90" value="26" /></label>
-          <label>Env <output id="envMapIntensityOut">155%</output><input id="envMapIntensity" type="range" min="20" max="250" value="155" /></label>
+          <label>Env <output id="envMapIntensityOut">72%</output><input id="envMapIntensity" type="range" min="20" max="250" value="72" /></label>
         </fieldset>
         <fieldset>
           <legend>Fill</legend>
-          <label>Fill <output id="fillIntensityOut">155%</output><input id="fillIntensity" type="range" min="0" max="250" value="155" /></label>
-          <label>Ambient <output id="ambientIntensityOut">62%</output><input id="ambientIntensity" type="range" min="0" max="150" value="62" /></label>
-          <label>Exposure <output id="exposureOut">1.38</output><input id="exposure" type="range" min="70" max="200" value="138" /></label>
+          <label>Fill <output id="fillIntensityOut">32%</output><input id="fillIntensity" type="range" min="0" max="250" value="32" /></label>
+          <label>Ambient <output id="ambientIntensityOut">18%</output><input id="ambientIntensity" type="range" min="0" max="150" value="18" /></label>
+          <label>Exposure <output id="exposureOut">1.05</output><input id="exposure" type="range" min="70" max="200" value="105" /></label>
         </fieldset>
         <label class="lab-check"><input id="breathe" type="checkbox" checked /> Breathe</label>
         <div class="lab-actions">
@@ -79,6 +80,6 @@
         <pre id="json"></pre>
       </aside>
     </main>
-    <script type="module" src="./lab.js?v=28"></script>
+    <script type="module" src="./lab.js?v=29"></script>
   </body>
 </html>

@@ -1,6 +1,9 @@
-import { createReceptionMascot, DEFAULT_MASCOT_CONFIG } from "./mascot.js?v=28";
+import { createReceptionMascot, LAB_STUDIO_CONFIG } from "./mascot.js?v=29";
 
 const $ = (id) => document.getElementById(id);
+
+let mascot = null;
+let pending = null;
 
 function readForm() {
   return {
@@ -41,6 +44,32 @@ function writeOutputs(cfg) {
   $("json").textContent = JSON.stringify(cfg, null, 2);
 }
 
+function setStatus(text) {
+  const el = $("lab-status");
+  if (el) el.textContent = text;
+}
+
+function apply() {
+  const cfg = readForm();
+  writeOutputs(cfg);
+  if (!mascot) {
+    pending = cfg;
+    return;
+  }
+  try {
+    mascot.applyConfig(cfg);
+    const lights = mascot.getLightState?.();
+    if (lights) {
+      setStatus(
+        `Live — key ${lights.key.toFixed(2)} · pool ${lights.pool.toFixed(1)} · glow ${lights.glow.toFixed(2)} · yaw ${cfg.yaw}°`,
+      );
+    }
+  } catch (err) {
+    setStatus(`Apply failed: ${err?.message || err}`);
+    console.error(err);
+  }
+}
+
 function syncForm(cfg) {
   $("keyColor").value = cfg.keyColor;
   $("keySweep").value = cfg.keySweep;
@@ -62,20 +91,10 @@ function syncForm(cfg) {
   writeOutputs(cfg);
 }
 
-const mascot = await createReceptionMascot($("lab-mascot"), DEFAULT_MASCOT_CONFIG);
-mascot.start();
-syncForm(mascot.getConfig());
-
-function apply() {
-  const cfg = readForm();
-  mascot.applyConfig(cfg);
-  writeOutputs(cfg);
-}
-
-for (const el of document.querySelectorAll("input, select")) {
-  el.addEventListener("input", apply);
-  el.addEventListener("change", apply);
-}
+const panel = document.querySelector(".lab-panel");
+panel.addEventListener("input", apply);
+panel.addEventListener("change", apply);
+panel.addEventListener("pointerup", apply);
 
 $("backdrop").addEventListener("change", () => {
   const phone = document.querySelector(".lab-phone");
@@ -84,12 +103,14 @@ $("backdrop").addEventListener("change", () => {
 });
 
 $("reset").addEventListener("click", () => {
-  mascot.applyConfig(DEFAULT_MASCOT_CONFIG);
+  if (!mascot) return;
+  mascot.applyConfig(LAB_STUDIO_CONFIG);
   syncForm(mascot.getConfig());
+  apply();
 });
 
 $("copy").addEventListener("click", async () => {
-  const text = JSON.stringify(mascot.getConfig(), null, 2);
+  const text = JSON.stringify(mascot ? mascot.getConfig() : readForm(), null, 2);
   try {
     await navigator.clipboard.writeText(text);
     $("copy").textContent = "Copied";
@@ -100,3 +121,16 @@ $("copy").addEventListener("click", async () => {
     $("json").focus();
   }
 });
+
+setStatus("Loading steel…");
+try {
+  mascot = await createReceptionMascot($("lab-mascot"), LAB_STUDIO_CONFIG);
+  mascot.start();
+  mascot.resize();
+  window.__pzLabMascot = mascot;
+  syncForm(pending || mascot.getConfig());
+  apply();
+} catch (err) {
+  setStatus(`Mascot failed: ${err?.message || err}`);
+  console.error(err);
+}
