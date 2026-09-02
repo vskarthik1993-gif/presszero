@@ -31,6 +31,7 @@ export const DEFAULT_MASCOT_CONFIG = {
  */
 export const LAB_STUDIO_CONFIG = {
   ...DEFAULT_MASCOT_CONFIG,
+  studio: true,
   fillIntensity: 32,
   ambientIntensity: 18,
   envMapIntensity: 72,
@@ -267,6 +268,9 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
   poolFill.position.set(0, 38, 8);
   scene.add(poolFill);
 
+  const keyPoint = new THREE.PointLight(cfg.keyColor, (num(cfg.keyIntensity, 100) / 100) * 26, 85, 1.35);
+  scene.add(keyPoint);
+
   const glowMat = new THREE.MeshBasicMaterial({
     map: makePoolGlowTexture(),
     color: cfg.poolColor,
@@ -385,10 +389,19 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
     const poolW = Math.max(0.04, num(cfg.poolWidth, 21) / 100);
     const keyHex = cfg.keyColor || "#bf5f2b";
     const poolHex = cfg.poolColor || "#e17c41";
+    const studio = Boolean(cfg.studio);
+    const emPool = studio ? 0.42 : 0.1;
+    const emKey = studio ? 0.5 : 0.06;
+    const keyPtGain = studio ? 34 : 8;
+    const glowGain = studio ? 0.5 : 0.16;
 
     key.color.set(keyHex);
     placeKey();
     key.intensity = keyAmt * KEY_GAIN * (speaking ? 1.12 : 1);
+    keyPoint.color.set(keyHex);
+    keyPoint.intensity = keyAmt * keyPtGain;
+    keyPoint.position.copy(key.position).normalize().multiplyScalar(24);
+    keyPoint.position.y += 5;
 
     fill.intensity = fillAmt;
     bounce.intensity = 0.85 * (num(cfg.fillIntensity, 155) / 155);
@@ -403,7 +416,7 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
     poolFill.intensity = poolAmt * POOL_POINT_GAIN * pulse;
 
     glowMat.color.set(poolHex);
-    glowMat.opacity = Math.min(0.9, poolAmt * 0.42);
+    glowMat.opacity = Math.min(0.92, poolAmt * glowGain);
     glow.scale.setScalar(0.45 + poolW * 2.6);
     glow.visible = poolAmt > 0.008;
 
@@ -411,8 +424,14 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
     material.metalness = num(cfg.metalness, 94) / 100;
     material.roughness = num(cfg.roughness, 26) / 100;
     material.envMapIntensity = num(cfg.envMapIntensity, 155) / 100;
-    material.emissive.set(poolHex);
-    material.emissiveIntensity = poolAmt * 0.22 + keyAmt * 0.06;
+    const poolC = new THREE.Color(poolHex);
+    const keyC = new THREE.Color(keyHex);
+    material.emissive.setRGB(
+      poolC.r * poolAmt * emPool + keyC.r * keyAmt * emKey,
+      poolC.g * poolAmt * emPool + keyC.g * keyAmt * emKey,
+      poolC.b * poolAmt * emPool + keyC.b * keyAmt * emKey,
+    );
+    material.emissiveIntensity = 1;
     material.needsUpdate = true;
 
     renderer.toneMappingExposure = num(cfg.exposure, 1.38);
@@ -501,6 +520,7 @@ export async function createReceptionMascot(canvas, initialConfig = {}) {
     getLightState() {
       return {
         key: key.intensity,
+        keyPoint: keyPoint.intensity,
         pool: pool.intensity,
         fill: fill.intensity,
         ambient: ambient.intensity,

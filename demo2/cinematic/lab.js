@@ -1,4 +1,4 @@
-import { createReceptionMascot, LAB_STUDIO_CONFIG } from "./mascot.js?v=29";
+import { createReceptionMascot, LAB_STUDIO_CONFIG } from "./mascot.js?v=30";
 
 const $ = (id) => document.getElementById(id);
 
@@ -24,6 +24,7 @@ function readForm() {
     ambientIntensity: Number($("ambientIntensity").value),
     exposure: Number($("exposure").value) / 100,
     breathe: $("breathe").checked,
+    studio: true,
   };
 }
 
