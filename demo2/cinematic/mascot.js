@@ -174,8 +174,8 @@ export async function createReceptionMascot(canvas) {
   scene.environment = env;
   pmrem.dispose();
 
-  scene.add(new THREE.AmbientLight(0x2c241c, 0.22));
-  const hemi = new THREE.HemisphereLight(0xe17c41, 0x1c1410, 0.42);
+  scene.add(new THREE.AmbientLight(0x4a4540, 0.28));
+  const hemi = new THREE.HemisphereLight(0xf0d8c0, 0x1c1410, 0.22);
   scene.add(hemi);
 
   const key = new THREE.DirectionalLight(KEY_COLOR, 3.4);
@@ -188,7 +188,7 @@ export async function createReceptionMascot(canvas) {
   );
   scene.add(key);
 
-  const fill = new THREE.DirectionalLight(0x9aa4b0, 0.28);
+  const fill = new THREE.DirectionalLight(0xc5ccd4, 0.45);
   fill.position.set(-18, 6, 22);
   scene.add(fill);
 
@@ -218,10 +218,23 @@ export async function createReceptionMascot(canvas) {
   geometry.computeBoundingBox();
   geometry.center();
   geometry.computeVertexNormals();
+  if (!geometry.getAttribute("uv")) {
+    const pos = geometry.getAttribute("position");
+    const uv = new Float32Array(pos.count * 2);
+    for (let i = 0; i < pos.count; i += 1) {
+      uv[i * 2] = pos.getX(i) * 0.035;
+      uv[i * 2 + 1] = pos.getY(i) * 0.035;
+    }
+    geometry.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  }
+  let canAniso = false;
   try {
-    geometry.computeTangents();
+    if (geometry.index && geometry.getAttribute("normal") && geometry.getAttribute("uv")) {
+      geometry.computeTangents();
+      canAniso = Boolean(geometry.getAttribute("tangent"));
+    }
   } catch {
-    /* TextGeometry without a clean tangent basis still renders as steel. */
+    canAniso = false;
   }
 
   const { roughness, bump } = makeBrushedMaps();
@@ -236,7 +249,7 @@ export async function createReceptionMascot(canvas) {
     envMapIntensity: 1.28,
     clearcoat: 0.12,
     clearcoatRoughness: 0.42,
-    anisotropy: 0.82,
+    anisotropy: canAniso ? 0.82 : 0,
     anisotropyRotation: Math.PI / 2,
     specularIntensity: 1,
     specularColor: new THREE.Color("#f3ece4"),

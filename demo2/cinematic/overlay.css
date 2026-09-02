@@ -90,7 +90,9 @@ html.pz-live .demo-mobile-section {
 
 html.pz-intro .app-nav-hamburger,
 html.pz-intro .app-nav-root,
-html.pz-reception .app-nav-hamburger {
+html.pz-reception .app-nav-hamburger,
+html.pz-live .app-nav-hamburger,
+html.pz-live .app-nav-root {
   opacity: 0 !important;
   pointer-events: none !important;
 }
@@ -231,6 +233,20 @@ html.pz-cinematic #root {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+}
+
+html.pz-live .demo-stage-theme,
+html.pz-live .demo-stage-theme.reception-app,
+html.pz-live .reception-app,
+html.pz-live .demo-stage,
+html.pz-live .demo-stage--mobile {
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
 }
 
 #pz-cinematic {
@@ -264,11 +280,13 @@ html.pz-live .pz-dock {
 html.pz-live .demo-mobile-hero {
   display: block !important;
   position: relative;
-  padding: 0 18px calc(16px + env(safe-area-inset-bottom, 0px));
+  height: 100% !important;
+  min-height: 100% !important;
+  padding: 0;
 }
 
 html.pz-live .demo-mobile-controls {
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   bottom: calc(14px + env(safe-area-inset-bottom, 0px));
@@ -278,7 +296,7 @@ html.pz-live .demo-mobile-controls {
 }
 
 html.pz-live .demo-mobile-caption-wrap {
-  position: absolute;
+  position: fixed;
   left: 8px;
   right: 8px;
   bottom: calc(92px + env(safe-area-inset-bottom, 0px));
@@ -289,7 +307,7 @@ html.pz-live .demo-mobile-caption-wrap {
 }
 
 html.pz-live .demo-mobile-stage {
-  position: absolute;
+  position: fixed;
   left: 12px;
   right: 12px;
   bottom: calc(188px + env(safe-area-inset-bottom, 0px));
