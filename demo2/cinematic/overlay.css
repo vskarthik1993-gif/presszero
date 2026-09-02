@@ -79,6 +79,15 @@ html.pz-cinematic .demo-mobile-scrollhint {
   pointer-events: none !important;
 }
 
+/* Live: drop those rows from layout so mute/end are not pushed below the clip. */
+html.pz-live .demo-mobile-heading,
+html.pz-live .demo-mobile-fs-btn,
+html.pz-live .demo-mobile-scrollhint,
+html.pz-live .demo-mobile-mascot-space,
+html.pz-live .demo-mobile-section {
+  display: none !important;
+}
+
 html.pz-intro .app-nav-hamburger,
 html.pz-intro .app-nav-root,
 html.pz-reception .app-nav-hamburger {
@@ -172,8 +181,15 @@ html.pz-reception .demo-mobile-caption-wrap {
   pointer-events: auto;
 }
 
+html.pz-live #root,
+html.pz-live .demo-stage--mobile,
+html.pz-live .demo-mobile-hero,
 html.pz-live .demo-mobile-scroll {
-  pointer-events: auto;
+  pointer-events: none;
+}
+
+html.pz-live .demo-mobile-scroll {
+  overflow: hidden !important;
 }
 
 #pz-phone {
@@ -182,6 +198,17 @@ html.pz-live .demo-mobile-scroll {
   z-index: 0;
   overflow: hidden;
   background: #07080a;
+}
+
+html.pz-cinematic .demo-stage--mobile,
+html.pz-cinematic .demo-mobile-hero,
+html.pz-cinematic .demo-mobile-scroll,
+html.pz-cinematic .demo-stage__mascot-layer,
+html.pz-cinematic .demo-stage__mascot-fs,
+html.pz-cinematic .zero-mascot-canvas {
+  min-height: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
 }
 
 @media (min-width: 761px) {
@@ -197,15 +224,6 @@ html.pz-live .demo-mobile-scroll {
     transform: translate(-50%, -50%);
     border-radius: 28px;
     box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
-  }
-  html.pz-cinematic .demo-stage--mobile,
-  html.pz-cinematic .demo-mobile-hero,
-  html.pz-cinematic .demo-stage__mascot-layer,
-  html.pz-cinematic .demo-stage__mascot-fs,
-  html.pz-cinematic .zero-mascot-canvas {
-    min-height: 100% !important;
-    height: 100% !important;
-    max-height: 100% !important;
   }
 }
 
@@ -231,8 +249,73 @@ html.pz-live #pz-cinematic {
   z-index: 1;
 }
 
+html.pz-live #root {
+  z-index: 20;
+}
+
 html.pz-handoff #pz-cinematic {
-  z-index: 24;
+  z-index: 1;
+}
+
+html.pz-live .pz-dock {
+  display: none !important;
+}
+
+html.pz-live .demo-mobile-hero {
+  display: block !important;
+  position: relative;
+  padding: 0 18px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+html.pz-live .demo-mobile-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 8;
+  margin: 0;
+  pointer-events: auto !important;
+}
+
+html.pz-live .demo-mobile-caption-wrap {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  z-index: 7;
+  min-height: 0;
+  margin: 0;
+  pointer-events: auto !important;
+}
+
+html.pz-live .demo-mobile-stage {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(188px + env(safe-area-inset-bottom, 0px));
+  z-index: 7;
+  max-height: min(38%, 280px);
+  pointer-events: none;
+}
+
+html.pz-live .demo-mobile-stage.has-snippet,
+html.pz-live .demo-mobile-stage__snippet,
+html.pz-live .demo-mobile-sheet,
+html.pz-live .demo-mobile-sheet-backdrop,
+html.pz-live .demo-paylink,
+html.pz-live .chat-room-snippet,
+html.pz-live .chat-room-snippet-slot {
+  pointer-events: auto !important;
+}
+
+html.pz-live .demo-mobile-sheet {
+  height: min(52%, 380px);
+}
+
+html.pz-live .chat-room-detail,
+html.pz-live .demo-leave-dialog {
+  pointer-events: auto !important;
+  z-index: 400;
 }
 
 #pz-cinematic.is-intro {
@@ -330,15 +413,11 @@ html.pz-live .pz-reverse-zone {
   object-fit: cover;
   object-position: center 42%;
   transform: scale(1.02);
+  filter: brightness(1.08) saturate(1.05) contrast(1.03);
 }
 
 .pz-reception-dim {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 58% 48% at 50% 40%, rgba(8, 10, 14, 0.04), rgba(8, 10, 14, 0.46) 78%),
-    linear-gradient(180deg, rgba(6, 7, 10, 0.22), rgba(6, 7, 10, 0.44));
-  pointer-events: none;
+  display: none;
 }
 
 #pz-mascot {
@@ -349,9 +428,7 @@ html.pz-live .pz-reverse-zone {
   display: block;
   pointer-events: none;
   background: transparent;
-  filter:
-    drop-shadow(0 0 6px rgba(160, 216, 239, 0.38))
-    drop-shadow(0 0 16px rgba(126, 200, 232, 0.2));
+  filter: drop-shadow(0 22px 28px rgba(18, 10, 6, 0.38));
 }
 
 .pz-leela-logo {

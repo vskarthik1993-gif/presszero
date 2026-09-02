@@ -1,7 +1,7 @@
-import { createScrubber } from "./scrub.js?v=23";
-import { createReceptionMascot } from "./mascot.js?v=23";
+import { createScrubber } from "./scrub.js?v=24";
+import { createReceptionMascot } from "./mascot.js?v=24";
 
-const ASSET = (name) => new URL(`./assets/${name}?v=23`, import.meta.url).href;
+const ASSET = (name) => new URL(`./assets/${name}?v=24`, import.meta.url).href;
 
 const ARROW_SVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>`;
 
@@ -194,9 +194,14 @@ async function boot() {
     }, 900);
     await ensureMascot();
     await waitFor(".demo-mobile-controls");
+    document.querySelector(".demo-mobile-scroll")?.scrollTo?.(0, 0);
     alignDock(dock);
+    mascot?.resize();
     if (!warming) armNativeCall();
-    window.addEventListener("resize", () => alignDock(dock), { passive: true });
+    window.addEventListener("resize", () => {
+      alignDock(dock);
+      mascot?.resize();
+    }, { passive: true });
   }
 
   function maybeArmFromGesture() {
