@@ -308,7 +308,7 @@ export async function createReceptionMascot(canvas) {
       roughness: 0.38,
     }),
   );
-  plate.position.set(13.4, -15.4, 22);
+  plate.position.set(15.6, -13.6, 24);
 
   const glowMap = makeHaloTexture();
   const glow = new THREE.Sprite(
