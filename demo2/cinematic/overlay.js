@@ -1,5 +1,5 @@
-import { createScrubber } from "./scrub.js?v=17";
-import { createReceptionMascot } from "./mascot.js?v=17";
+import { createScrubber } from "./scrub.js?v=18";
+import { createReceptionMascot } from "./mascot.js?v=18";
 
 const ASSET = (name) => new URL(`./assets/${name}`, import.meta.url).href;
 
@@ -111,8 +111,11 @@ async function morphSpeakToControls(speak) {
   const html = document.documentElement;
   const { start, mute, end } = nativeButtons();
   const speakRect = speak.getBoundingClientRect();
+  // Live + morphing together so mute/end stay invisible while Speak is still
+  // on screen. Never let native start show — that was the 3-button flash.
   html.classList.add("pz-live", "pz-morphing");
   alignDock(document.querySelector(".pz-dock"));
+  await new Promise((resolve) => requestAnimationFrame(resolve));
   await new Promise((resolve) => requestAnimationFrame(resolve));
   const muteRect = mute?.getBoundingClientRect();
   const endRect = end?.getBoundingClientRect();
@@ -136,14 +139,14 @@ async function morphSpeakToControls(speak) {
       { duration: 520, easing: "cubic-bezier(0.22, 1, 0.36, 1)", fill: "forwards" },
     );
   };
-  if (muteRect && endRect) {
+  if (muteRect && endRect && muteRect.width > 4 && endRect.width > 4) {
     document.body.appendChild(ghosts);
     mk("pz-ghost--mute", MIC_SVG, speakRect, muteRect);
     mk("pz-ghost--end", PHONE_SVG, speakRect, endRect);
   }
+  speak.hidden = true;
   speak.classList.add("is-morphing");
   await new Promise((resolve) => window.setTimeout(resolve, 520));
-  speak.hidden = true;
   html.classList.remove("pz-morphing");
   ghosts.remove();
   start?.click();
@@ -217,7 +220,7 @@ async function boot() {
     if (phase !== "reception") return;
     phase = "scene2";
     html.classList.add("pz-intro");
-    html.classList.remove("pz-reception");
+    html.classList.remove("pz-reception", "pz-live", "pz-morphing");
     root.classList.add("is-intro");
     reception.classList.remove("is-on");
     media.style.opacity = "1";
@@ -322,7 +325,7 @@ async function boot() {
     if (phase !== "reception") return;
     phase = "live";
     html.classList.remove("pz-reception");
-    html.classList.add("pz-live");
+    html.classList.add("pz-live", "pz-morphing");
     await waitFor(".demo-callbtn--start");
     alignDock(dock);
     await morphSpeakToControls(speak);
@@ -332,7 +335,7 @@ async function boot() {
       mascot?.setSpeaking(isCallLive() && isAgentSpeaking());
       if (hadLiveCall && !isCallLive() && phase === "live") {
         phase = "reception";
-        html.classList.remove("pz-live");
+        html.classList.remove("pz-live", "pz-morphing");
         html.classList.add("pz-reception");
         speak.hidden = false;
         speak.classList.remove("is-morphing");

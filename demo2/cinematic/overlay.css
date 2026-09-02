@@ -91,8 +91,11 @@ html.pz-intro #root {
 }
 
 html.pz-reception .demo-callbtn--start,
-html.pz-live .demo-callbtn--start {
+html.pz-live .demo-callbtn--start,
+html.pz-morphing .demo-callbtn--start {
   display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 html.pz-reception .demo-callbtn--mute,
@@ -107,14 +110,48 @@ html.pz-live .demo-mobile-controls {
   gap: 28px;
 }
 
-html.pz-reception .demo-mobile-controls {
-  opacity: 0;
-  pointer-events: none !important;
+html.pz-live .demo-mobile-controls {
+  opacity: 1;
+  pointer-events: auto !important;
 }
 
+/* Keep mute/end in layout for FLIP, but never show them (or start) during the morph. */
 html.pz-morphing .demo-callbtn--mute,
 html.pz-morphing .demo-callbtn--end {
   opacity: 0 !important;
+  visibility: hidden !important;
+  filter: none !important;
+  pointer-events: none !important;
+}
+
+/* Marble desk: dormant glass is unreadable. Force a solid frosted plate. */
+html.pz-live:not(.pz-morphing) .demo-callbtn--mute,
+html.pz-live:not(.pz-morphing) .demo-callbtn--mute.is-dormant,
+html.pz-live:not(.pz-morphing) .demo-callbtn.is-dormant.demo-callbtn--mute {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #fff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.78) !important;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.1)),
+    rgba(18, 18, 22, 0.88) !important;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.55),
+    0 10px 24px rgba(0, 0, 0, 0.55) !important;
+}
+
+html.pz-live:not(.pz-morphing) .demo-callbtn--end,
+html.pz-live:not(.pz-morphing) .demo-callbtn--end.is-dormant,
+html.pz-live:not(.pz-morphing) .demo-callbtn.is-dormant.demo-callbtn--end {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #fff !important;
+  border: 1.5px solid rgba(255, 180, 170, 0.55) !important;
+  background: linear-gradient(150deg, #ff5a4a, #d01e14) !important;
+  box-shadow:
+    0 16px 32px rgba(230, 52, 38, 0.48),
+    0 5px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px rgba(255, 255, 255, 0.45) !important;
 }
 
 html.pz-reception .demo-mobile-scroll {
@@ -248,12 +285,20 @@ html.pz-live .pz-reverse-zone {
 
 #pz-mascot {
   position: absolute;
-  inset: 0;
+  left: 50%;
+  top: 3%;
   width: 100%;
-  height: 100%;
+  height: 64%;
+  transform: translateX(-50%);
   display: block;
   pointer-events: none;
   background: transparent;
+  /* Ice-cyan contour halo (inner + outer edge) matching the reception still. */
+  filter:
+    drop-shadow(0 0 3px rgba(168, 220, 242, 0.55))
+    drop-shadow(0 0 10px rgba(126, 200, 232, 0.42))
+    drop-shadow(0 0 22px rgba(110, 190, 230, 0.22));
+  animation: pz-mascot-breathe 4.2s ease-in-out infinite;
 }
 
 .pz-leela-logo {
@@ -396,9 +441,10 @@ html.pz-live .pz-reverse-zone {
 }
 
 .pz-ghost--mute {
-  background: linear-gradient(160deg, #ffffff38, #ffffff14), #1c1c208c;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.12)), rgba(18, 18, 22, 0.9);
   color: #fff;
-  box-shadow: inset 0 1px #ffffff47, 0 10px 22px #00000047;
+  border: 1.5px solid rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.55), 0 10px 22px rgba(0, 0, 0, 0.5);
 }
 
 .pz-ghost--end {
@@ -440,10 +486,27 @@ html.pz-live .pz-reverse-zone {
   }
 }
 
+@keyframes pz-mascot-breathe {
+  0%,
+  100% {
+    filter:
+      drop-shadow(0 0 3px rgba(168, 220, 242, 0.42))
+      drop-shadow(0 0 10px rgba(126, 200, 232, 0.3))
+      drop-shadow(0 0 22px rgba(110, 190, 230, 0.14));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 5px rgba(176, 228, 248, 0.72))
+      drop-shadow(0 0 14px rgba(140, 210, 238, 0.5))
+      drop-shadow(0 0 28px rgba(120, 198, 236, 0.28));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pz-cue-arrow,
   .pz-desk,
-  .pz-speak {
+  .pz-speak,
+  #pz-mascot {
     animation: none;
     transition: none;
   }

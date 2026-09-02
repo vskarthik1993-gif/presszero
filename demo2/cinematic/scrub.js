@@ -1,5 +1,7 @@
 const TAP_PX = 14;
 const TAP_MS = 280;
+/** Halt for the Enter The Leela cue: 1.00s into Scene 2, not the end of Scene 1. */
+const SCENE_TWO_CUE_AT = 1;
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -36,8 +38,14 @@ export function createScrubber({
       cursor = clip.end;
     });
     total = cursor;
-    // Halt at the start, after scene 1, and (complete) at the very end.
-    halts = [0, clips[0]?.end || 0, total];
+    halts = [0, sceneTwoCueTime(), total];
+  }
+
+  function sceneTwoCueTime() {
+    const start = clips[0]?.end || 0;
+    const sceneTwo = clips[1]?.duration || 0;
+    if (!sceneTwo) return start;
+    return start + Math.min(SCENE_TWO_CUE_AT, Math.max(0.05, sceneTwo - 0.05));
   }
 
   function clipAt(t) {
@@ -120,7 +128,7 @@ export function createScrubber({
       total,
       haltIndex,
       atStart: time <= 0.04,
-      atSceneTwo: Math.abs(time - (clips[0]?.end || 0)) < 0.08,
+      atSceneTwo: Math.abs(time - sceneTwoCueTime()) < 0.12,
       atEnd: time >= total - 0.05,
     });
   }
@@ -407,7 +415,15 @@ export function createScrubber({
       return haltIndex;
     },
     debug() {
-      return { time, total, mode, dir, haltIndex, halts: halts.slice() };
+      return {
+        time,
+        total,
+        mode,
+        dir,
+        haltIndex,
+        sceneTwoCue: sceneTwoCueTime(),
+        halts: halts.slice(),
+      };
     },
   };
 }
