@@ -1,7 +1,7 @@
-import { createScrubber } from "./scrub.js?v=22";
-import { createReceptionMascot } from "./mascot.js?v=22";
+import { createScrubber } from "./scrub.js?v=23";
+import { createReceptionMascot } from "./mascot.js?v=23";
 
-const ASSET = (name) => new URL(`./assets/${name}`, import.meta.url).href;
+const ASSET = (name) => new URL(`./assets/${name}?v=23`, import.meta.url).href;
 
 const ARROW_SVG = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>`;
 
