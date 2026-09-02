@@ -44,13 +44,13 @@ function makeBrushedMaps() {
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#8a8f96";
+  ctx.fillStyle = "#d4dae2";
   ctx.fillRect(0, 0, size, size);
   for (let i = 0; i < 1400; i += 1) {
     const x = Math.random() * size;
-    const alpha = 0.05 + Math.random() * 0.14;
-    const light = Math.random() > 0.5;
-    ctx.strokeStyle = light ? `rgba(236,240,245,${alpha})` : `rgba(40,44,50,${alpha})`;
+    const alpha = 0.05 + Math.random() * 0.12;
+    const light = Math.random() > 0.45;
+    ctx.strokeStyle = light ? `rgba(255,255,255,${alpha})` : `rgba(120,128,138,${alpha})`;
     ctx.lineWidth = 0.6 + Math.random() * 1.1;
     ctx.beginPath();
     ctx.moveTo(x, -8);
@@ -98,29 +98,29 @@ function buildLobbyEnvFaces() {
     const isBottom = i === 3;
     if (isTop) {
       const rad = ctx.createRadialGradient(128, 128, 8, 128, 128, 150);
-      rad.addColorStop(0, "#fff4e8");
-      rad.addColorStop(0.18, "#ffd2a4");
+      rad.addColorStop(0, "#fffaf2");
+      rad.addColorStop(0.18, "#ffe2c0");
       rad.addColorStop(0.42, "#e17c41");
-      rad.addColorStop(1, "#2a1a12");
+      rad.addColorStop(1, "#c8b49a");
       ctx.fillStyle = rad;
       ctx.fillRect(0, 0, 256, 256);
     } else if (isBottom) {
       const grad = ctx.createLinearGradient(0, 0, 0, 256);
-      grad.addColorStop(0, "#3a2a22");
-      grad.addColorStop(1, "#0c0a09");
+      grad.addColorStop(0, "#b08a72");
+      grad.addColorStop(1, "#7a5848");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 256, 256);
     } else {
       const grad = ctx.createLinearGradient(0, 0, 0, 256);
-      grad.addColorStop(0, "#f0d0b0");
-      grad.addColorStop(0.28, "#bf5f2b");
-      grad.addColorStop(0.62, "#6a5348");
-      grad.addColorStop(1, "#161210");
+      grad.addColorStop(0, "#fff4e6");
+      grad.addColorStop(0.28, "#ead4b8");
+      grad.addColorStop(0.62, "#d2b898");
+      grad.addColorStop(1, "#b89a7c");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 256, 256);
-      ctx.fillStyle = "rgba(225, 124, 65, 0.35)";
+      ctx.fillStyle = "rgba(255, 210, 160, 0.45)";
       ctx.beginPath();
-      ctx.ellipse(128, 36, 48, 22, 0, 0, Math.PI * 2);
+      ctx.ellipse(128, 36, 56, 26, 0, 0, Math.PI * 2);
       ctx.fill();
     }
     faces.push(canvas);
@@ -159,7 +159,7 @@ export async function createReceptionMascot(canvas) {
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
+  renderer.toneMappingExposure = 1.38;
 
   const scene = new THREE.Scene();
   scene.background = null;
@@ -174,11 +174,11 @@ export async function createReceptionMascot(canvas) {
   scene.environment = env;
   pmrem.dispose();
 
-  scene.add(new THREE.AmbientLight(0x4a4540, 0.28));
-  const hemi = new THREE.HemisphereLight(0xf0d8c0, 0x1c1410, 0.22);
+  scene.add(new THREE.AmbientLight(0xe8e2d8, 0.62));
+  const hemi = new THREE.HemisphereLight(0xfff2e4, 0xa89078, 0.7);
   scene.add(hemi);
 
-  const key = new THREE.DirectionalLight(KEY_COLOR, 3.4);
+  const key = new THREE.DirectionalLight(KEY_COLOR, 2.6);
   const keyDist = 46;
   const keyElev = THREE.MathUtils.degToRad(36);
   key.position.set(
@@ -188,18 +188,22 @@ export async function createReceptionMascot(canvas) {
   );
   scene.add(key);
 
-  const fill = new THREE.DirectionalLight(0xc5ccd4, 0.45);
-  fill.position.set(-18, 6, 22);
+  const fill = new THREE.DirectionalLight(0xf4f7fb, 1.55);
+  fill.position.set(-10, 10, 28);
   scene.add(fill);
 
+  const bounce = new THREE.DirectionalLight(0xffe8d2, 0.85);
+  bounce.position.set(8, -12, 18);
+  scene.add(bounce);
+
   const poolAngle = Math.atan(POOL_WIDTH * 1.35);
-  const pool = new THREE.SpotLight(POOL_COLOR, 95 * POOL_INTENSITY, 140, poolAngle, 0.48, 1.6);
+  const pool = new THREE.SpotLight(POOL_COLOR, 120 * POOL_INTENSITY, 140, poolAngle, 0.48, 1.4);
   pool.position.set(0, 46, 10);
   pool.target.position.set(0, 10, 0);
   scene.add(pool);
   scene.add(pool.target);
 
-  const poolFill = new THREE.PointLight(POOL_COLOR, 28 * POOL_INTENSITY, 90, 2);
+  const poolFill = new THREE.PointLight(POOL_COLOR, 36 * POOL_INTENSITY, 90, 1.8);
   poolFill.position.set(0, 38, 8);
   scene.add(poolFill);
 
@@ -239,20 +243,20 @@ export async function createReceptionMascot(canvas) {
 
   const { roughness, bump } = makeBrushedMaps();
   const material = new THREE.MeshPhysicalMaterial({
-    color: 0xb8bec8,
-    metalness: 0.96,
-    roughness: 0.34,
+    color: 0xe6ebf0,
+    metalness: 0.94,
+    roughness: 0.26,
     roughnessMap: roughness,
     bumpMap: bump,
-    bumpScale: 0.18,
+    bumpScale: 0.12,
     envMap: env,
-    envMapIntensity: 1.28,
-    clearcoat: 0.12,
-    clearcoatRoughness: 0.42,
-    anisotropy: canAniso ? 0.82 : 0,
+    envMapIntensity: 1.55,
+    clearcoat: 0.18,
+    clearcoatRoughness: 0.32,
+    anisotropy: canAniso ? 0.7 : 0,
     anisotropyRotation: Math.PI / 2,
     specularIntensity: 1,
-    specularColor: new THREE.Color("#f3ece4"),
+    specularColor: new THREE.Color("#ffffff"),
   });
   const mesh = new THREE.Mesh(geometry, material);
 
@@ -309,9 +313,9 @@ export async function createReceptionMascot(canvas) {
     inner.scale.set(BASE_XY * pose.scaleX, BASE_XY * pose.scaleY, BASE_Z * pose.scaleZ);
     inner.rotation.set(PITCH, YAW + pose.rotY, 0);
     const pulse = speaking ? 1.12 + pose.glow * 0.08 : 1 + pose.glow * 0.05;
-    pool.intensity = 95 * POOL_INTENSITY * pulse;
-    poolFill.intensity = 28 * POOL_INTENSITY * pulse;
-    key.intensity = speaking ? 3.7 : 3.4;
+    pool.intensity = 120 * POOL_INTENSITY * pulse;
+    poolFill.intensity = 36 * POOL_INTENSITY * pulse;
+    key.intensity = speaking ? 2.9 : 2.6;
     renderer.render(scene, camera);
     frameId = requestAnimationFrame(render);
   }

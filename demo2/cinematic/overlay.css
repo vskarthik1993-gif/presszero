@@ -446,7 +446,7 @@ html.pz-live .pz-reverse-zone {
   display: block;
   pointer-events: none;
   background: transparent;
-  filter: drop-shadow(0 22px 28px rgba(18, 10, 6, 0.38));
+  filter: drop-shadow(0 22px 28px rgba(18, 10, 6, 0.32));
 }
 
 .pz-leela-logo {
