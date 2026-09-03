@@ -1,0 +1,34 @@
+.voice-demo-viewport.is-lobby .voice-demo__footer-shield {
+  opacity: 0 !important;
+}
+
+.pz-lobby-panel.is-off .voice-demo__dock-body,
+#pz-lobby-body[hidden] {
+  display: none !important;
+}
+
+.pz-lobby-panel .voice-demo__dock-sub {
+  max-width: 28ch;
+}
+
+.pz-lobby-check {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.15rem 0 0.1rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: hsla(0, 0%, 100%, 0.72);
+}
+
+.pz-lobby-hint {
+  margin: 0 0 0.35rem;
+  font-size: 0.62rem;
+  line-height: 1.4;
+  opacity: 0.42;
+}
+
+.pz-lobby-row {
+  width: 100%;
+}
