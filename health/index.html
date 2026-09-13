@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#163a36" />
+    <title>Namma Care · AI Receptionist</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script>
+      if (location.hostname === 'presszero.in' || location.hostname === 'www.presszero.in') {
+        window.__NAMMA_API_BASE__ = 'https://namma-care-ai-receptionist.vskarthik1993.chatgpt.site';
+        window.__NAMMA_APP_BASE__ = '/health';
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#call-simulator" aria-label="Namma Care home">
+        <span class="brand-mark" aria-hidden="true">+</span>
+        <span><strong id="clinic-name">Namma Care Clinic</strong><small>AI reception desk</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#call-simulator">Call simulator</a>
+        <a href="#dashboard">Clinic dashboard</a>
+        <a href="#call-history">Call history</a>
+      </nav>
+      <span class="system-pill" id="system-pill"><i></i><span>Checking system</span></span>
+    </header>
+
+    <main>
+      <section class="hero" id="call-simulator">
+        <div class="hero-copy">
+          <p class="eyebrow">Real-time voice · Kannada first</p>
+          <h1>A calm front desk,<br />ready to listen.</h1>
+          <p class="hero-description">
+            Simulate an incoming clinic call. Asha can speak
+            <strong class="language-highlight">Kannada</strong>,
+            <strong class="language-highlight">Indian English</strong>,
+            <strong class="language-highlight">Hindi (Hinglish)</strong>, and
+            <strong class="language-highlight">Telugu</strong>, check live availability, and book the appointment.
+          </p>
+          <div class="language-row" aria-label="Supported languages">
+            <button class="language-chip active" data-language-code="kn" data-language-name="Kannada" aria-pressed="true">ಕನ್ನಡ</button>
+            <button class="language-chip" data-language-code="en" data-language-name="English" aria-pressed="false">English</button>
+            <button class="language-chip" data-language-code="hinglish" data-language-name="Hindi" aria-pressed="false">हिंदी</button>
+            <button class="language-chip" data-language-code="te" data-language-name="Telugu" aria-pressed="false">తెలుగు</button>
+          </div>
+          <p class="privacy-note"><span aria-hidden="true">●</span> Demo calls are recorded securely for clinic review. Asha is the left audio channel; the patient is the right.</p>
+        </div>
+
+        <div class="phone-card" aria-live="polite">
+          <div class="phone-topline">
+            <span id="call-state">Ready for a demo call</span>
+            <span id="call-timer">00:00</span>
+          </div>
+          <div class="avatar" aria-hidden="true">
+            <span>A</span>
+            <i id="voice-ring"></i>
+          </div>
+          <h2>Asha</h2>
+          <p>AI clinic receptionist</p>
+          <div class="audio-wave" id="audio-wave" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <div class="call-controls" aria-label="Call controls">
+            <button class="call-control start-call" id="start-call-button" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.4 1.8.6 2.8.7a2 2 0 0 1 1.7 2.1Z"/></svg>
+              <span>Start call</span>
+            </button>
+            <button class="call-control mute-call" id="mute-button" type="button" disabled aria-pressed="false">
+              <svg class="mic-on-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
+              <span id="mute-button-label">Mute</span>
+            </button>
+            <button class="call-control end-call" id="end-call-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 15.5a12.7 12.7 0 0 1 15 0l1.4-2.1a2 2 0 0 0-.5-2.8 15.7 15.7 0 0 0-16.8 0 2 2 0 0 0-.5 2.8l1.4 2.1Z"/></svg>
+              <span>End call</span>
+            </button>
+          </div>
+          <p class="call-hint" id="call-hint">Your browser will ask for microphone access</p>
+          <div class="transcript" id="transcript" hidden>
+            <div class="transcript-heading"><span>Live transcript</span><button id="clear-transcript" type="button">Clear</button></div>
+            <div class="transcript-body" id="transcript-body"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard-section" id="dashboard">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Local clinic data</p>
+            <h2>Reception dashboard</h2>
+            <p>Patients, appointments and the dummy clinic schedule update after every booking.</p>
+          </div>
+          <button class="secondary-button" id="refresh-dashboard" type="button">Refresh</button>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+          <article><span>Patients</span><strong id="patient-count">—</strong><small>Saved locally</small></article>
+          <article><span>Appointments</span><strong id="appointment-count">—</strong><small>Upcoming bookings</small></article>
+          <article><span>Open slots</span><strong id="slot-count">—</strong><small>Next 10 clinic days</small></article>
+          <article><span>Recorded calls</span><strong id="call-count">—</strong><small>Transcripts & stereo audio</small></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel appointments-panel">
+            <div class="panel-heading">
+              <div><span class="panel-kicker">Schedule</span><h3>Upcoming appointments</h3></div>
+              <span class="subtle-badge">Asia/Kolkata</span>
+            </div>
+            <div class="appointment-list" id="appointment-list"></div>
+          </article>
+
+          <article class="panel availability-panel">
+            <div class="panel-heading">
+              <div><span class="panel-kicker">Availability</span><h3>Next open slots</h3></div>
+              <button class="text-button" id="add-slot-button" type="button">+ Add slot</button>
+            </div>
+            <div class="slot-list" id="slot-list"></div>
+          </article>
+
+          <article class="panel patients-panel">
+            <div class="panel-heading">
+              <div><span class="panel-kicker">Patient records</span><h3>Patient details</h3></div>
+              <div class="patient-actions">
+                <label class="text-button upload-button" for="csv-upload">Upload CSV</label>
+                <input id="csv-upload" type="file" accept=".csv,text/csv" hidden />
+                <button class="primary-small" id="add-patient-button" type="button">+ Add patient</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Name</th><th>Age</th><th>Gender</th><th>Problem</th><th>Phone</th><th>Language</th><th></th></tr></thead>
+                <tbody id="patient-table-body"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel calls-panel" id="call-history">
+            <div class="panel-heading call-history-heading">
+              <div><span class="panel-kicker">Conversation records</span><h3>Call history</h3></div>
+              <div class="call-history-tools">
+                <label class="call-search-label"><span class="sr-only">Search calls</span><input id="call-search" type="search" placeholder="Search ID, patient or phone" /></label>
+                <select id="call-status-filter" aria-label="Filter calls by status"><option value="all">All statuses</option><option value="completed">Completed</option><option value="failed">Failed</option><option value="active">Active</option></select>
+                <button class="text-button" id="call-history-logout" type="button" hidden>Lock</button>
+              </div>
+            </div>
+            <div class="call-history-lock" id="call-history-lock">
+              <form id="call-history-login-form">
+                <span class="lock-mark" aria-hidden="true">●</span>
+                <div><strong>Clinic records are protected</strong><small>Enter the staff passcode to view patient details, transcripts, and recordings.</small></div>
+                <label><span class="sr-only">Call history passcode</span><input id="call-history-passcode" type="password" autocomplete="current-password" placeholder="Passcode" required /></label>
+                <button class="primary-small" type="submit">Unlock</button>
+                <p class="form-error" id="call-history-login-error" role="alert"></p>
+              </form>
+            </div>
+            <div class="table-wrap" id="call-history-content" hidden>
+              <table class="calls-table">
+                <thead><tr><th>Date</th><th>Patient / Call ID</th><th>Patient details</th><th>Appointment</th><th>Duration</th><th>Status</th><th>Recording</th><th>Language</th><th></th></tr></thead>
+                <tbody id="call-table-body"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel integrations-panel">
+            <div class="panel-heading">
+              <div><span class="panel-kicker">Provider wiring</span><h3>Integration readiness</h3></div>
+            </div>
+            <div class="integration-list">
+              <div><span class="integration-icon">WA</span><p><strong>WhatsApp</strong><small id="whatsapp-status">Mock queue active</small></p><span class="ready-dot">Ready</span></div>
+              <div><span class="integration-icon">TEL</span><p><strong>Telephony</strong><small id="telephony-status">Generic webhook active</small></p><span class="ready-dot">Ready</span></div>
+              <div><span class="integration-icon">AI</span><p><strong>Voice engine</strong><small>Real-time multilingual audio</small></p><span class="ready-dot" id="voice-engine-ready">Ready</span></div>
+            </div>
+            <div class="voice-settings">
+              <div class="voice-settings-copy">
+                <span class="panel-kicker">Female receptionist voice</span>
+                <h4>Choose Asha’s voice</h4>
+                <p>Preview a cached Kannada greeting, then choose the voice for the next call. Her female identity and pronoun rules stay fixed.</p>
+              </div>
+              <div class="voice-options" id="voice-options" role="group" aria-label="Female receptionist voice"></div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="patient-dialog">
+      <form method="dialog" id="patient-form">
+        <div class="dialog-heading"><div><span class="panel-kicker">Patient record</span><h3 id="patient-dialog-title">Add patient & appointment</h3></div><button class="close-button" value="cancel" aria-label="Close">×</button></div>
+        <input type="hidden" id="patient-id" />
+        <label>Full name<input id="patient-name" required minlength="2" /></label>
+        <div class="form-row"><label>Age<input id="patient-age" type="number" min="0" max="120" required /></label><label>Phone<input id="patient-phone" type="tel" required placeholder="+91 98765 43210" /></label></div>
+        <label>Gender<select id="patient-gender"><option value="unspecified">Not recorded</option><option value="female">Female</option><option value="male">Male</option><option value="non_binary">Non-binary</option><option value="prefer_not_to_say">Prefer not to say</option></select></label>
+        <label>Preferred language<select id="patient-language"><option value="kn">Kannada</option><option value="en">English</option><option value="hinglish">Hinglish</option><option value="te">Telugu</option></select></label>
+        <div class="appointment-fields" id="patient-appointment-fields">
+          <label>Problem / reason for appointment<textarea id="patient-problem" rows="2" minlength="2" maxlength="500" placeholder="For example, recurring headache"></textarea></label>
+          <label>Appointment date & time<select id="patient-slot"></select></label>
+          <p class="field-hint">Only currently available clinic slots are shown.</p>
+        </div>
+        <label>Notes<textarea id="patient-notes" rows="3" placeholder="Optional administrative note"></textarea></label>
+        <p class="form-error" id="patient-form-error"></p>
+        <div class="dialog-actions"><button class="secondary-button" value="cancel" type="button" id="cancel-patient">Cancel</button><button class="primary-small" value="save" type="submit" id="save-patient-button">Book appointment</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="slot-dialog">
+      <form method="dialog" id="slot-form">
+        <div class="dialog-heading"><div><span class="panel-kicker">Availability</span><h3>Add clinic slot</h3></div><button class="close-button" value="cancel" aria-label="Close">×</button></div>
+        <label>Start time<input id="slot-start" type="datetime-local" required /></label>
+        <label>End time<input id="slot-end" type="datetime-local" required /></label>
+        <label>Doctor<input id="slot-doctor" value="Dr. Ananya Rao" required /></label>
+        <label>Department<input id="slot-department" value="General Medicine" required /></label>
+        <p class="form-error" id="slot-form-error"></p>
+        <div class="dialog-actions"><button class="secondary-button" type="button" id="cancel-slot">Cancel</button><button class="primary-small" type="submit">Add slot</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="call-detail-dialog" class="call-detail-dialog">
+      <div class="call-detail-shell">
+        <div class="dialog-heading call-detail-header">
+          <div><span class="panel-kicker">Recorded clinic call</span><h3 id="call-detail-title">Call details</h3><code id="call-detail-id"></code></div>
+          <button class="close-button" type="button" id="close-call-detail" aria-label="Close">×</button>
+        </div>
+        <div class="call-detail-grid">
+          <section class="call-detail-summary" aria-label="Call and patient information" id="call-detail-summary"></section>
+          <section class="recording-card" id="call-recording-card">
+            <div><span class="panel-kicker">Stereo recording</span><strong>Asha left · Patient right</strong></div>
+            <audio id="call-recording-player" controls preload="metadata"></audio>
+            <a id="call-recording-download" class="secondary-button" download>Download WAV</a>
+            <p id="call-recording-message"></p>
+          </section>
+        </div>
+        <section class="call-transcript-panel"><div class="call-transcript-heading"><span class="panel-kicker">Conversation</span><strong id="call-transcript-count"></strong></div><div id="call-detail-transcript" class="call-detail-transcript"></div></section>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status"></div>
+    <script type="module" src="./app.js?v=presszero-health-v1"></script>
+  </body>
+</html>
