@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reception lighting lab — PressZero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/three.module.js",
+          "three/addons/": "./vendor/three/addons/"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="./lab.css?v=30" />
+  </head>
+  <body>
+    <main class="lab">
+      <section class="lab-stage">
+        <div class="lab-phone" data-bg="reception">
+          <img class="lab-reception" alt="" src="./assets/reception.jpg" />
+          <div class="lab-black" id="lab-black" hidden></div>
+          <canvas id="lab-mascot"></canvas>
+          <img class="lab-logo" alt="The Leela" src="./assets/leela-logo.png" />
+        </div>
+      </section>
+      <aside class="lab-panel">
+        <header>
+          <p>Voice Concierge</p>
+          <h1>Reception lighting lab</h1>
+          <span>Studio start is darker than live /demo2 so key and pool can actually add light. Drag a lever — the 0 should change immediately.</span>
+          <p class="lab-status" id="lab-status">Starting…</p>
+        </header>
+        <label class="lab-row">
+          Backdrop
+          <select id="backdrop">
+            <option value="reception" selected>Reception still</option>
+            <option value="black">Black studio</option>
+          </select>
+        </label>
+        <fieldset>
+          <legend>Key light</legend>
+          <label>Sweep <output id="keySweepOut">45°</output><input id="keySweep" type="range" min="0" max="360" value="45" /></label>
+          <label>Colour <input id="keyColor" type="color" value="#bf5f2b" /></label>
+          <label>Intensity <output id="keyIntensityOut">100%</output><input id="keyIntensity" type="range" min="0" max="200" value="100" /></label>
+        </fieldset>
+        <fieldset>
+          <legend>Pool light</legend>
+          <label>Colour <input id="poolColor" type="color" value="#e17c41" /></label>
+          <label>Width <output id="poolWidthOut">21%</output><input id="poolWidth" type="range" min="6" max="60" value="21" /></label>
+          <label>Intensity <output id="poolIntensityOut">83%</output><input id="poolIntensity" type="range" min="0" max="200" value="83" /></label>
+        </fieldset>
+        <fieldset>
+          <legend>Pose</legend>
+          <label>Yaw <output id="yawOut">9°</output><input id="yaw" type="range" min="-45" max="45" value="9" /></label>
+          <label>Pitch <output id="pitchOut">3°</output><input id="pitch" type="range" min="-25" max="25" value="3" /></label>
+          <label>Zoom <output id="zoomOut">1.00×</output><input id="zoom" type="range" min="70" max="160" value="100" /></label>
+        </fieldset>
+        <fieldset>
+          <legend>Steel</legend>
+          <label>Colour <input id="metalColor" type="color" value="#e6ebf0" /></label>
+          <label>Metalness <output id="metalnessOut">94%</output><input id="metalness" type="range" min="0" max="100" value="94" /></label>
+          <label>Roughness <output id="roughnessOut">26%</output><input id="roughness" type="range" min="4" max="90" value="26" /></label>
+          <label>Env <output id="envMapIntensityOut">72%</output><input id="envMapIntensity" type="range" min="20" max="250" value="72" /></label>
+        </fieldset>
+        <fieldset>
+          <legend>Fill</legend>
+          <label>Fill <output id="fillIntensityOut">32%</output><input id="fillIntensity" type="range" min="0" max="250" value="32" /></label>
+          <label>Ambient <output id="ambientIntensityOut">18%</output><input id="ambientIntensity" type="range" min="0" max="150" value="18" /></label>
+          <label>Exposure <output id="exposureOut">1.05</output><input id="exposure" type="range" min="70" max="200" value="105" /></label>
+        </fieldset>
+        <label class="lab-check"><input id="breathe" type="checkbox" checked /> Breathe</label>
+        <div class="lab-actions">
+          <button type="button" id="copy">Copy config</button>
+          <button type="button" id="reset">Reset</button>
+        </div>
+        <pre id="json"></pre>
+      </aside>
+    </main>
+    <script type="module" src="./lab.js?v=30"></script>
+  </body>
+</html>

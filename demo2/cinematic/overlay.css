@@ -1,0 +1,647 @@
+/* Leela cinematic prefix — sits on top of /demo2 until the receptionist takes over. */
+:root {
+  --pz-gold: #fca860;
+  --pz-champagne: #e8c79a;
+  --pz-dock-bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+}
+
+html.pz-intro,
+html.pz-intro body,
+html.pz-intro #pz-phone {
+  overflow: hidden;
+  height: 100%;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+html.pz-cinematic,
+html.pz-cinematic body {
+  background: #07080a !important;
+}
+
+html.pz-reception,
+html.pz-live {
+  --zero-canvas-bg: transparent;
+}
+
+html.pz-reception body,
+html.pz-live body,
+html.pz-reception:has(.demo-stage-theme),
+html.pz-live:has(.demo-stage-theme) {
+  background: #07080a !important;
+}
+
+html.pz-reception #root,
+html.pz-live #root {
+  background: transparent !important;
+  position: relative;
+  z-index: 2;
+}
+
+html.pz-reception .demo-stage-theme,
+html.pz-live .demo-stage-theme,
+html.pz-reception .demo-stage-theme.reception-app,
+html.pz-live .demo-stage-theme.reception-app,
+html.pz-reception .reception-app,
+html.pz-live .reception-app,
+html.pz-reception .demo-stage,
+html.pz-live .demo-stage,
+html.pz-reception .demo-stage--mobile,
+html.pz-live .demo-stage--mobile,
+html.pz-reception .demo-mobile-hero,
+html.pz-live .demo-mobile-hero,
+html.pz-reception .demo-mobile-scroll,
+html.pz-live .demo-mobile-scroll,
+html.pz-reception .demo-mobile-mascot-space,
+html.pz-live .demo-mobile-mascot-space,
+html.pz-reception .zero-mascot-canvas,
+html.pz-live .zero-mascot-canvas,
+html.pz-reception .demo-stage__mascot-fs,
+html.pz-live .demo-stage__mascot-fs {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+html.pz-cinematic .demo-stage__mascot-layer,
+html.pz-cinematic .demo-stage__mascot-fs,
+html.pz-cinematic .zero-mascot-canvas {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  background: transparent !important;
+}
+
+html.pz-cinematic .demo-mobile-heading,
+html.pz-cinematic .demo-mobile-fs-btn,
+html.pz-cinematic .demo-mobile-scrollhint {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Live: drop those rows from layout so mute/end are not pushed below the clip. */
+html.pz-live .demo-mobile-heading,
+html.pz-live .demo-mobile-fs-btn,
+html.pz-live .demo-mobile-scrollhint,
+html.pz-live .demo-mobile-mascot-space,
+html.pz-live .demo-mobile-section {
+  display: none !important;
+}
+
+html.pz-intro .app-nav-hamburger,
+html.pz-intro .app-nav-root,
+html.pz-reception .app-nav-hamburger,
+html.pz-live .app-nav-hamburger,
+html.pz-live .app-nav-root {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html.pz-intro .demo-mobile-scroll,
+html.pz-intro #root {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+html.pz-reception .demo-callbtn--start,
+html.pz-live .demo-callbtn--start,
+html.pz-morphing .demo-callbtn--start {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html.pz-reception .demo-callbtn--mute,
+html.pz-reception .demo-callbtn--end {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html.pz-reception .demo-mobile-controls,
+html.pz-live .demo-mobile-controls {
+  justify-content: center;
+  gap: 28px;
+}
+
+html.pz-live .demo-mobile-controls {
+  opacity: 1;
+  pointer-events: auto !important;
+}
+
+/* Keep mute/end in layout for FLIP, but never show them (or start) during the morph. */
+html.pz-morphing .demo-callbtn--mute,
+html.pz-morphing .demo-callbtn--end {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  filter: none !important;
+  pointer-events: none !important;
+}
+
+/* Marble desk: dormant glass is unreadable. Force a solid frosted plate. */
+html.pz-live:not(.pz-morphing) .demo-callbtn--mute,
+html.pz-live:not(.pz-morphing) .demo-callbtn--mute.is-dormant,
+html.pz-live:not(.pz-morphing) .demo-callbtn.is-dormant.demo-callbtn--mute {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #fff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.78) !important;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.12)),
+    #25252cf5 !important;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.62),
+    0 10px 24px rgba(0, 0, 0, 0.55) !important;
+}
+
+html.pz-live:not(.pz-morphing) .demo-callbtn--end,
+html.pz-live:not(.pz-morphing) .demo-callbtn--end.is-dormant,
+html.pz-live:not(.pz-morphing) .demo-callbtn.is-dormant.demo-callbtn--end {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #fff !important;
+  border: 1.5px solid rgba(255, 180, 170, 0.55) !important;
+  background: linear-gradient(150deg, #ff5a4a, #d01e14) !important;
+  box-shadow:
+    0 16px 32px rgba(230, 52, 38, 0.48),
+    0 5px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px rgba(255, 255, 255, 0.45) !important;
+}
+
+html.pz-reception .demo-mobile-scroll {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+html.pz-reception #root,
+html.pz-reception .demo-stage--mobile {
+  pointer-events: none;
+}
+
+html.pz-reception .demo-mobile-controls,
+html.pz-reception .demo-mobile-stage,
+html.pz-reception .demo-mobile-caption-wrap {
+  pointer-events: auto;
+}
+
+html.pz-live #root,
+html.pz-live .demo-stage--mobile,
+html.pz-live .demo-mobile-hero,
+html.pz-live .demo-mobile-scroll {
+  pointer-events: none;
+}
+
+html.pz-live .demo-mobile-scroll {
+  overflow: hidden !important;
+}
+
+#pz-phone {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #07080a;
+}
+
+html.pz-cinematic .demo-stage--mobile,
+html.pz-cinematic .demo-mobile-hero,
+html.pz-cinematic .demo-mobile-scroll,
+html.pz-cinematic .demo-stage__mascot-layer,
+html.pz-cinematic .demo-stage__mascot-fs,
+html.pz-cinematic .zero-mascot-canvas {
+  min-height: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+@media (min-width: 761px) {
+  html.pz-cinematic body {
+    background: #050608 !important;
+  }
+  #pz-phone {
+    inset: auto;
+    width: min(390px, calc(100vw - 24px));
+    height: min(844px, calc(100vh - 24px));
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 28px;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+  }
+}
+
+html.pz-cinematic #root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+}
+
+html.pz-live .demo-stage-theme,
+html.pz-live .demo-stage-theme.reception-app,
+html.pz-live .reception-app,
+html.pz-live .demo-stage,
+html.pz-live .demo-stage--mobile {
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+#pz-cinematic {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  font-family: "Open Sans", Inter, system-ui, sans-serif;
+}
+
+html.pz-reception #pz-cinematic {
+  z-index: 8;
+}
+
+html.pz-live #pz-cinematic {
+  z-index: 1;
+}
+
+html.pz-live #root {
+  z-index: 20;
+}
+
+html.pz-handoff #pz-cinematic {
+  z-index: 1;
+}
+
+html.pz-live .pz-dock {
+  display: none !important;
+}
+
+html.pz-live .demo-mobile-hero {
+  display: block !important;
+  position: relative;
+  height: 100% !important;
+  min-height: 100% !important;
+  padding: 0;
+}
+
+html.pz-live .demo-mobile-controls {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 8;
+  margin: 0;
+  pointer-events: auto !important;
+}
+
+/* Native demo2 stack: mascot → captions → 210px snippet dock → mute/end.
+   Captions sit over the lower 0, not on the marble with the buttons. */
+html.pz-live .demo-mobile-caption-wrap {
+  position: fixed;
+  left: 28px;
+  right: 28px;
+  bottom: calc(304px + env(safe-area-inset-bottom, 0px));
+  z-index: 7;
+  min-height: 96px;
+  max-height: 140px;
+  margin: 0;
+  pointer-events: auto !important;
+}
+
+html.pz-live .demo-mobile-stage {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+  z-index: 7;
+  height: 210px;
+  max-height: 210px;
+  pointer-events: none;
+}
+
+html.pz-live .demo-mobile-stage.has-snippet,
+html.pz-live .demo-mobile-stage__snippet,
+html.pz-live .demo-mobile-sheet,
+html.pz-live .demo-mobile-sheet-backdrop,
+html.pz-live .demo-paylink,
+html.pz-live .chat-room-snippet,
+html.pz-live .chat-room-snippet-slot {
+  pointer-events: auto !important;
+}
+
+html.pz-live .demo-mobile-sheet {
+  height: min(52%, 380px);
+}
+
+html.pz-live .chat-room-detail,
+html.pz-live .demo-leave-dialog {
+  pointer-events: auto !important;
+  z-index: 400;
+}
+
+#pz-cinematic.is-intro {
+  pointer-events: auto;
+  z-index: 120;
+  touch-action: none;
+}
+
+.pz-gestures {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  touch-action: none;
+  pointer-events: auto;
+}
+
+html.pz-live .pz-gestures {
+  pointer-events: none;
+  display: none;
+}
+
+.pz-reverse-zone {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 46%;
+  pointer-events: auto;
+  z-index: 3;
+}
+
+html.pz-reception .pz-reverse-zone {
+  display: block;
+}
+
+html.pz-live .pz-reverse-zone {
+  display: none !important;
+}
+
+.pz-media {
+  position: absolute;
+  inset: 0;
+  background: #07080a;
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pz-media video,
+.pz-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.pz-media video {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pz-media video.is-active {
+  opacity: 1;
+}
+
+.pz-poster {
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+.pz-poster.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pz-desk {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  background: #1a1612 url("./assets/reception.jpg") center 42% / cover no-repeat;
+}
+
+.pz-desk.is-on {
+  opacity: 1;
+}
+
+.pz-reception-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  transform: scale(1.02);
+  filter: brightness(1.08) saturate(1.05) contrast(1.03);
+}
+
+.pz-reception-dim {
+  display: none;
+}
+
+#pz-mascot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  background: transparent;
+  filter: drop-shadow(0 22px 28px rgba(18, 10, 6, 0.32));
+}
+
+.pz-leela-logo {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  right: 14px;
+  height: 46px;
+  width: auto;
+  z-index: 140;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+}
+
+.pz-dock {
+  position: absolute;
+  left: 50%;
+  bottom: var(--pz-dock-bottom);
+  transform: translateX(-50%);
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 64px;
+  pointer-events: none;
+}
+
+.pz-dock > * {
+  pointer-events: auto;
+}
+
+.pz-cue {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pz-cue[hidden] {
+  display: none !important;
+}
+
+.pz-cue-arrow {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.28), 0 10px 24px rgba(0, 0, 0, 0.28);
+  animation: pz-bob 2s ease-in-out infinite;
+}
+
+.pz-cue-arrow svg {
+  display: block;
+}
+
+.pz-cue-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+.pz-speak {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 64px;
+  min-width: 64px;
+  padding: 0 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  background: linear-gradient(150deg, #48d368f2, #1c9e42eb);
+  box-shadow: 0 16px 32px #22a0466b, 0 5px 12px #0000004d, inset 0 1px #fff6;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, padding 0.45s cubic-bezier(0.22, 1, 0.36, 1), min-width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pz-speak[hidden] {
+  display: none !important;
+}
+
+.pz-speak:active {
+  transform: translateY(4px) scale(0.93);
+}
+
+.pz-speak svg {
+  flex: 0 0 auto;
+}
+
+.pz-speak.is-morphing {
+  padding: 0;
+  min-width: 64px;
+  width: 64px;
+  color: transparent;
+  gap: 0;
+}
+
+.pz-speak.is-morphing > * {
+  opacity: 0;
+}
+
+.pz-ghosts {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+  pointer-events: none;
+}
+
+.pz-ghost {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  will-change: transform, opacity;
+}
+
+.pz-ghost--mute {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.12)), rgba(18, 18, 22, 0.9);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.55), 0 10px 22px rgba(0, 0, 0, 0.5);
+}
+
+.pz-ghost--end {
+  background: linear-gradient(150deg, #ff5242fa, #d8261af2);
+  color: #fff;
+  box-shadow: 0 16px 32px #e6342675, 0 5px 12px #0000004d, inset 0 1px #fff6;
+}
+
+.pz-ghost svg {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+
+.pz-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--pz-champagne);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: #07080a;
+  z-index: 2;
+}
+
+.pz-loading[hidden] {
+  display: none !important;
+}
+
+@keyframes pz-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pz-cue-arrow,
+  .pz-desk {
+    animation: none;
+    transition: none;
+  }
+}
