@@ -22,6 +22,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify PressZero sharing metadata and icons
+        run: ./tools/check-share-metadata.sh
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
