@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Sehat Journey</title>
+<meta name="description" content="The PMW explainer as an interactive reel: the film holds at each milestone until you answer.">
+<meta property="og:title" content="Sehat Journey">
+<meta property="og:type" content="video.other">
+<meta property="og:image" content="poster.jpg">
+<link rel="icon" href="poster.jpg">
+<style>
+:root{
+  color-scheme:light dark;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  /* card system, sampled from the reference render */
+  --ice:#E5F5F7;
+  --coral:#E08C82;
+  --coral-deep:#C96F63;
+  --sage:#739A78;
+  --sage-deep:#5C8362;
+  --sage-ink:#4E7355;
+  --indigo:#1E4FA8;
+  --indigo-deep:#0F4D91;
+  --card-ink:#14201E;
+
+  /* the reel is a committed dark room in every theme */
+  --void:#000000;
+  --void-2:#0B0F0E;
+
+  --font-card:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-data:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--void);
+  color:#fff;
+  font-family:var(--font-card);
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2.5px solid var(--sage);outline-offset:2px;border-radius:4px}
+
+/* ── the reel ───────────────────────────────────────────
+   The frame is exactly 9:16 and the video is `contain`-fitted
+   inside it, so no edge of the source is ever trimmed. Tall
+   viewports letterbox above and below; wide ones pillarbox. */
+.reel{
+  height:100%;width:100%;
+  background:var(--void);
+  display:grid;place-items:center;
+  overflow:hidden;
+}
+/* The frame is sized in JS to the exact box the video occupies, so the
+   card always anchors to the video's own bottom edge and never into a
+   letterbox bar. The aspect-ratio below is only the pre-script paint. */
+.frame{
+  position:relative;
+  height:100%;width:auto;
+  aspect-ratio:9/16;
+  max-width:100%;max-height:100%;
+  background:var(--void-2);
+  container-type:inline-size;
+  isolation:isolate;
+  overflow:hidden;
+}
+.frame video{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:contain;
+  display:block;background:var(--void-2);
+}
+
+/* ── start gate ─────────────────────────────────────── */
+.gate{
+  position:absolute;inset:0;z-index:8;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4cqw;padding:0 10%;
+  background:linear-gradient(180deg,rgba(4,9,8,.42) 0%,rgba(4,9,8,.58) 100%);
+  border:0;width:100%;text-align:center;cursor:pointer;
+  color:#fff;
+  -webkit-tap-highlight-color:transparent;
+}
+.gate-disc{
+  width:20cqw;height:20cqw;border-radius:50%;
+  background:var(--sage);color:#fff;
+  display:grid;place-items:center;
+  box-shadow:0 2cqw 6cqw rgba(0,0,0,.5);
+  transition:transform .24s ease,background .24s ease;
+}
+.gate:hover .gate-disc{transform:scale(1.07);background:var(--sage-deep)}
+.gate-disc svg{width:8cqw;height:8cqw;margin-left:1.4cqw}
+.gate-title{font-size:4.6cqw;font-weight:700;letter-spacing:-.01em}
+.gate-sub{
+  font-family:var(--font-data);font-size:2.8cqw;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(255,255,255,.7);
+}
+
+/* a bare tap target for when the browser refuses programmatic resume */
+.nudge{
+  position:absolute;inset:0;z-index:7;
+  border:0;background:transparent;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ── the interactive card ───────────────────────────── */
+.card{
+  position:absolute;z-index:5;
+  left:5.5%;right:5.5%;
+  bottom:calc(3.6% + env(safe-area-inset-bottom,0px));
+  background:var(--ice);
+  border:0.42cqw solid var(--coral);
+  border-radius:3.4cqw;
+  padding:5.2cqw 8.4cqw 5.6cqw;
+  color:var(--card-ink);
+  box-shadow:0 2cqw 5cqw rgba(8,26,24,.3);
+  display:flex;flex-direction:column;
+  animation:cardIn .42s cubic-bezier(.2,.9,.3,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(7%)}to{opacity:1;transform:none}}
+.card.is-leaving{animation:cardOut .3s ease-in both;pointer-events:none}
+@keyframes cardOut{to{opacity:0;transform:translateY(4%) scale(.985)}}
+@media(prefers-reduced-motion:reduce){.card,.card.is-leaving{animation:none}}
+
+.card-hail{margin:0 0 1cqw;font-size:5.6cqw;line-height:1.16;color:var(--coral);font-weight:400}
+.card-name{margin:0 0 5.6cqw;font-size:8.4cqw;line-height:1.08;color:var(--coral);font-weight:700;letter-spacing:-.01em;word-break:break-word}
+
+.field{margin-bottom:4.4cqw}
+.field:last-of-type{margin-bottom:0}
+.field-label{display:block;font-size:4.1cqw;line-height:1.3;margin-bottom:2.2cqw;font-weight:400}
+.field-label b{font-weight:700}
+
+.stepper{display:grid;grid-template-columns:14.4cqw 1fr 14.4cqw;gap:5.6cqw;align-items:center}
+.step-btn{
+  height:14.9cqw;border:0;border-radius:1.5cqw;
+  background:var(--sage);color:#fff;
+  display:grid;place-items:center;cursor:pointer;
+  transition:background .15s ease,transform .1s ease;
+}
+.step-btn:hover{background:var(--sage-deep)}
+.step-btn:active{transform:scale(.94)}
+.step-btn:disabled{opacity:.34;cursor:not-allowed}
+.step-btn svg{width:8.4cqw;height:8.4cqw}
+.step-val{
+  height:14.9cqw;border:0.28cqw solid var(--sage);border-radius:1.5cqw;
+  background:#FDFDFB;color:var(--sage-ink);
+  font-size:6.6cqw;font-weight:700;font-variant-numeric:tabular-nums;
+  display:grid;place-items:center;
+}
+
+.segmented{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:0.28cqw solid var(--sage);border-radius:2cqw;
+  background:#FDFDFB;overflow:hidden;
+}
+.seg{
+  border:0;background:transparent;cursor:pointer;
+  padding:3.4cqw 0;font-size:4.6cqw;color:var(--sage-ink);
+  border-right:0.28cqw solid var(--sage);
+  transition:background .16s ease,color .16s ease;
+}
+.seg:last-child{border-right:0}
+.seg:hover{background:rgba(115,154,120,.14)}
+.seg[aria-pressed="true"]{background:var(--sage);color:#fff;font-weight:500}
+
+.control{
+  width:100%;height:12.4cqw;
+  border:0.28cqw solid var(--sage);border-radius:3.1cqw;
+  background:#FDFDFB;color:var(--sage-ink);
+  font-family:inherit;font-size:5cqw;text-align:center;
+  padding:0 3cqw;
+}
+.control::placeholder{color:rgba(78,115,85,.52)}
+select.control{
+  appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234E7355' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 9l7 7 7-7'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 4.4cqw center;
+  background-size:5.6cqw 5.6cqw;
+  padding-right:11cqw;
+}
+input.control[inputmode="numeric"]{font-variant-numeric:tabular-nums;letter-spacing:.08em}
+.control.is-bad{border-color:var(--coral-deep);background:#FFF6F4}
+
+.geo{
+  display:flex;align-items:center;justify-content:center;gap:1.6cqw;
+  width:100%;background:transparent;border:0;cursor:pointer;
+  color:var(--coral-deep);font-family:inherit;
+  font-size:4.6cqw;font-style:italic;font-weight:600;
+  text-decoration:underline;text-underline-offset:0.7cqw;
+  padding:0 0 1cqw;
+}
+.geo:hover{color:var(--coral)}
+.geo svg{width:4.4cqw;height:4.4cqw;flex:none}
+.geo[data-state="busy"]{opacity:.6;cursor:progress}
+.or{text-align:center;font-style:italic;color:var(--sage-ink);font-size:4.4cqw;margin:0 0 3.4cqw}
+
+.wheel-wrap{padding-top:1cqw}
+.wheel-caret{
+  width:0;height:0;margin:0 auto 1.4cqw;
+  border-left:2.3cqw solid transparent;
+  border-right:2.3cqw solid transparent;
+  border-top:2.5cqw solid var(--indigo-deep);
+}
+.wheel{
+  position:relative;height:20cqw;overflow:hidden;
+  touch-action:pan-y;cursor:grab;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 26%,#000 74%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 26%,#000 74%,transparent 100%);
+}
+.wheel:active{cursor:grabbing}
+.wheel-track{position:absolute;top:0;left:50%;height:100%;display:flex;align-items:center;will-change:transform}
+.wheel-item{
+  width:28cqw;flex:none;display:grid;place-items:center;
+  font-size:9.6cqw;font-weight:600;color:#8A9096;
+  font-variant-numeric:tabular-nums;
+  transition:color .18s ease,opacity .18s ease;
+  user-select:none;
+}
+.wheel-item[data-sel="1"]{color:var(--indigo)}
+.wheel-box{
+  position:absolute;top:50%;left:50%;
+  width:21cqw;height:18.5cqw;transform:translate(-50%,-50%);
+  border:0.3cqw solid var(--indigo);border-radius:2.2cqw;
+  background:rgba(255,255,255,.34);pointer-events:none;
+}
+.wheel-hint{
+  text-align:center;font-family:var(--font-data);
+  font-size:2.9cqw;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(20,32,30,.42);margin:1.8cqw 0 0;
+}
+
+.cta{
+  width:74%;margin:6.4cqw auto 0;
+  height:13.4cqw;border:0;border-radius:2cqw;
+  background:var(--sage);color:#fff;cursor:pointer;
+  font-family:inherit;font-size:4.9cqw;font-weight:700;
+  display:grid;place-items:center;
+  transition:background .16s ease,transform .1s ease;
+}
+.cta:hover{background:var(--sage-deep)}
+.cta:active{transform:translateY(1px)}
+
+/* ── summary card ───────────────────────────────────── */
+.card.outro{padding:5cqw 6.4cqw 5cqw;max-height:88%}
+.card.outro .card-name{margin-bottom:3.4cqw}
+.outro-body{overflow-y:auto;overscroll-behavior:contain;min-height:0}
+
+.outro-rows{display:flex;flex-direction:column;gap:0;margin:0}
+.outro-row{
+  display:flex;justify-content:space-between;align-items:baseline;gap:3cqw;
+  width:100%;text-align:left;background:transparent;border:0;
+  padding:2.7cqw 1.4cqw;border-bottom:0.2cqw solid rgba(115,154,120,.34);
+  font-family:inherit;font-size:4cqw;color:var(--card-ink);
+  cursor:pointer;border-radius:1.4cqw;
+  transition:background .15s ease;
+}
+.outro-row:last-child{border-bottom:0}
+.outro-row:hover{background:rgba(115,154,120,.12)}
+.outro-row .k{color:rgba(20,32,30,.66);flex:none}
+.outro-row .v{
+  font-weight:700;color:var(--sage-ink);text-align:right;
+  font-variant-numeric:tabular-nums;
+  display:flex;align-items:center;gap:1.8cqw;justify-content:flex-end;
+}
+.outro-row .v svg{width:3.6cqw;height:3.6cqw;flex:none;opacity:.5}
+.outro-row:hover .v svg{opacity:1}
+
+/* compact controls, used only inside the summary card */
+.ef{padding:2.4cqw 0;border-bottom:0.2cqw solid rgba(115,154,120,.28)}
+.ef:last-child{border-bottom:0}
+.ef-label{display:block;font-size:3.6cqw;color:rgba(20,32,30,.72);margin-bottom:1.8cqw}
+.ef-label b{font-weight:700;color:var(--card-ink)}
+.ef-pair{display:grid;grid-template-columns:1fr 1fr;gap:2.6cqw}
+.mini-stepper{display:grid;grid-template-columns:9.4cqw 1fr 9.4cqw;gap:2.4cqw;align-items:center}
+.mini-btn{
+  height:9.4cqw;border:0;border-radius:1.2cqw;background:var(--sage);color:#fff;
+  display:grid;place-items:center;cursor:pointer;transition:background .15s ease;
+}
+.mini-btn:hover{background:var(--sage-deep)}
+.mini-btn:disabled{opacity:.34;cursor:not-allowed}
+.mini-btn svg{width:5.4cqw;height:5.4cqw}
+.mini-val{
+  height:9.4cqw;border:0.24cqw solid var(--sage);border-radius:1.2cqw;
+  background:#FDFDFB;color:var(--sage-ink);
+  font-size:4.6cqw;font-weight:700;font-variant-numeric:tabular-nums;
+  display:grid;place-items:center;
+}
+.mini-control{
+  width:100%;height:9.4cqw;
+  border:0.24cqw solid var(--sage);border-radius:2.2cqw;
+  background:#FDFDFB;color:var(--sage-ink);
+  font-family:inherit;font-size:4cqw;text-align:center;padding:0 2cqw;
+}
+select.mini-control{
+  appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234E7355' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 9l7 7 7-7'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 3cqw center;background-size:4.2cqw 4.2cqw;
+  padding-right:8cqw;
+}
+.mini-control.is-bad{border-color:var(--coral-deep);background:#FFF6F4}
+.mini-seg{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:0.24cqw solid var(--sage);border-radius:1.6cqw;background:#FDFDFB;overflow:hidden;
+}
+.mini-seg button{
+  border:0;background:transparent;cursor:pointer;padding:2.4cqw 0;
+  font-size:3.7cqw;color:var(--sage-ink);border-right:0.24cqw solid var(--sage);
+}
+.mini-seg button:last-child{border-right:0}
+.mini-seg button[aria-pressed="true"]{background:var(--sage);color:#fff;font-weight:500}
+
+.outro-actions{display:grid;grid-template-columns:1fr 1.45fr;gap:3cqw;margin-top:4.4cqw;flex:none}
+.outro-actions .cta{width:100%;margin:0}
+.cta-ghost{
+  background:transparent;color:var(--sage-ink);
+  border:0.3cqw solid var(--sage);font-weight:600;
+}
+.cta-ghost:hover{background:rgba(115,154,120,.14)}
+.cta[disabled]{opacity:.55;cursor:default}
+.cta[disabled]:hover{background:var(--sage)}
+
+.outro-note{
+  margin:3cqw 0 0;font-size:3.5cqw;line-height:1.45;text-align:center;
+  color:var(--sage-ink);flex:none;
+}
+.outro-note[data-kind="err"]{color:var(--coral-deep)}
+.outro-note a{color:var(--sage-ink);font-weight:700}
+.spin{
+  display:inline-block;width:3.4cqw;height:3.4cqw;vertical-align:-0.4cqw;
+  margin-right:1.4cqw;border-radius:50%;
+  border:0.6cqw solid rgba(115,154,120,.35);border-top-color:var(--sage);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+
+/* ── report viewer ──────────────────────────────────── */
+.report{
+  position:fixed;inset:0;z-index:30;background:var(--void);
+  display:flex;flex-direction:column;
+}
+.report-bar{
+  display:flex;align-items:center;gap:12px;flex:none;
+  padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top,0px));
+  background:#0E1513;border-bottom:1px solid #26332F;
+}
+.report-bar h2{
+  margin:0;font-size:13px;font-weight:600;letter-spacing:.01em;color:#E7EFE9;flex:1;
+}
+.report-bar a,.report-bar button{
+  border:1px solid #2F3F39;border-radius:7px;background:#16211E;color:#C7D8CC;
+  padding:7px 12px;cursor:pointer;font-size:12px;text-decoration:none;font-family:inherit;
+}
+.report-bar a:hover,.report-bar button:hover{border-color:var(--sage);color:#fff}
+.report iframe{flex:1;width:100%;border:0;background:#fff}
+
+/* ── timing lab (?debug=1 only) ─────────────────────── */
+.lab{
+  position:fixed;z-index:20;
+  left:0;right:0;bottom:0;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
+  background:rgba(6,11,10,.93);
+  border-top:1px solid #26332F;
+  font-family:var(--font-data);font-size:11px;line-height:1.5;
+  color:#9FB6A6;
+  display:flex;flex-direction:column;gap:8px;
+  max-height:52vh;overflow:auto;
+}
+.lab-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lab b{color:#E7EFE9;font-weight:600}
+.lab .t{color:#fff;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;min-width:64px}
+.lab-rail{
+  position:relative;flex:1 1 220px;height:22px;cursor:pointer;
+  display:flex;align-items:center;min-width:180px;
+}
+.lab-rail .bed{position:absolute;left:0;right:0;height:3px;background:#2A3833;border-radius:2px}
+.lab-rail .fill{position:absolute;left:0;height:3px;background:var(--sage);border-radius:2px;width:0}
+.lab-rail .head{position:absolute;top:50%;width:10px;height:10px;margin-left:-5px;transform:translateY(-50%);border-radius:50%;background:#fff;pointer-events:none}
+.lab-rail .loopbar{position:absolute;top:50%;height:9px;transform:translateY(-50%);background:rgba(224,140,130,.32);border-left:1.5px solid var(--coral);border-right:1.5px solid var(--coral);pointer-events:none}
+.lab-btn{
+  border:1px solid #2F3F39;border-radius:6px;background:#141E1B;color:#C7D8CC;
+  padding:5px 9px;cursor:pointer;font-family:inherit;font-size:10.5px;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.lab-btn:hover{border-color:var(--sage);color:#fff}
+.lab-marks{color:#7E9487;white-space:pre-wrap;word-break:break-word;margin:0}
+.lab-marks b{color:var(--coral)}
+.lab-cues{margin:0;color:#7E9487;white-space:pre-wrap}
+.lab-pay{margin:0;color:#7E9487;white-space:pre-wrap;word-break:break-word;max-height:120px;overflow:auto}
+</style>
+
+<div class="reel" id="reel">
+  <div class="frame" id="frame">
+    <video id="vid" playsinline preload="auto" poster="poster.jpg" src="pmw.mp4"></video>
+
+    <button class="gate" id="gate" type="button">
+      <span class="gate-disc">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      </span>
+      <span class="gate-title">Play</span>
+      <span class="gate-sub">Sound on</span>
+    </button>
+
+    <button class="nudge" id="nudge" type="button" hidden aria-label="Tap to continue"></button>
+
+    <div id="cardSlot"></div>
+  </div>
+</div>
+
+<div class="lab" id="lab" hidden>
+  <div class="lab-row">
+    <span class="t" id="labT">0.00</span>
+    <span class="lab-rail" id="labRail"><span class="bed"></span><span class="fill" id="labFill"></span><span class="head" id="labHead"></span></span>
+    <button class="lab-btn" id="labMark" type="button">Mark (M)</button>
+    <button class="lab-btn" id="labPlay" type="button">Play / pause</button>
+    <button class="lab-btn" id="labReset" type="button">Restart</button>
+  </div>
+  <p class="lab-marks" id="labMarks">No marks yet &mdash; play, then hit <b>M</b> at the moment the loop should start or end.</p>
+  <pre class="lab-cues" id="labCues"></pre>
+  <pre class="lab-pay" id="labPay"></pre>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ── cue table ───────────────────────────────────────────
+   All times are pmw.mp4 seconds. The reference cut
+   ("PMW with interactivity.mp4") runs 0.386s AHEAD of this
+   source, so a timestamp read off the reference becomes
+   REF_OFFSET lower here.
+
+   show             card enters; the film keeps running so the line lands
+   loopIn/loopOut   the narrator's silent beat. Rather than freezing, the
+                    film cycles this window so he stays alive on screen,
+                    and keeps cycling until the CTA is answered. On submit
+                    the loop is simply switched off and playback carries
+                    straight on — no seek, so there is never a jump cut. */
+var REF_OFFSET = 0.386;
+function fromRef(t){ return +(t - REF_OFFSET).toFixed(3); }
+
+var STEPS = [
+  { id:"vitals",    title:"Age & gender",           show:3.70,  loopIn:fromRef(8.00),  loopOut:fromRef(10.00) },
+  { id:"location",  title:"Where you live",         show:18.30, loopIn:fromRef(22.40), loopOut:fromRef(24.60) },
+  { id:"household", title:"Household & dependents", show:32.00, loopIn:fromRef(35.70), loopOut:fromRef(37.80) },
+  { id:"income",    title:"Annual income",          show:43.60, loopIn:fromRef(46.90), loopOut:fromRef(48.20) }
+];
+
+var CITIES = ["Mumbai","Delhi NCR","Bengaluru","Hyderabad","Chennai","Pune","Kolkata","Ahmedabad","Jaipur","Lucknow","Kochi","Chandigarh","Indore","Surat","Nagpur"];
+var CITY_GEO = [
+  ["Mumbai",19.08,72.88,"400 001"],["Delhi NCR",28.61,77.21,"110 001"],
+  ["Bengaluru",12.97,77.59,"560 001"],["Hyderabad",17.39,78.49,"500 001"],
+  ["Chennai",13.08,80.27,"600 001"],["Pune",18.52,73.86,"411 001"],
+  ["Kolkata",22.57,88.36,"700 001"],["Ahmedabad",23.02,72.57,"380 001"],
+  ["Jaipur",26.91,75.79,"302 001"],["Lucknow",26.85,80.95,"226 001"],
+  ["Kochi",9.93,76.27,"682 001"],["Chandigarh",30.73,76.78,"160 001"],
+  ["Indore",22.72,75.86,"452 001"],["Surat",21.17,72.83,"395 001"],
+  ["Nagpur",21.15,79.09,"440 001"]
+];
+
+/* the greeting merges from ?name= — no field on the reel itself */
+/* An artifact runs in an iframe, so its own search string can be empty
+   even when the visitor put one on the address bar. Read both. */
+function readParams(){
+  var qs = location.search;
+  if(!qs){
+    try{ if(document.referrer) qs = new URL(document.referrer).search; }catch(e){}
+  }
+  return new URLSearchParams(qs || "");
+}
+var params  = readParams();
+var DEBUG   = params.get("debug") === "1";
+var VIEWER  = (params.get("name") || "Sayali Ubale").trim();
+
+var answers = {};
+var sessionId = "s_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+var active = -1, finished = false;
+var db = null, dbState = "pending";
+var marks = [];
+
+var vid   = document.getElementById("vid"),
+    gate  = document.getElementById("gate"),
+    nudge = document.getElementById("nudge"),
+    slot  = document.getElementById("cardSlot"),
+    frame = document.getElementById("frame"),
+    reel  = document.getElementById("reel"),
+    lab   = document.getElementById("lab");
+
+var DUR = 49.37;
+
+/* ── frame sizing ────────────────────────────────────────
+   Fit a 9:16 box inside the reel the way `contain` would, and
+   pin the frame to exactly that box. Everything else — the card,
+   the gate, every cqw unit — is measured off it. */
+var SRC_W = 9, SRC_H = 16;
+function sizeFrame(){
+  var W = reel.clientWidth, H = reel.clientHeight;
+  if(!W || !H) return;
+  var w = Math.min(W, H * SRC_W / SRC_H);
+  frame.style.width  = w + "px";
+  frame.style.height = (w * SRC_H / SRC_W) + "px";
+}
+window.addEventListener("resize", sizeFrame);
+window.addEventListener("orientationchange", sizeFrame);
+if(window.visualViewport) window.visualViewport.addEventListener("resize", sizeFrame);
+sizeFrame();
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function svgIcon(kind){
+  if(kind === "minus") return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12h8" stroke-linecap="round"/></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8" stroke-linecap="round"/></svg>';
+}
+
+/* ── card builders ───────────────────────────────────── */
+function stepper(name, val, min, max){
+  return '<div class="stepper" data-stepper="'+name+'" data-min="'+min+'" data-max="'+max+'">'
+    + '<button class="step-btn" type="button" data-delta="-1" aria-label="Decrease '+name+'">'+svgIcon("minus")+'</button>'
+    + '<output class="step-val" data-out="'+name+'">'+val+'</output>'
+    + '<button class="step-btn" type="button" data-delta="1" aria-label="Increase '+name+'">'+svgIcon("plus")+'</button>'
+    + '</div>';
+}
+
+function buildCard(i){
+  var s = STEPS[i], prev = answers[s.id] || {}, html = "";
+
+  if(s.id === "vitals"){
+    html += '<p class="card-hail">You matter to us' + (VIEWER ? "," : "!") + '</p>';
+    if(VIEWER) html += '<p class="card-name">' + esc(VIEWER) + '!</p>';
+    html += '<div class="field"><span class="field-label">Age (in years)</span>'
+          + stepper("age", prev.age != null ? prev.age : 33, 18, 99) + '</div>';
+    html += '<div class="field"><span class="field-label">Gender</span>'
+          + '<div class="segmented" role="group" aria-label="Gender">'
+          + ["Male","Female","Other"].map(function(g){
+              var on = (prev.gender || "Male") === g;
+              return '<button class="seg" type="button" data-seg="gender" data-value="'+g+'" aria-pressed="'+on+'">'+g+'</button>';
+            }).join("")
+          + '</div></div>';
+  }
+
+  if(s.id === "location"){
+    html += '<button class="geo" type="button" id="geoBtn">'
+          + '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>'
+          + '<span id="geoLabel">Allow Location Access</span></button>';
+    html += '<p class="or">or</p>';
+    html += '<div class="field"><label class="field-label" for="cityIn">City</label>'
+          + '<select class="control" id="cityIn">'
+          + CITIES.map(function(c){
+              return '<option value="'+esc(c)+'"' + ((prev.city||"Mumbai")===c ? " selected" : "") + '>'+esc(c)+'</option>';
+            }).join("")
+          + '</select></div>';
+    html += '<div class="field"><label class="field-label" for="pinIn">Pin Code</label>'
+          + '<input class="control" id="pinIn" type="text" inputmode="numeric" maxlength="7" '
+          + 'placeholder="400 001" value="' + esc(prev.pin || "") + '"></div>';
+  }
+
+  if(s.id === "household"){
+    var opts = ["Single","Married","Divorced","Widowed"];
+    html += '<div class="field"><label class="field-label" for="maritalIn">Marital Status</label>'
+          + '<select class="control" id="maritalIn">'
+          + opts.map(function(o){
+              return '<option value="'+o+'"' + ((prev.marital||"Married")===o ? " selected" : "") + '>'+o+'</option>';
+            }).join("")
+          + '</select></div>';
+    html += '<div class="field"><span class="field-label">Dependent <b>Children</b></span>'
+          + stepper("children", prev.children != null ? prev.children : 1, 0, 10) + '</div>';
+    html += '<div class="field"><span class="field-label">Dependent <b>Parents</b></span>'
+          + stepper("parents", prev.parents != null ? prev.parents : 2, 0, 4) + '</div>';
+  }
+
+  if(s.id === "income"){
+    html += '<div class="field"><span class="field-label">Annual Income (in lakh)</span>'
+          + '<div class="wheel-wrap"><div class="wheel-caret"></div>'
+          + '<div class="wheel" id="wheel" role="spinbutton" tabindex="0" aria-label="Annual income in lakh"'
+          + ' aria-valuemin="1" aria-valuemax="200" aria-valuenow="' + (prev.income || 45) + '">'
+          + '<div class="wheel-track" id="wheelTrack"></div><span class="wheel-box"></span></div>'
+          + '<p class="wheel-hint">Drag, scroll or use &larr; &rarr;</p></div></div>';
+  }
+
+  html += '<button class="cta" type="button" data-cta>'
+        + (i === STEPS.length - 1 ? "Submit &nbsp;&rarr;" : "Next &nbsp;&rarr;") + '</button>';
+
+  var el = document.createElement("div");
+  el.className = "card";
+  el.setAttribute("role", "group");
+  el.setAttribute("aria-label", s.title);
+  el.innerHTML = html;
+  return el;
+}
+
+/* ── income wheel ────────────────────────────────────── */
+function mountWheel(card, start){
+  var wheel = card.querySelector("#wheel"), track = card.querySelector("#wheelTrack");
+  if(!wheel) return null;
+  var MIN = 1, MAX = 200, value = start, itemW = 1;
+  for(var v = MIN; v <= MAX; v++){
+    var it = document.createElement("span");
+    it.className = "wheel-item"; it.textContent = v; it.dataset.v = v;
+    track.appendChild(it);
+  }
+  var items = track.children;
+  function measure(){ itemW = items[0].getBoundingClientRect().width || 1; }
+  function paint(offsetPx){
+    var px = (offsetPx == null) ? -((value - MIN) * itemW) - itemW/2 : offsetPx;
+    track.style.transform = "translateX(" + px + "px)";
+    var centre = (-px - itemW/2) / itemW + MIN;
+    for(var i = 0; i < items.length; i++){
+      var d = Math.abs((MIN + i) - centre);
+      items[i].style.opacity = d > 2.2 ? 0 : String(Math.max(0, 1 - d * 0.34));
+      items[i].dataset.sel = d < 0.5 ? "1" : "0";
+    }
+    wheel.setAttribute("aria-valuenow", value);
+  }
+  function setValue(v, animate){
+    value = Math.min(MAX, Math.max(MIN, Math.round(v)));
+    track.style.transition = animate ? "transform .22s cubic-bezier(.2,.9,.3,1)" : "none";
+    paint(null);
+  }
+  var dragging = false, startX = 0, startPx = 0;
+  function pxNow(){ return -((value - MIN) * itemW) - itemW/2; }
+  wheel.addEventListener("pointerdown", function(e){
+    measure(); dragging = true; startX = e.clientX; startPx = pxNow();
+    track.style.transition = "none"; wheel.setPointerCapture(e.pointerId);
+  });
+  wheel.addEventListener("pointermove", function(e){
+    if(!dragging) return;
+    var px = startPx + (e.clientX - startX);
+    px = Math.min(-itemW/2, Math.max(-((MAX - MIN) * itemW) - itemW/2, px));
+    paint(px);
+  });
+  function endDrag(e){
+    if(!dragging) return;
+    dragging = false;
+    setValue(MIN + (-(startPx + (e.clientX - startX)) - itemW/2) / itemW, true);
+  }
+  wheel.addEventListener("pointerup", endDrag);
+  wheel.addEventListener("pointercancel", endDrag);
+  wheel.addEventListener("wheel", function(e){
+    e.preventDefault(); measure();
+    setValue(value + (e.deltaY > 0 || e.deltaX > 0 ? 1 : -1), true);
+  }, {passive:false});
+  wheel.addEventListener("keydown", function(e){
+    var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1
+          : e.key === "PageUp" ? 10 : e.key === "PageDown" ? -10 : 0;
+    if(!d) return;
+    e.preventDefault(); measure(); setValue(value + d, true);
+  });
+  wheel.addEventListener("click", function(e){
+    var it = e.target.closest(".wheel-item");
+    if(it && !dragging){ measure(); setValue(Number(it.dataset.v), true); }
+  });
+  requestAnimationFrame(function(){ measure(); setValue(value, false); });
+  window.addEventListener("resize", function(){ measure(); setValue(value, false); });
+  return { get:function(){ return value; } };
+}
+
+/* ── card lifecycle ──────────────────────────────────── */
+function openCard(i){
+  if(active === i) return;
+  active = i;
+  var card = buildCard(i);
+  slot.innerHTML = "";
+  slot.appendChild(card);
+  wireCard(card, i);
+}
+
+function wireCard(card, i){
+  var s = STEPS[i];
+  var wheelApi = (s.id === "income")
+    ? mountWheel(card, (answers.income && answers.income.income) || 45) : null;
+
+  card.addEventListener("click", function(e){
+    var btn = e.target.closest(".step-btn");
+    if(btn){
+      var box = btn.closest(".stepper"),
+          out = box.querySelector("[data-out]"),
+          min = Number(box.dataset.min), max = Number(box.dataset.max),
+          next = Math.min(max, Math.max(min, Number(out.textContent) + Number(btn.dataset.delta)));
+      out.textContent = next;
+      box.querySelector('[data-delta="-1"]').disabled = next <= min;
+      box.querySelector('[data-delta="1"]').disabled  = next >= max;
+      return;
+    }
+    var seg = e.target.closest(".seg");
+    if(seg){
+      seg.parentNode.querySelectorAll(".seg").forEach(function(b){
+        b.setAttribute("aria-pressed", String(b === seg));
+      });
+    }
+  });
+
+  var geoBtn = card.querySelector("#geoBtn");
+  if(geoBtn){
+    geoBtn.addEventListener("click", function(){
+      var label = card.querySelector("#geoLabel");
+      if(!navigator.geolocation){ label.textContent = "Location unavailable \u2014 pick a city"; return; }
+      geoBtn.dataset.state = "busy";
+      label.textContent = "Locating\u2026";
+      navigator.geolocation.getCurrentPosition(function(pos){
+        var la = pos.coords.latitude, lo = pos.coords.longitude, best = null, bd = Infinity;
+        CITY_GEO.forEach(function(c){
+          var d = (c[1]-la)*(c[1]-la) + (c[2]-lo)*(c[2]-lo);
+          if(d < bd){ bd = d; best = c; }
+        });
+        card.querySelector("#cityIn").value = best[0];
+        var pin = card.querySelector("#pinIn");
+        if(!pin.value) pin.value = best[3];
+        geoBtn.dataset.state = "";
+        label.textContent = "Located \u2014 " + best[0];
+      }, function(){
+        geoBtn.dataset.state = "";
+        label.textContent = "Location blocked \u2014 pick a city";
+      }, {timeout:8000, maximumAge:600000});
+    });
+  }
+
+  var pinIn = card.querySelector("#pinIn");
+  if(pinIn){
+    pinIn.addEventListener("input", function(){
+      var d = pinIn.value.replace(/\D/g, "").slice(0,6);
+      pinIn.value = d.length > 3 ? d.slice(0,3) + " " + d.slice(3) : d;
+      pinIn.classList.remove("is-bad");
+    });
+  }
+
+  var submitted = false;
+  card.querySelector("[data-cta]").addEventListener("click", function(){
+    if(submitted) return;
+    var out = {};
+    if(s.id === "vitals"){
+      out.age = Number(card.querySelector('[data-out="age"]').textContent);
+      out.gender = card.querySelector('.seg[aria-pressed="true"]').dataset.value;
+      out.name = VIEWER || null;
+    }
+    if(s.id === "location"){
+      if(pinIn.value.replace(/\D/g, "").length !== 6){
+        pinIn.classList.add("is-bad"); pinIn.focus(); return;
+      }
+      out.city = card.querySelector("#cityIn").value;
+      out.pin  = pinIn.value;
+    }
+    if(s.id === "household"){
+      out.marital  = card.querySelector("#maritalIn").value;
+      out.children = Number(card.querySelector('[data-out="children"]').textContent);
+      out.parents  = Number(card.querySelector('[data-out="parents"]').textContent);
+    }
+    if(s.id === "income"){ out.income = wheelApi ? wheelApi.get() : 45; }
+    out.answeredAt = new Date().toISOString();
+    answers[s.id] = out;
+    submitted = true;
+
+    closeCard();
+    active = -1;
+    persist();
+    /* nothing else to do: the film never stopped, and with the answer
+       recorded the loop guard above lets it run on into the next line */
+  });
+}
+
+function closeCard(){
+  var card = slot.firstElementChild;
+  if(!card) return;
+  card.classList.add("is-leaving");
+  setTimeout(function(){ if(card.parentNode) card.parentNode.removeChild(card); }, 290);
+}
+
+/* Playback is never programmatically stopped, so there is no resume to
+   fight the autoplay rules. The tap target below only covers a restart
+   or a browser-initiated pause. */
+nudge.addEventListener("click", function(){
+  nudge.hidden = true;
+  vid.play().catch(function(){ nudge.hidden = false; });
+});
+
+/* == report endpoint =====================================
+   The PMW API authorises by API key tied to the requesting IP, and its
+   own documentation says never to put that key in client-side code. So
+   the page never talks to api.protectmewell.com directly: it posts the
+   answers to a small server-side proxy that holds the key and makes both
+   upstream calls. Empty endpoint = report step disabled, which is the
+   case inside the Artifact preview, where the CSP blocks cross-origin
+   fetch regardless. */
+var REPORT_ENDPOINT = (function(){
+  var h = location.hostname;
+  if(h === "presszero.in" || h === "www.presszero.in")
+    return "https://pmw.161-118-187-170.sslip.io/report";
+  if(h === "127.0.0.1" || h === "localhost")
+    return "http://127.0.0.1:8790/report";
+  return "";
+})();
+
+/* short_journey accepts only these eight; anything else is "Others" */
+var API_CITIES = ["Bengaluru","Chennai","Delhi","Hyderabad","Kolkata","Mumbai","Pune"];
+
+function toApiPayload(){
+  var v = answers.vitals || {}, l = answers.location || {},
+      h = answers.household || {}, n = answers.income || {};
+
+  var city = (l.city || "").replace(/\s*NCR\s*/i, "").trim();       /* "Delhi NCR" -> "Delhi" */
+  if(API_CITIES.indexOf(city) === -1) city = "Others";
+
+  /* the card collects a COUNT of dependent parents; the API wants which
+     one. 0 -> none, 1 -> mother, 2+ -> both. father_age is not collected,
+     so it carries a stated default whenever the father is included. */
+  var np = h.parents == null ? 0 : h.parents;
+  var dp = np <= 0 ? "N" : (np === 1 ? "M" : "B");
+  var fatherAge = (dp === "F" || dp === "B") ? 65 : 0;
+
+  return {
+    name:               (VIEWER || "Anonymous").replace(/[^A-Za-z ]/g, "").slice(0, 50) || "Anonymous",
+    location:           city,
+    starting_age:       v.age != null ? v.age : 33,
+    gender:             v.gender === "Female" ? "F" : (v.gender === "Other" ? "T" : "M"),
+    marital_status:     h.marital === "Married" ? "M" : "U",
+    dependent_children: h.children == null ? 0 : h.children,
+    dependent_parents:  dp,
+    father_age:         fatherAge,
+    annual_income_self: n.income == null ? 0 : n.income
+  };
+}
+
+/* == summary card ======================================== */
+var SUMMARY_ROWS = [
+  { k:"Age",             get:function(){ return (answers.vitals||{}).age + " yrs"; } },
+  { k:"Gender",          get:function(){ return (answers.vitals||{}).gender; } },
+  { k:"City",            get:function(){ return (answers.location||{}).city; } },
+  { k:"Pin code",        get:function(){ return (answers.location||{}).pin; } },
+  { k:"Marital status",  get:function(){ return (answers.household||{}).marital; } },
+  { k:"Dependent children", get:function(){ return (answers.household||{}).children; } },
+  { k:"Dependent parents",  get:function(){ return (answers.household||{}).parents; } },
+  { k:"Annual income",   get:function(){ return "\u20b9" + (answers.income||{}).income + " lakh"; } }
+];
+
+var PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+
+function miniStepper(name, val, min, max){
+  return '<div class="mini-stepper" data-mini="'+name+'" data-min="'+min+'" data-max="'+max+'">'
+    + '<button class="mini-btn" type="button" data-delta="-1" aria-label="Decrease '+name+'">'+svgIcon("minus")+'</button>'
+    + '<output class="mini-val" data-out="'+name+'">'+val+'</output>'
+    + '<button class="mini-btn" type="button" data-delta="1" aria-label="Increase '+name+'">'+svgIcon("plus")+'</button>'
+    + '</div>';
+}
+
+function editFieldsHtml(){
+  var v = answers.vitals||{}, l = answers.location||{},
+      h = answers.household||{}, n = answers.income||{};
+  var out = "";
+
+  out += '<div class="ef"><span class="ef-label">Age (in years)</span>'
+       + miniStepper("age", v.age != null ? v.age : 33, 18, 99) + '</div>';
+
+  out += '<div class="ef"><span class="ef-label">Gender</span><div class="mini-seg" role="group" aria-label="Gender">'
+       + ["Male","Female","Other"].map(function(g){
+           return '<button type="button" data-seg="gender" data-value="'+g+'" aria-pressed="'
+                + ((v.gender||"Male")===g) + '">'+g+'</button>'; }).join("")
+       + '</div></div>';
+
+  out += '<div class="ef"><span class="ef-label">City and pin code</span><div class="ef-pair">'
+       + '<select class="mini-control" id="eCity" aria-label="City">'
+       + CITIES.map(function(c){
+           return '<option value="'+esc(c)+'"'+((l.city||"Mumbai")===c?" selected":"")+'>'+esc(c)+'</option>'; }).join("")
+       + '</select>'
+       + '<input class="mini-control" id="ePin" type="text" inputmode="numeric" maxlength="7" '
+       + 'aria-label="Pin code" placeholder="400 001" value="'+esc(l.pin||"")+'"></div></div>';
+
+  out += '<div class="ef"><span class="ef-label">Marital status</span>'
+       + '<select class="mini-control" id="eMarital" aria-label="Marital status">'
+       + ["Single","Married","Divorced","Widowed"].map(function(o){
+           return '<option value="'+o+'"'+((h.marital||"Married")===o?" selected":"")+'>'+o+'</option>'; }).join("")
+       + '</select></div>';
+
+  out += '<div class="ef"><span class="ef-label">Dependent <b>children</b></span>'
+       + miniStepper("children", h.children != null ? h.children : 1, 0, 10) + '</div>';
+
+  out += '<div class="ef"><span class="ef-label">Dependent <b>parents</b></span>'
+       + miniStepper("parents", h.parents != null ? h.parents : 2, 0, 4) + '</div>';
+
+  out += '<div class="ef"><span class="ef-label">Annual income (in lakh)</span>'
+       + miniStepper("income", n.income != null ? n.income : 45, 1, 200) + '</div>';
+
+  return out;
+}
+
+function showOutro(){
+  if(finished) return;
+  finished = true;
+
+  var card = document.createElement("div");
+  card.className = "card outro";
+  card.setAttribute("role","group");
+  card.setAttribute("aria-label","Your profile");
+  card.innerHTML =
+      '<p class="card-hail">Your profile is ready' + (VIEWER ? "," : "!") + '</p>'
+    + (VIEWER ? '<p class="card-name">' + esc(VIEWER) + '!</p>' : "")
+    + '<div class="outro-body">'
+    +   '<div id="viewMode"></div>'
+    +   '<div id="editMode" hidden></div>'
+    + '</div>'
+    + '<div class="outro-actions">'
+    +   '<button class="cta cta-ghost" type="button" id="editBtn">Edit</button>'
+    +   '<button class="cta" type="button" id="submitBtn">Submit &nbsp;&rarr;</button>'
+    + '</div>'
+    + '<p class="outro-note" id="outroNote" hidden></p>';
+
+  slot.innerHTML = "";
+  slot.appendChild(card);
+  wireOutro(card);
+}
+
+function wireOutro(card){
+  var viewEl  = card.querySelector("#viewMode"),
+      editEl  = card.querySelector("#editMode"),
+      editBtn = card.querySelector("#editBtn"),
+      subBtn  = card.querySelector("#submitBtn"),
+      noteEl  = card.querySelector("#outroNote"),
+      editing = false, busy = false;
+
+  function note(html, kind){
+    if(!html){ noteEl.hidden = true; noteEl.innerHTML = ""; return; }
+    noteEl.hidden = false;
+    noteEl.innerHTML = html;
+    noteEl.setAttribute("data-kind", kind || "ok");
+  }
+
+  function paintView(){
+    viewEl.innerHTML = SUMMARY_ROWS.map(function(r, i){
+      var val = r.get();
+      if(val == null || String(val).indexOf("undefined") > -1) val = "\u2014";
+      return '<button class="outro-row" type="button" data-row="'+i+'">'
+           + '<span class="k">'+esc(r.k)+'</span>'
+           + '<span class="v">'+esc(val)+PENCIL+'</span></button>';
+    }).join("");
+  }
+
+  function setMode(on){
+    editing = on;
+    if(on) editEl.innerHTML = editFieldsHtml();
+    viewEl.hidden = on;
+    editEl.hidden = !on;
+    editBtn.textContent = on ? "Done" : "Edit";
+    note("");
+  }
+
+  /* commit whatever the edit fields currently hold back into `answers` */
+  function harvest(){
+    if(!editing) return true;
+    var pin = editEl.querySelector("#ePin");
+    var digits = (pin.value || "").replace(/\D/g, "");
+    if(digits.length !== 6){
+      pin.classList.add("is-bad"); pin.focus();
+      note("Pin code needs 6 digits.", "err");
+      return false;
+    }
+    function out(n){ return Number(editEl.querySelector('[data-out="'+n+'"]').textContent); }
+    answers.vitals = answers.vitals || {}; answers.location = answers.location || {};
+    answers.household = answers.household || {}; answers.income = answers.income || {};
+    answers.vitals.age      = out("age");
+    answers.vitals.gender   = editEl.querySelector('[data-seg="gender"][aria-pressed="true"]').dataset.value;
+    answers.vitals.name     = VIEWER || null;
+    answers.location.city   = editEl.querySelector("#eCity").value;
+    answers.location.pin    = pin.value;
+    answers.household.marital  = editEl.querySelector("#eMarital").value;
+    answers.household.children = out("children");
+    answers.household.parents  = out("parents");
+    answers.income.income      = out("income");
+    paintView();
+    persist();
+    return true;
+  }
+
+  card.addEventListener("click", function(e){
+    var row = e.target.closest(".outro-row");
+    if(row){ setMode(true);
+      var f = editEl.querySelectorAll(".ef")[Math.min(Number(row.dataset.row), 6)];
+      if(f) f.scrollIntoView({block:"nearest"});
+      return;
+    }
+    var btn = e.target.closest(".mini-btn");
+    if(btn){
+      var box = btn.closest(".mini-stepper"),
+          o   = box.querySelector("[data-out]"),
+          mn  = Number(box.dataset.min), mx = Number(box.dataset.max),
+          nx  = Math.min(mx, Math.max(mn, Number(o.textContent) + Number(btn.dataset.delta)));
+      o.textContent = nx;
+      box.querySelector('[data-delta="-1"]').disabled = nx <= mn;
+      box.querySelector('[data-delta="1"]').disabled  = nx >= mx;
+      return;
+    }
+    var seg = e.target.closest('[data-seg="gender"]');
+    if(seg){
+      seg.parentNode.querySelectorAll("button").forEach(function(b){
+        b.setAttribute("aria-pressed", String(b === seg)); });
+    }
+  });
+
+  editEl.addEventListener("input", function(e){
+    if(e.target.id === "ePin"){
+      var d = e.target.value.replace(/\D/g, "").slice(0,6);
+      e.target.value = d.length > 3 ? d.slice(0,3) + " " + d.slice(3) : d;
+      e.target.classList.remove("is-bad");
+    }
+  });
+
+  editBtn.addEventListener("click", function(){
+    if(editing){ if(harvest()) setMode(false); }
+    else setMode(true);
+  });
+
+  subBtn.addEventListener("click", function(){
+    if(busy) return;
+    if(!harvest()) return;
+    if(editing) setMode(false);
+
+    if(!REPORT_ENDPOINT){
+      note("Answers captured. The report service is not configured for this "
+         + "address, so there is nothing to generate here.", "err");
+      return;
+    }
+
+    busy = true;
+    subBtn.disabled = true; editBtn.disabled = true;
+    note('<span class="spin"></span>Building your report&hellip;');
+
+    fetch(REPORT_ENDPOINT, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ session: sessionId, profile: toApiPayload() })
+    })
+    .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, body:j}; }); })
+    .then(function(res){
+      busy = false; subBtn.disabled = false; editBtn.disabled = false;
+      if(!res.ok || !res.body || !res.body.pdf_url){
+        var msg = (res.body && (res.body.error || res.body.message)) || "the report service did not return a document";
+        note("Could not build the report \u2014 " + esc(String(msg)) + ". Your answers are saved; try Submit again.", "err");
+        return;
+      }
+      if(res.body.hash){
+        answers.report = { hash: res.body.hash, pdf_url: res.body.pdf_url, at: new Date().toISOString() };
+        persist();
+      }
+      note('Report ready. <a href="' + esc(res.body.pdf_url) + '" target="_blank" rel="noopener">Open in a new tab</a>');
+      openReport(res.body.pdf_url);
+    })
+    .catch(function(err){
+      busy = false; subBtn.disabled = false; editBtn.disabled = false;
+      note("Could not reach the report service. Your answers are saved; try Submit again.", "err");
+    });
+  });
+
+  paintView();
+}
+
+/* the generated PDF, shown in place rather than as a download */
+function openReport(url){
+  var host = document.createElement("div");
+  host.className = "report";
+  host.innerHTML =
+      '<div class="report-bar">'
+    +   '<h2>Your Protect Me Well report</h2>'
+    +   '<a href="' + esc(url) + '" target="_blank" rel="noopener">Open in new tab</a>'
+    +   '<button type="button" id="reportClose">Close</button>'
+    + '</div>'
+    + '<iframe src="' + esc(url) + '" title="Your Protect Me Well report"></iframe>';
+  document.body.appendChild(host);
+  host.querySelector("#reportClose").addEventListener("click", function(){
+    host.remove();
+  });
+}
+
+function restart(){
+  var open = document.querySelector(".report");
+  if(open) open.remove();
+  answers = {};
+  active = -1; finished = false;
+  sessionId = "s_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+  slot.innerHTML = "";
+  nudge.hidden = true;
+  vid.currentTime = 0;
+  vid.play().catch(function(){ nudge.hidden = false; });
+  paintLab();
+}
+
+/* ── playback loop ───────────────────────────────────── */
+function tick(){
+  var t = vid.currentTime;
+  if(!vid.paused && !finished){
+    for(var i = 0; i < STEPS.length; i++){
+      var s = STEPS[i];
+      if(answers[s.id]) continue;               /* answered: loop is off */
+      if(active !== i && t >= s.show && t < s.loopOut) openCard(i);
+      /* cycle the idle beat; `seeking` guards against stacking seeks
+         while one is still settling */
+      if(active === i && t >= s.loopOut && !vid.seeking){
+        vid.currentTime = s.loopIn;
+      }
+    }
+  }
+  if(DEBUG) paintLab();
+  requestAnimationFrame(tick);
+}
+
+/* ── persistence ─────────────────────────────────────── */
+function persist(){
+  if(!db) return;
+  db.doc("responses/" + sessionId).set({
+    name: VIEWER || null,
+    captured: Object.keys(answers).length,
+    answers: answers,
+    updatedAt: new Date().toISOString()
+  }).catch(function(){});
+}
+
+if(window.claude && window.claude.use){
+  window.claude.use("db").then(function(d){
+    db = d; dbState = d ? "on" : "off";
+    if(d && Object.keys(answers).length) persist();
+  }).catch(function(){ dbState = "off"; });
+} else { dbState = "off"; }
+
+/* ── start ───────────────────────────────────────────── */
+function start(){
+  gate.hidden = true;
+  /* real fullscreen where the host allows it; the layout is
+     already edge-to-edge, so a refusal changes nothing visible */
+  var el = document.documentElement;
+  var rq = el.requestFullscreen || el.webkitRequestFullscreen;
+  if(rq){ try{ var r = rq.call(el); if(r && r.catch) r.catch(function(){}); }catch(e){} }
+  vid.play().catch(function(){ gate.hidden = false; });
+}
+gate.addEventListener("click", start);
+
+vid.addEventListener("play",  function(){ gate.hidden = true; nudge.hidden = true; });
+vid.addEventListener("ended", showOutro);
+vid.addEventListener("loadedmetadata", function(){
+  if(vid.duration && isFinite(vid.duration)) DUR = vid.duration;
+  if(vid.videoWidth && vid.videoHeight){
+    SRC_W = vid.videoWidth; SRC_H = vid.videoHeight; sizeFrame();
+  }
+  paintLab();
+});
+
+/* ── timing lab ──────────────────────────────────────── */
+var labT, labFill, labHead, labRail, labMarks, labCues, labPay;
+function paintLab(){
+  if(!DEBUG) return;
+  var t = vid.currentTime;
+  labT.textContent = t.toFixed(2);
+  labFill.style.width = (t / DUR * 100) + "%";
+  labHead.style.left  = (t / DUR * 100) + "%";
+  labPay.textContent = JSON.stringify({session:sessionId, db:dbState, answers:answers}, null, 1);
+}
+function paintCues(){
+  labCues.textContent =
+    "cue        show    loop (this file)      loop (reference cut)\n"
+  + STEPS.map(function(s, i){
+      return (i+1) + " " + s.id.padEnd(10)
+           + s.show.toFixed(2).padStart(6) + "   "
+           + (s.loopIn.toFixed(2) + "-" + s.loopOut.toFixed(2)).padStart(13) + "   "
+           + ((s.loopIn+REF_OFFSET).toFixed(2) + "-" + (s.loopOut+REF_OFFSET).toFixed(2)).padStart(13);
+    }).join("\n");
+}
+function paintMarks(){
+  labMarks.innerHTML = marks.length
+    ? "Marks &mdash; this file: <b>"
+      + marks.map(function(m){ return m.toFixed(2); }).join("</b>, <b>")
+      + "</b><br>Same marks on the reference cut: <b>"
+      + marks.map(function(m){ return (m + REF_OFFSET).toFixed(2); }).join("</b>, <b>") + "</b>"
+    : "No marks yet &mdash; play, then hit <b>M</b> at the moment the loop should start or end.";
+}
+
+function setLab(on){
+  DEBUG = on;
+  lab.hidden = !on;
+  if(on){ paintCues(); paintMarks(); paintLab(); }
+}
+
+{
+  labT = document.getElementById("labT");
+  labFill = document.getElementById("labFill");
+  labHead = document.getElementById("labHead");
+  labRail = document.getElementById("labRail");
+  labMarks = document.getElementById("labMarks");
+  labCues = document.getElementById("labCues");
+  labPay = document.getElementById("labPay");
+
+  STEPS.forEach(function(s){
+    var bar = document.createElement("span");
+    bar.className = "loopbar";
+    bar.style.left  = (s.loopIn / DUR * 100) + "%";
+    bar.style.width = ((s.loopOut - s.loopIn) / DUR * 100) + "%";
+    labRail.appendChild(bar);
+  });
+
+  function labSeek(e){
+    var r = labRail.getBoundingClientRect();
+    var p = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    finished = false;
+    closeCard(); active = -1;
+    vid.currentTime = p * DUR;
+  }
+  labRail.addEventListener("pointerdown", function(e){
+    labSeek(e); labRail.setPointerCapture(e.pointerId); labRail.dataset.drag = "1";
+  });
+  labRail.addEventListener("pointermove", function(e){ if(labRail.dataset.drag === "1") labSeek(e); });
+  labRail.addEventListener("pointerup", function(){ labRail.dataset.drag = ""; });
+
+  document.getElementById("labMark").addEventListener("click", addMark);
+  document.getElementById("labPlay").addEventListener("click", function(){
+    if(vid.paused){ gate.hidden = true; vid.play().catch(function(){}); } else vid.pause();
+  });
+  document.getElementById("labReset").addEventListener("click", restart);
+
+  window.addEventListener("keydown", function(e){
+    if(e.target.matches("input,select,textarea")) return;
+    if(e.key === "d" || e.key === "D"){ setLab(lab.hidden); return; }
+    if(!DEBUG) return;
+    if(e.key === "m" || e.key === "M"){ addMark(); }
+    if(e.key === " "){ e.preventDefault();
+      if(vid.paused){ gate.hidden = true; vid.play().catch(function(){}); } else vid.pause(); }
+  });
+
+  setLab(DEBUG);
+}
+function addMark(){
+  marks.push(vid.currentTime);
+  paintMarks();
+}
+
+requestAnimationFrame(tick);
+
+})();
+</script>
+
+</body>
+</html>
