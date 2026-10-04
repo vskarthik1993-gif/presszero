@@ -1,7 +1,7 @@
 {
-  "name": "PressZero - Voice AI, Humanised",
-  "short_name": "PressZero",
-  "description": "Automate the top and middle funnels. Let humans close the bottom funnel.",
+  "name": "Leela AI Receptionist",
+  "short_name": "Leela AI",
+  "description": "Leela AI Receptionist — powered by PressZero",
   "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#0e1014",

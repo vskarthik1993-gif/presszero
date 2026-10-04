@@ -22,8 +22,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Apply shared PressZero branding metadata
+        run: node tools/sync-shared-metadata.mjs
+
       - name: Verify PressZero sharing metadata and icons
         run: ./tools/check-share-metadata.sh
+
+      - name: Verify every product route is present
+        run: node tools/check-publish-routes.mjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

@@ -10,7 +10,11 @@ python3 -m http.server 8000
 
 Then open `http://localhost:8000`.
 
-## Add a page with a trailing-slash URL
+## Product routes and deployment
+
+Each path is a separate product surface with its own content directory. Common PressZero branding and site metadata stay at the root. Product assets and experiences live in their own directory, such as `auto/`, `health/`, or `pmw/`.
+
+`site-routes.json` lists every required path and its entrypoint. The Pages workflow checks this manifest before publishing and refuses a snapshot with a missing route. To add a path, add its `index.html` and assets, then add the entry to the manifest in the same `main` change.
 
 Create a folder with an `index.html` inside it:
 
@@ -23,7 +27,7 @@ Add the new URL to `sitemap.xml` when the page should appear in search engines.
 
 ## Hosting and automatic deployment
 
-The site is hosted by GitHub Pages from the `main` branch. GitHub stores the code and serves the website; Hostinger manages the domain's DNS. Every push to `main` deploys automatically.
+GitHub Pages is configured to publish through the repository's GitHub Actions workflow. The `main` branch is the sole source of complete site snapshots. Each publish replaces the whole domain tree, so direct deployment from a product-specific branch can remove paths owned by other products. Product changes should be committed under their own path in `main`; the shared workflow validates all required paths and publishes them together. A push to `gh-pages` must never publish the site.
 
 The custom domain is stored in `CNAME`. In Hostinger, configure these records:
 

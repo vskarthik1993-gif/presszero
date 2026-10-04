@@ -1,0 +1,19 @@
+{
+  "site": "presszero.in",
+  "sharedEntry": "index.html",
+  "routes": [
+    { "path": "/auto/", "entry": "auto/index.html", "product": "Mercedes-Benz concierge" },
+    { "path": "/admin/", "entry": "admin/index.html", "product": "PressZero admin" },
+    { "path": "/admin/call-history/", "entry": "admin/call-history/index.html", "product": "Call history" },
+    { "path": "/admin/design/", "entry": "admin/design/index.html", "product": "Design studio" },
+    { "path": "/admin/mascot/", "entry": "admin/mascot/index.html", "product": "Mascot admin" },
+    { "path": "/demo/", "entry": "demo/index.html", "product": "Vastu HFC demo" },
+    { "path": "/demo/vastuhfc/", "entry": "demo/vastuhfc/index.html", "product": "Vastu HFC voice demo" },
+    { "path": "/demo2/", "entry": "demo2/index.html", "product": "Demo two" },
+    { "path": "/health/", "entry": "health/index.html", "product": "Healthcare demo" },
+    { "path": "/mascot/", "entry": "mascot/index.html", "product": "PressZero mascot" },
+    { "path": "/pmw/", "entry": "pmw/index.html", "product": "PMW experience" },
+    { "path": "/wa-preview/a/", "entry": "wa-preview/a/index.html", "product": "WhatsApp preview A" },
+    { "path": "/wa-preview/b/", "entry": "wa-preview/b/index.html", "product": "WhatsApp preview B" }
+  ]
+}
