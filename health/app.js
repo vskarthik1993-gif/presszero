@@ -18,6 +18,120 @@ const APP_BASE = window.__NAMMA_APP_BASE__ || '';
 let historyToken = sessionStorage.getItem('namma_history_token') || '';
 const apiUrl = (path) => `${API_BASE}${path}`;
 const assetUrl = (path) => `${APP_BASE}${path}`;
+const recordingRecovery = new RecordingRecoveryStore();
+
+class RecordingRecoveryStore {
+  constructor() {
+    this.database = null;
+  }
+
+  open() {
+    if (this.database) return this.database;
+    this.database = new Promise((resolve, reject) => {
+      const request = indexedDB.open('namma-care-recording-recovery', 1);
+      request.onupgradeneeded = () => {
+        const database = request.result;
+        database.createObjectStore('calls', { keyPath: 'callId' });
+        const batches = database.createObjectStore('batches', { keyPath: 'id' });
+        batches.createIndex('callId', 'callId', { unique: false });
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error('Recording recovery storage is unavailable.'));
+    });
+    return this.database;
+  }
+
+  async begin(callId) {
+    const database = await this.open();
+    const transaction = database.transaction('calls', 'readwrite');
+    const done = transactionDone(transaction);
+    transaction.objectStore('calls').put({ callId, createdAt: Date.now(), updatedAt: Date.now() });
+    await done;
+  }
+
+  async append(callId, sequence, patient, assistant) {
+    if (!patient.length && !assistant.length) return;
+    const database = await this.open();
+    const transaction = database.transaction(['calls', 'batches'], 'readwrite');
+    const done = transactionDone(transaction);
+    transaction.objectStore('batches').put({
+      id: `${callId}:${String(sequence).padStart(8, '0')}`,
+      callId,
+      patient: serializeRecordingChunks(patient),
+      assistant: serializeRecordingChunks(assistant),
+    });
+    transaction.objectStore('calls').put({ callId, createdAt: Date.now(), updatedAt: Date.now() });
+    await done;
+  }
+
+  async pending() {
+    const database = await this.open();
+    const transaction = database.transaction('calls', 'readonly');
+    const done = transactionDone(transaction);
+    const calls = await requestResult(transaction.objectStore('calls').getAll());
+    await done;
+    return calls;
+  }
+
+  async recording(callId) {
+    const database = await this.open();
+    const transaction = database.transaction('batches', 'readonly');
+    const done = transactionDone(transaction);
+    const batches = await requestResult(transaction.objectStore('batches').index('callId').getAll(callId));
+    await done;
+    const patient = [];
+    const assistant = [];
+    for (const batch of batches.sort((left, right) => left.id.localeCompare(right.id))) {
+      patient.push(...deserializeRecordingChunks(batch.patient));
+      assistant.push(...deserializeRecordingChunks(batch.assistant));
+    }
+    if (!patient.length && !assistant.length) return null;
+    const totalSamples = [...patient, ...assistant].reduce(
+      (maximum, chunk) => Math.max(maximum, chunk.offset + chunk.samples.length),
+      1,
+    );
+    return { wav: encodeStereoWav(assistant, patient, totalSamples, 16000), durationMs: Math.round(totalSamples / 16) };
+  }
+
+  async remove(callId) {
+    const database = await this.open();
+    const readTransaction = database.transaction('batches', 'readonly');
+    const readDone = transactionDone(readTransaction);
+    const batches = await requestResult(readTransaction.objectStore('batches').index('callId').getAllKeys(callId));
+    await readDone;
+    const transaction = database.transaction(['calls', 'batches'], 'readwrite');
+    const done = transactionDone(transaction);
+    transaction.objectStore('calls').delete(callId);
+    for (const id of batches) transaction.objectStore('batches').delete(id);
+    await done;
+  }
+}
+
+function serializeRecordingChunks(chunks) {
+  return chunks.map((chunk) => ({
+    offset: chunk.offset,
+    samples: chunk.samples.buffer.slice(chunk.samples.byteOffset, chunk.samples.byteOffset + chunk.samples.byteLength),
+  }));
+}
+
+function deserializeRecordingChunks(chunks = []) {
+  return chunks.map((chunk) => ({ offset: chunk.offset, samples: new Int16Array(chunk.samples) }));
+}
+
+function requestResult(request) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('Recording recovery request failed.'));
+  });
+}
+
+function transactionDone(transaction) {
+  return new Promise((resolve, reject) => {
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error || new Error('Recording recovery write failed.'));
+    transaction.onabort = () => reject(transaction.error || new Error('Recording recovery write was aborted.'));
+  });
+}
 
 class VoiceCall {
   constructor() {
@@ -33,6 +147,12 @@ class VoiceCall {
     this.patientRecordingChunks = [];
     this.assistantRecordingChunks = [];
     this.recordingSaved = false;
+    this.callId = null;
+    this.backupTimer = null;
+    this.backupSequence = 0;
+    this.pendingPatientBackup = [];
+    this.pendingAssistantBackup = [];
+    this.backupWrites = Promise.resolve();
     this.ready = false;
     this.muted = false;
   }
@@ -95,11 +215,14 @@ class VoiceCall {
       offset: Math.max(0, Math.round((this.audioContext.currentTime - this.recordingOrigin - chunkDuration) * 16000)),
       samples: pcm,
     });
+    this.queueBackup('patient', this.patientRecordingChunks.at(-1));
     this.session.sendAudio(arrayBufferToBase64(pcm.buffer));
   }
 
   handleMessage(message) {
     if (message.type === 'ready') {
+      this.callId = message.callId;
+      void recordingRecovery.begin(this.callId).catch(() => undefined);
       this.ready = true;
       setCallStatus('Connected · Asha is listening');
       $('.phone-card').classList.add('live');
@@ -137,6 +260,7 @@ class VoiceCall {
       offset: Math.max(0, Math.round((startAt - this.recordingOrigin) * 16000)),
       samples: resamplePcm16(bytes, sampleRate, 16000),
     });
+    this.queueBackup('assistant', this.assistantRecordingChunks.at(-1));
     source.start(startAt);
     this.playbackTime = startAt + buffer.duration;
     this.playingSources.add(source);
@@ -169,11 +293,13 @@ class VoiceCall {
       console.error('Could not assemble call recording', error);
       showToast('Call ended, but the recording could not be assembled.', true);
     }
+    await this.flushBackup();
     await this.session?.end();
     if (recording) {
       try {
         await this.session?.saveRecording(recording.wav, recording.durationMs);
         this.recordingSaved = true;
+        await this.clearBackup();
       } catch {
         showToast('Call saved, but the recording upload failed. Please retry with a new call.', true);
       }
@@ -186,8 +312,43 @@ class VoiceCall {
     if (this.recordingSaved || !this.session) return;
     const recording = this.buildRecording();
     if (!recording) return;
+    await this.flushBackup();
     await this.session.saveRecording(recording.wav, recording.durationMs);
     this.recordingSaved = true;
+    await this.clearBackup();
+  }
+
+  queueBackup(track, chunk) {
+    if (!this.callId || !chunk) return;
+    if (track === 'patient') this.pendingPatientBackup.push(chunk);
+    else this.pendingAssistantBackup.push(chunk);
+    if (!this.backupTimer) {
+      this.backupTimer = setTimeout(() => {
+        this.backupTimer = null;
+        void this.flushBackup();
+      }, 2000);
+    }
+  }
+
+  async flushBackup() {
+    if (this.backupTimer) {
+      clearTimeout(this.backupTimer);
+      this.backupTimer = null;
+    }
+    if (!this.callId || (!this.pendingPatientBackup.length && !this.pendingAssistantBackup.length)) return this.backupWrites;
+    const patient = this.pendingPatientBackup.splice(0);
+    const assistant = this.pendingAssistantBackup.splice(0);
+    const sequence = this.backupSequence++;
+    this.backupWrites = this.backupWrites
+      .then(() => recordingRecovery.append(this.callId, sequence, patient, assistant))
+      .catch(() => undefined);
+    return this.backupWrites;
+  }
+
+  async clearBackup() {
+    if (!this.callId) return;
+    await this.backupWrites;
+    await recordingRecovery.remove(this.callId).catch(() => undefined);
   }
 
   buildRecording() {
@@ -237,6 +398,37 @@ async function startCall() {
         : error?.message || 'Could not start the demo call.',
       true,
     );
+  }
+}
+
+async function recoverBufferedRecordings() {
+  let restored = 0;
+  try {
+    const pending = await recordingRecovery.pending();
+    for (const entry of pending) {
+      if (Date.now() - entry.updatedAt > 7 * 24 * 60 * 60 * 1000) {
+        await recordingRecovery.remove(entry.callId);
+        continue;
+      }
+      const recording = await recordingRecovery.recording(entry.callId);
+      if (!recording) continue;
+      const response = await fetch(apiUrl(`/api/voice/recording/${entry.callId}`), {
+        method: 'PUT',
+        headers: { 'content-type': 'audio/wav', 'x-recording-duration-ms': String(recording.durationMs) },
+        body: recording.wav,
+        cache: 'no-store',
+      });
+      if (response.ok) {
+        await recordingRecovery.remove(entry.callId);
+        restored += 1;
+      }
+    }
+    if (restored) {
+      showToast(`Recovered ${restored} call recording${restored === 1 ? '' : 's'}.`);
+      await loadDashboard();
+    }
+  } catch {
+    // The next visit retries any buffered recording; call flow remains unaffected.
   }
 }
 
@@ -833,3 +1025,9 @@ $('#cancel-slot').addEventListener('click', () => $('#slot-dialog').close());
 
 const voiceWarmup = prepareVoiceSession().catch(() => undefined);
 await Promise.all([loadConfig(), loadDashboard(), voiceWarmup]);
+void recoverBufferedRecordings();
+void navigator.storage?.persist?.().catch(() => undefined);
+window.addEventListener('pagehide', () => { void state.call?.flushBackup(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') void state.call?.flushBackup();
+});
