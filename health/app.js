@@ -8,6 +8,7 @@ const state = {
   seconds: 0,
   voicePreviews: new Map(),
   activeVoicePreview: null,
+  recordingsReconciled: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -328,6 +329,10 @@ async function loadConfig() {
 
 async function loadDashboard() {
   try {
+    if (historyToken && !state.recordingsReconciled) {
+      await api('/api/calls/reconcile-recordings', { method: 'POST', body: {} });
+      state.recordingsReconciled = true;
+    }
     state.dashboard = await api('/api/dashboard');
     $('#patient-count').textContent = state.dashboard.stats.patients;
     $('#appointment-count').textContent = state.dashboard.stats.upcomingAppointments;
@@ -803,6 +808,7 @@ $('#call-history-login-form').addEventListener('submit', async (event) => {
     const session = await api('/api/call-history/login', { method: 'POST', body: { passcode: $('#call-history-passcode').value } });
     historyToken = session.token || '';
     if (historyToken) sessionStorage.setItem('namma_history_token', historyToken);
+    state.recordingsReconciled = false;
     $('#call-history-passcode').value = '';
     await loadDashboard();
   } catch (loginError) {
@@ -813,6 +819,7 @@ $('#call-history-logout').addEventListener('click', async () => {
   await api('/api/call-history/logout', { method: 'POST', body: {} });
   historyToken = '';
   sessionStorage.removeItem('namma_history_token');
+  state.recordingsReconciled = false;
   await loadDashboard();
 });
 $('#close-call-detail').addEventListener('click', () => $('#call-detail-dialog').close());
