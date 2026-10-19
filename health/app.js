@@ -18,8 +18,6 @@ const APP_BASE = window.__NAMMA_APP_BASE__ || '';
 let historyToken = sessionStorage.getItem('namma_history_token') || '';
 const apiUrl = (path) => `${API_BASE}${path}`;
 const assetUrl = (path) => `${APP_BASE}${path}`;
-const recordingRecovery = new RecordingRecoveryStore();
-
 class RecordingRecoveryStore {
   constructor() {
     this.database = null;
@@ -132,6 +130,8 @@ function transactionDone(transaction) {
     transaction.onabort = () => reject(transaction.error || new Error('Recording recovery write was aborted.'));
   });
 }
+
+const recordingRecovery = new RecordingRecoveryStore();
 
 class VoiceCall {
   constructor() {
