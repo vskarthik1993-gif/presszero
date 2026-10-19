@@ -7,6 +7,8 @@ const state = {
   timer: null,
   seconds: 0,
   voicePreviews: new Map(),
+  greetingBuffers: new Map(),
+  greetingPreloads: new Map(),
   activeVoicePreview: null,
   recordingsReconciled: false,
 };
@@ -146,6 +148,8 @@ class VoiceCall {
     this.recordingOrigin = 0;
     this.patientRecordingChunks = [];
     this.assistantRecordingChunks = [];
+    this.cachedGreetingChunk = null;
+    this.cachedGreetingPlaying = false;
     this.recordingSaved = false;
     this.callId = null;
     this.backupTimer = null;
@@ -164,6 +168,8 @@ class VoiceCall {
       audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
     });
     const workletPromise = this.audioContext.audioWorklet.addModule(assetUrl('/pcm-worklet.js'));
+    const voice = state.config?.receptionist?.voice;
+    const cachedGreeting = voice ? state.greetingBuffers.get(voice) : null;
     const sessionPromise = connectVoiceSession({
       onMessage: (message) => this.handleMessage(message),
       onClose: () => {
@@ -176,12 +182,13 @@ class VoiceCall {
           endCallUi();
         }
       },
-    });
+    }, { cachedGreetingPlaying: Boolean(cachedGreeting) });
     try {
       const [stream, session] = await Promise.all([streamPromise, sessionPromise, workletPromise]);
       this.stream = stream;
       this.session = session;
       await this.audioContext.resume();
+      if (cachedGreeting) this.playCachedGreeting(cachedGreeting);
     } catch (error) {
       void sessionPromise.then((session) => session.end()).catch(() => undefined);
       throw error;
@@ -223,8 +230,9 @@ class VoiceCall {
     if (message.type === 'ready') {
       this.callId = message.callId;
       void recordingRecovery.begin(this.callId).catch(() => undefined);
+      if (this.cachedGreetingChunk) this.queueBackup('assistant', this.cachedGreetingChunk);
       this.ready = true;
-      setCallStatus('Connected · Asha is listening');
+      setCallStatus(this.cachedGreetingPlaying ? 'Connected · Asha is greeting you' : 'Connected · Asha is listening');
       $('.phone-card').classList.add('live');
       setCallControls({ active: true });
       startTimer();
@@ -265,6 +273,37 @@ class VoiceCall {
     this.playbackTime = startAt + buffer.duration;
     this.playingSources.add(source);
     source.onended = () => this.playingSources.delete(source);
+  }
+
+  playCachedGreeting(greeting) {
+    if (!this.audioContext) return;
+    const samples = wavToPcm16(greeting);
+    if (!samples) return;
+    const sampleRate = 24_000;
+    const buffer = this.audioContext.createBuffer(1, samples.length, sampleRate);
+    const output = buffer.getChannelData(0);
+    for (let index = 0; index < samples.length; index += 1) output[index] = samples[index] / 32768;
+    const source = this.audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(this.audioContext.destination);
+    const startAt = Math.max(this.audioContext.currentTime + 0.025, this.playbackTime);
+    const chunk = {
+      offset: Math.max(0, Math.round((startAt - this.recordingOrigin) * 16000)),
+      samples: resamplePcm16(new Uint8Array(samples.buffer), sampleRate, 16000),
+    };
+    this.cachedGreetingChunk = chunk;
+    this.assistantRecordingChunks.push(chunk);
+    if (this.callId) this.queueBackup('assistant', chunk);
+    source.start(startAt);
+    this.playbackTime = startAt + buffer.duration;
+    this.cachedGreetingPlaying = true;
+    if (this.ready) setCallStatus('Connected · Asha is greeting you');
+    this.playingSources.add(source);
+    source.onended = () => {
+      this.playingSources.delete(source);
+      this.cachedGreetingPlaying = false;
+      if (this.ready) setCallStatus('Connected · Asha is listening');
+    };
   }
 
   clearPlayback() {
@@ -837,6 +876,7 @@ function renderVoiceOptions(receptionist) {
 }
 
 function getVoicePreview(voice) {
+  warmCachedGreeting(voice);
   if (!state.voicePreviews.has(voice.id)) {
     const audio = new Audio(assetUrl(voice.previewUrl));
     audio.preload = 'auto';
@@ -844,6 +884,20 @@ function getVoicePreview(voice) {
     state.voicePreviews.set(voice.id, audio);
   }
   return state.voicePreviews.get(voice.id);
+}
+
+function warmCachedGreeting(voice) {
+  if (!state.greetingPreloads.has(voice.id)) {
+    const preload = fetch(assetUrl(voice.previewUrl), { cache: 'force-cache' })
+      .then((response) => (response.ok ? response.arrayBuffer() : null))
+      .then((buffer) => {
+        if (buffer) state.greetingBuffers.set(voice.id, buffer);
+        return buffer;
+      })
+      .catch(() => null);
+    state.greetingPreloads.set(voice.id, preload);
+  }
+  return state.greetingPreloads.get(voice.id);
 }
 
 async function toggleVoicePreview(voice, button) {
@@ -938,6 +992,26 @@ function resamplePcm16(bytes, inputRate, outputRate) {
     output[index] = Math.round(input[before] * (1 - mix) + input[after] * mix);
   }
   return output;
+}
+
+function wavToPcm16(buffer) {
+  if (buffer.byteLength < 44) return null;
+  const view = new DataView(buffer);
+  if (String.fromCharCode(...new Uint8Array(buffer, 0, 4)) !== 'RIFF'
+    || String.fromCharCode(...new Uint8Array(buffer, 8, 4)) !== 'WAVE'
+    || view.getUint16(20, true) !== 1
+    || view.getUint16(22, true) !== 1
+    || view.getUint16(34, true) !== 16) return null;
+  let offset = 12;
+  while (offset + 8 <= buffer.byteLength) {
+    const id = String.fromCharCode(...new Uint8Array(buffer, offset, 4));
+    const size = view.getUint32(offset + 4, true);
+    if (id === 'data' && offset + 8 + size <= buffer.byteLength) {
+      return new Int16Array(buffer.slice(offset + 8, offset + 8 + size));
+    }
+    offset += 8 + size + (size % 2);
+  }
+  return null;
 }
 
 function encodeStereoWav(leftChunks, rightChunks, totalSamples, sampleRate) {
