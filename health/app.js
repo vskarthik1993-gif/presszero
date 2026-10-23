@@ -1,4 +1,4 @@
-import { connectVoiceSession, prepareVoiceSession } from './voice-live.js?v=voice-direct-v2';
+import { connectVoiceSession, prepareVoiceSession } from './voice-live.js?v=voice-direct-v3';
 
 const state = {
   config: null,
@@ -184,22 +184,23 @@ class VoiceCall {
       },
     }, { cachedGreetingPlaying: Boolean(cachedGreeting) });
     try {
-      const [stream, session] = await Promise.all([streamPromise, sessionPromise, workletPromise]);
+      const [stream] = await Promise.all([streamPromise, workletPromise]);
       this.stream = stream;
-      this.session = session;
       await this.audioContext.resume();
       if (cachedGreeting) this.playCachedGreeting(cachedGreeting);
+
+      const source = this.audioContext.createMediaStreamSource(this.stream);
+      this.worklet = new AudioWorkletNode(this.audioContext, 'microphone-processor');
+      const silentGain = this.audioContext.createGain();
+      silentGain.gain.value = 0;
+      source.connect(this.worklet).connect(silentGain).connect(this.audioContext.destination);
+      this.worklet.port.onmessage = ({ data }) => this.capture(data);
+
+      this.session = await sessionPromise;
     } catch (error) {
       void sessionPromise.then((session) => session.end()).catch(() => undefined);
       throw error;
     }
-
-    const source = this.audioContext.createMediaStreamSource(this.stream);
-    this.worklet = new AudioWorkletNode(this.audioContext, 'microphone-processor');
-    const silentGain = this.audioContext.createGain();
-    silentGain.gain.value = 0;
-    source.connect(this.worklet).connect(silentGain).connect(this.audioContext.destination);
-    this.worklet.port.onmessage = ({ data }) => this.capture(data);
   }
 
   capture(floatSamples) {
@@ -223,7 +224,12 @@ class VoiceCall {
       samples: pcm,
     });
     this.queueBackup('patient', this.patientRecordingChunks.at(-1));
-    this.session.sendAudio(arrayBufferToBase64(pcm.buffer));
+    // Do not send Asha's locally played opening back into the provider. On
+    // speakerphone-style devices that echo was being mistaken for caller
+    // speech, which could interrupt and truncate the cached greeting.
+    if (!this.cachedGreetingPlaying) {
+      this.session.sendAudio(arrayBufferToBase64(pcm.buffer));
+    }
   }
 
   handleMessage(message) {
@@ -241,7 +247,7 @@ class VoiceCall {
     } else if (message.type === 'transcript') {
       appendTranscript(message.speaker, message.text);
     } else if (message.type === 'interrupted') {
-      this.clearPlayback();
+      if (!this.cachedGreetingPlaying) this.clearPlayback();
     } else if (message.type === 'refresh_dashboard') {
       void loadDashboard();
     } else if (message.type === 'language_changed') {
@@ -297,12 +303,12 @@ class VoiceCall {
     source.start(startAt);
     this.playbackTime = startAt + buffer.duration;
     this.cachedGreetingPlaying = true;
-    if (this.ready) setCallStatus('Connected · Asha is greeting you');
+    setCallStatus(this.ready ? 'Connected · Asha is greeting you' : 'Opening call · Asha is greeting you');
     this.playingSources.add(source);
     source.onended = () => {
       this.playingSources.delete(source);
       this.cachedGreetingPlaying = false;
-      if (this.ready) setCallStatus('Connected · Asha is listening');
+      setCallStatus(this.ready ? 'Connected · Asha is listening' : 'Connecting to Asha…');
     };
   }
 
@@ -552,6 +558,11 @@ async function loadConfig() {
     pill.classList.toggle('error', !state.config.voiceConfigured);
     $('#voice-engine-ready').textContent = state.config.voiceConfigured ? 'Ready' : 'Setup';
     renderVoiceOptions(state.config.receptionist);
+    const selectedVoice = state.config.receptionist.voices.find(
+      (voice) => voice.id === state.config.receptionist.voice,
+    );
+    if (selectedVoice) await warmCachedGreeting(selectedVoice);
+    $('#start-call-button').disabled = !state.config.voiceConfigured;
   } catch {
     $('#system-pill').classList.add('error');
     $('#system-pill span').textContent = 'Server unavailable';
