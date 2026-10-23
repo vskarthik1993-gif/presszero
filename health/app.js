@@ -1,5 +1,19 @@
 import { connectVoiceSession, prepareVoiceSession } from './voice-live.js?v=voice-direct-v3';
 
+const CACHED_GREETING_TRANSCRIPT =
+  'ನಮಸ್ಕಾರ, ನಾನು ಆಶಾ, ನಮ್ಮ ಕೇರ್ ಕ್ಲಿನಿಕ್‌ನ ರಿಸೆಪ್ಷನಿಸ್ಟ್. ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?';
+const CACHED_GREETING_CUES = {
+  Kore: [0.03, 1.075, 2.325, 4.595],
+  Aoede: [0.03, 1.102, 2.627, 4.411],
+  Leda: [0.03, 1.086, 2.45, 4.474],
+};
+const CACHED_GREETING_PHRASES = [
+  'ನಮಸ್ಕಾರ, ',
+  'ನಾನು ಆಶಾ, ',
+  'ನಮ್ಮ ಕೇರ್ ಕ್ಲಿನಿಕ್‌ನ ರಿಸೆಪ್ಷನಿಸ್ಟ್. ',
+  'ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?',
+];
+
 const state = {
   config: null,
   dashboard: null,
@@ -150,6 +164,7 @@ class VoiceCall {
     this.assistantRecordingChunks = [];
     this.cachedGreetingChunk = null;
     this.cachedGreetingPlaying = false;
+    this.greetingTranscriptTimers = [];
     this.recordingSaved = false;
     this.callId = null;
     this.backupTimer = null;
@@ -182,12 +197,15 @@ class VoiceCall {
           endCallUi();
         }
       },
-    }, { cachedGreetingPlaying: Boolean(cachedGreeting) });
+    }, {
+      cachedGreetingPlaying: Boolean(cachedGreeting),
+      cachedGreetingTranscript: cachedGreeting ? CACHED_GREETING_TRANSCRIPT : undefined,
+    });
     try {
       const [stream] = await Promise.all([streamPromise, workletPromise]);
       this.stream = stream;
       await this.audioContext.resume();
-      if (cachedGreeting) this.playCachedGreeting(cachedGreeting);
+      if (cachedGreeting) this.playCachedGreeting(cachedGreeting, voice);
 
       const source = this.audioContext.createMediaStreamSource(this.stream);
       this.worklet = new AudioWorkletNode(this.audioContext, 'microphone-processor');
@@ -281,7 +299,7 @@ class VoiceCall {
     source.onended = () => this.playingSources.delete(source);
   }
 
-  playCachedGreeting(greeting) {
+  playCachedGreeting(greeting, voice) {
     if (!this.audioContext) return;
     const samples = wavToPcm16(greeting);
     if (!samples) return;
@@ -301,6 +319,7 @@ class VoiceCall {
     this.assistantRecordingChunks.push(chunk);
     if (this.callId) this.queueBackup('assistant', chunk);
     source.start(startAt);
+    this.scheduleCachedGreetingTranscript(startAt, voice);
     this.playbackTime = startAt + buffer.duration;
     this.cachedGreetingPlaying = true;
     setCallStatus(this.ready ? 'Connected · Asha is greeting you' : 'Opening call · Asha is greeting you');
@@ -310,6 +329,23 @@ class VoiceCall {
       this.cachedGreetingPlaying = false;
       setCallStatus(this.ready ? 'Connected · Asha is listening' : 'Connecting to Asha…');
     };
+  }
+
+  scheduleCachedGreetingTranscript(startAt, voice) {
+    this.clearCachedGreetingTranscriptTimers();
+    const cues = CACHED_GREETING_CUES[voice] || CACHED_GREETING_CUES.Kore;
+    const delayToStart = Math.max(0, (startAt - this.audioContext.currentTime) * 1000);
+    CACHED_GREETING_PHRASES.forEach((phrase, index) => {
+      const timer = setTimeout(() => {
+        appendTranscript('assistant', phrase);
+      }, delayToStart + cues[index] * 1000);
+      this.greetingTranscriptTimers.push(timer);
+    });
+  }
+
+  clearCachedGreetingTranscriptTimers() {
+    for (const timer of this.greetingTranscriptTimers) clearTimeout(timer);
+    this.greetingTranscriptTimers = [];
   }
 
   clearPlayback() {
@@ -408,6 +444,7 @@ class VoiceCall {
   }
 
   async stopLocalMedia() {
+    this.clearCachedGreetingTranscriptTimers();
     this.clearPlayback();
     this.worklet?.disconnect();
     this.stream?.getTracks().forEach((track) => track.stop());
