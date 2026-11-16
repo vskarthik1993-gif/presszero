@@ -1,12 +1,18 @@
 import { buildRig, addKeyframe, loadPack, warmDetector } from './engine/rig.js';
-import { AvatarRenderer } from './engine/renderer.js';
+import { AvatarRenderer } from './engine/renderer.js?v=4';
 import { LipSync } from './engine/lipsync.js';
-import { Performer, expressionPose, applyPack } from './engine/performer.js?v=3';
+import { Performer, expressionPose, applyPack } from './engine/performer.js?v=4';
 import { Affect } from './engine/affect.js';
 import { generateExpression } from './engine/generate.js';
+import { Reel } from './engine/reel.js?v=1';
 
 const $ = (selector) => document.querySelector(selector);
-const CHARACTER = { name: 'Asha', base: './characters/asha' };
+// Packed characters. Karthik's pack is frames of his own face harvested from video (with LivePortrait
+// renders only where the video lacked a slot); Asha's is rendered with LivePortrait from one photo.
+const CHARACTERS = { karthik: { name: 'Karthik', base: './characters/karthik' }, asha: { name: 'Asha', base: './characters/asha' } };
+const requested = new URLSearchParams(location.search).get('character');
+let CHARACTER = CHARACTERS[requested] || CHARACTERS.karthik;
+const STAGE_ASPECT = 9 / 16;
 const SAMPLE_VOICE = '../health/audio/voice-previews/v1/kore.wav';
 const TILES = [['joy', 'Happy'], ['surprise', 'Surprise'], ['sad', 'Empathy'], ['concern', 'Concern'], ['think', 'Thinking'], ['aa', 'Aah'], ['ee', 'Eee'], ['oo', 'Ooo']];
 const STORE = { portrait: 'pz-avatar-portrait-v1', key: 'pz-avatar-gen-key', model: 'pz-avatar-gen-model' };
@@ -15,6 +21,10 @@ const lip = new LipSync();
 const performer = new Performer(lip);
 const affect = new Affect(performer);
 const renderer = new AvatarRenderer($('#avatar'));
+const stageEl = $('#stage');
+const reel = new Reel($('#reel'));
+performer.onPhrase = () => reel.phrase();
+performer.onBeat = (strength) => reel.beat(strength);
 const state = { rig: null, frame: 'head', call: null, preview: null, micDrive: null, sampleTimer: null, caption: '', captionAt: 0, pendingReply: false, userTalking: false, userQuietAt: 0 };
 
 // ---------------------------------------------------------------- audio stage
@@ -79,10 +89,13 @@ async function setPortrait(source, { remember = true, pack = null, atlas = null,
     if (pack) loadPack(rig, pack, atlas);
     state.rig = rig; performer.keyframes = pack ? {} : rig.keyframes; performer.rig = rig;
     $('#stage').dataset.state = 'ready';
-    renderer.setRig(rig, { frame: state.frame });
+    renderer.setRig(rig, { frame: state.frame, aspect: STAGE_ASPECT }); stageEl.dataset.frame = state.frame;
     const ms = Math.round(performance.now() - started);
+    const filmed = pack?.frames.filter((f) => f.source?.kind === 'video' && f.name !== 'eyesSmile').length || 0;
     $('#rig-info').textContent = pack
-      ? `${label} · neural expression pack: ${pack.frames.length} rendered frames of this face (mouth grid, eyes, brows), blended live on ${rig.nV} control points`
+      ? filmed
+        ? `${label} · expression pack: ${filmed} of ${pack.frames.length - 1} frames are real video frames of this face, ${pack.frames.length - 1 - filmed} rendered with LivePortrait where the video lacked one (mouth grid, eyes, brows), blended live on ${rig.nV} control points`
+        : `${label} · neural expression pack: ${pack.frames.length} rendered frames of this face (mouth grid, eyes, brows), blended live on ${rig.nV} control points`
       : `Fitted from one image in ${ms} ms · ${rig.nV} control points · ${Object.keys(rig.shapes).length} shape units. Uploaded portraits use the fast fitted model; a neural pack like Asha's is rendered offline (about two minutes per character).${rig.photoMouthOpen ? ' Portrait shows teeth, so its own teeth are kept.' : ''}`;
     status.textContent = '';
     for (const id of ['#call', '#sample-voice', '#mic-drive']) $(id).disabled = Boolean(state.call);
@@ -100,24 +113,38 @@ async function setPortrait(source, { remember = true, pack = null, atlas = null,
 async function fileToImage(file) { const url = URL.createObjectURL(file); try { return await loadImage(url); } finally { setTimeout(() => URL.revokeObjectURL(url), 4000); } }
 
 $('#portrait-file').addEventListener('change', async (event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) await setPortrait(await fileToImage(file)); });
-async function loadCharacter() {
+function showCharacter() {
+  $('#empty-title').textContent = `Waking ${CHARACTER.name} up…`; $('#use-sample').textContent = `Load ${CHARACTER.name}`;
+  document.querySelectorAll('[data-character]').forEach((b) => b.classList.toggle('on', CHARACTERS[b.dataset.character] === CHARACTER));
+}
+async function loadCharacter(name) {
+  if (CHARACTERS[name]) CHARACTER = CHARACTERS[name];
+  showCharacter(); reel.clear();
   $('#build-status').textContent = `Loading ${CHARACTER.name}…`;
   const [pack, portrait, atlas] = await Promise.all([fetch(`${CHARACTER.base}/pack.json`).then((r) => r.json()), loadImage(`${CHARACTER.base}/portrait.jpg`), loadImage(`${CHARACTER.base}/atlas.jpg`)]);
   await setPortrait(portrait, { remember: false, pack, atlas, label: CHARACTER.name });
 }
-for (const id of ['#use-sample', '#use-default']) $(id).addEventListener('click', () => loadCharacter().catch((error) => { $('#build-status').textContent = error.message; }));
-const stageEl = $('#stage');
+$('#use-sample').addEventListener('click', () => loadCharacter().catch((error) => { $('#build-status').textContent = error.message; }));
+document.querySelectorAll('[data-character]').forEach((button) => button.addEventListener('click', () => loadCharacter(button.dataset.character).catch((error) => { $('#build-status').textContent = error.message; })));
 for (const type of ['dragenter', 'dragover']) stageEl.addEventListener(type, (event) => { event.preventDefault(); stageEl.classList.add('drag'); });
 for (const type of ['dragleave', 'drop']) stageEl.addEventListener(type, (event) => { event.preventDefault(); stageEl.classList.remove('drag'); });
 stageEl.addEventListener('drop', async (event) => { const file = [...(event.dataTransfer?.files || [])].find((f) => f.type.startsWith('image/')); if (file) await setPortrait(await fileToImage(file)); });
 document.querySelectorAll('[data-frame]').forEach((button) => button.addEventListener('click', () => {
   state.frame = button.dataset.frame; document.querySelectorAll('[data-frame]').forEach((b) => b.classList.toggle('on', b === button));
+  stageEl.dataset.frame = state.frame;
   if (state.rig) { renderer.setFrame(state.frame); renderBoard(); }
 }));
 
 // ---------------------------------------------------------------- storyboard
 let tileTarget = null;
 function tilePose(name, amount = 1) { const rig = state.rig; return !rig.pack && rig.keyframes[name] ? { keyframes: { [name]: amount }, shapes: {} } : applyPack(expressionPose(name, amount), rig); }
+// Which pack frames a tile's pose shows, and whether they are filmed or rendered.
+function tileSource(name) {
+  const pack = state.rig.pack; if (!pack) return null;
+  const used = Object.entries(tilePose(name).keyframes || {}).filter(([, w]) => w > 0.08).map(([k]) => pack.frames.find((f) => f.name === k)?.source?.kind);
+  if (!used.length || used.some((kind) => !kind)) return 'rendered';
+  return used.every((kind) => kind === 'video') ? 'filmed' : used.every((kind) => kind === 'liveportrait') ? 'rendered' : 'filmed + rendered';
+}
 function renderBoard() {
   const board = $('#board'); board.textContent = '';
   let learned = 0;
@@ -127,14 +154,14 @@ function renderBoard() {
     const play = document.createElement('button'); play.type = 'button'; play.style.cssText = 'all:unset;display:block;cursor:pointer;width:100%'; play.setAttribute('aria-label', `Play ${label}`);
     play.append(renderer.snapshot(tilePose(name), 200));
     const caption = document.createElement('div'); caption.className = 'name';
-    const a = document.createElement('span'); a.textContent = label; const b = document.createElement('span'); b.className = 'tag'; b.textContent = packed ? 'rendered' : isLearned ? 'learned' : 'fitted';
+    const a = document.createElement('span'); a.textContent = label; const b = document.createElement('span'); b.className = 'tag'; b.textContent = packed ? tileSource(name) : isLearned ? 'learned' : 'fitted';
     caption.append(a, b); play.append(caption);
     play.addEventListener('click', () => playTile(name));
     const swap = document.createElement('button'); swap.type = 'button'; swap.className = 'swap'; swap.textContent = '↑'; swap.title = `Teach ${label} from an image`; swap.setAttribute('aria-label', swap.title);
     swap.addEventListener('click', () => { tileTarget = name; $('#tile-file').click(); });
     tile.append(play); if (!packed) tile.append(swap); board.append(tile);
   }
-  $('#board-note').textContent = state.rig.pack ? 'neural renders of this face' : learned ? `${learned} learned · ${TILES.length - learned} fitted` : 'all fitted from one image';
+  $('#board-note').textContent = state.rig.pack ? (state.rig.pack.frames.some((f) => f.source?.kind === 'video') ? 'frames of this face' : 'neural renders of this face') : learned ? `${learned} learned · ${TILES.length - learned} fitted` : 'all fitted from one image';
 }
 function playTile(name) {
   if (['aa', 'ee', 'oo'].includes(name)) state.preview = { name, start: performance.now(), dur: 900 };
@@ -171,6 +198,13 @@ $('#intensity').addEventListener('input', (event) => { performer.intensity = Num
 function setCaption(text, append) {
   state.caption = append ? `${state.caption}${text}` : text; state.captionAt = performance.now();
   const words = state.caption.trim().split(/\s+/); $('#caption').textContent = words.slice(-18).join(' ');
+}
+
+// Live transcript from the voice session, in both directions. The avatar's own words also drive the
+// reel captions and the phrase-boundary cuts.
+function onTranscript(text, speaker = 'assistant', append = false) {
+  if (speaker === 'assistant') { affect.feed(text, 'assistant'); setCaption(text, append); reel.feed(text); }
+  else affect.feed(text, 'user');
 }
 
 // ---------------------------------------------------------------- sample voice (streamed like the live model)
@@ -244,12 +278,9 @@ class Call {
   onMessage(message) {
     if (message.type === 'ready') { this.ready = true; setCallUi('live'); $('#call-status').textContent = 'Connected. Just talk.'; }
     else if (message.type === 'audio') { state.pendingReply = false; stage.play(pcm16ToFloat(base64ToBytes(message.data)), message.sampleRate || 24000); }
-    else if (message.type === 'transcript') {
-      if (message.speaker === 'assistant') { affect.feed(message.text, 'assistant'); setCaption(message.text, this.lastSpeaker === 'assistant'); }
-      else affect.feed(message.text, 'user');
-      this.lastSpeaker = message.speaker;
-    } else if (message.type === 'interrupted') { stage.clear(); performer.queueBlink(0.05); }
-    else if (message.type === 'turn_complete') { affect.turn('assistant'); affect.turn('user'); this.lastSpeaker = null; }
+    else if (message.type === 'transcript') { onTranscript(message.text, message.speaker, this.lastSpeaker === 'assistant'); this.lastSpeaker = message.speaker; }
+    else if (message.type === 'interrupted') { stage.clear(); reel.clear(); performer.queueBlink(0.05); }
+    else if (message.type === 'turn_complete') { affect.turn('assistant'); affect.turn('user'); reel.endTurn(); this.lastSpeaker = null; }
     else if (message.type === 'error') $('#call-status').textContent = message.message;
   }
   async end() { if (this.ended) return; this.ended = true; try { await this.session?.end(); } catch { /* noop */ } this.closed(); }
@@ -263,7 +294,7 @@ function setCallUi(mode) {
 $('#call').addEventListener('click', async () => {
   if (state.call) { $('#call-status').textContent = ''; await state.call.end(); return; }
   if (state.sampleTimer) stopSampleVoice(); if (state.micDrive) await toggleMicDrive();
-  const call = new Call(); state.call = call; setCallUi('connecting'); $('#call-status').textContent = 'Connecting to the voice model…'; setCaption('');
+  const call = new Call(); state.call = call; setCallUi('connecting'); $('#call-status').textContent = 'Connecting to the voice model…'; setCaption(''); reel.clear();
   try { await call.start(); } catch (error) {
     state.call = null; setCallUi('idle');
     $('#call-status').textContent = error.name === 'NotAllowedError' ? 'Microphone permission is needed for a call.'
@@ -291,6 +322,8 @@ function tick(nowMs) {
       pose = { shapes: { ...(state.rig.pack ? {} : pose.shapes), ...target.shapes }, keyframes: state.rig.pack ? target.keyframes : { ...pose.keyframes, ...target.keyframes }, head: pose.head };
     }
   }
+  const shot = reel.update(dt, { voiced: performer.env.speaking, pending: speaking || (stage.ctx ? stage.playhead > stage.ctx.currentTime : false) });
+  if (shot.zoom !== renderer.shot?.zoom) { renderer.setShot(shot); stageEl.dataset.shot = shot.zoom > 1 ? 'tight' : 'wide'; }
   renderer.render(pose);
   if (stageEl.dataset.mode !== mode) { stageEl.dataset.mode = mode; $('#mode-text').textContent = MODE_LABEL[mode]; }
   if (state.caption && nowMs - state.captionAt > 5000 && !speaking) setCaption('');
@@ -301,10 +334,11 @@ requestAnimationFrame(tick);
 window.addEventListener('resize', () => { if (state.rig) renderer.setFrame(state.frame); });
 
 // ---------------------------------------------------------------- boot
+showCharacter();
 warmDetector().catch(() => { $('#build-status').textContent = 'Could not load the face model. Check the connection and reload.'; });
 const saved = (() => { try { return localStorage.getItem(STORE.portrait); } catch { return null; } })();
-if (saved) loadImage(saved).then((image) => setPortrait(image, { remember: false })).catch(() => loadCharacter());
+if (saved && !CHARACTERS[requested]) loadImage(saved).then((image) => setPortrait(image, { remember: false })).catch(() => loadCharacter());
 else loadCharacter().catch((error) => { $('#build-status').textContent = `Could not load ${CHARACTER.name}: ${error.message}`; });
 
 // Small surface for embedding and for tests.
-window.pzAvatar = { state, lip, performer, affect, renderer, stage, setPortrait, loadImage, learnTile, loadCharacter };
+window.pzAvatar = { state, lip, performer, affect, renderer, stage, reel, characters: CHARACTERS, setPortrait, loadImage, learnTile, loadCharacter, onTranscript };

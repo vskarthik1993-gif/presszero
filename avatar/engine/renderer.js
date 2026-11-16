@@ -114,9 +114,9 @@ export class AvatarRenderer {
     const { gl } = this; const b = gl.createBuffer(); gl.bindBuffer(target, b); gl.bufferData(target, data, usage); return b;
   }
 
-  setRig(rig, { frame = 'auto' } = {}) {
+  setRig(rig, { frame = 'auto', aspect = this.aspect || 4 / 5 } = {}) {
     const { gl } = this;
-    this.rig = rig; this.kfGpu.clear(); this.texCache = new Map();
+    this.rig = rig; this.aspect = aspect; this.kfGpu.clear(); this.texCache = new Map();
     this.pos = new Float32Array(rig.nV * 2);
     this.posBuf = this.buffer(this.pos, gl.ARRAY_BUFFER, gl.DYNAMIC_DRAW);
     this.uvBuf = this.buffer(rig.uv0);
@@ -139,23 +139,38 @@ export class AvatarRenderer {
     this.setFrame(frame);
   }
 
-  // Choose what part of the photo the canvas shows.
-  setFrame(frame) {
+  // Choose what part of the photo the canvas shows. A tall (9:16) frame puts the face centre 40% of
+  // the way down, leaving the lower third for captions.
+  setFrame(frame, aspect = this.aspect) {
     const { rig } = this; if (!rig) return;
+    this.aspect = aspect;
     let view = [0, 0, rig.W, rig.H];
     if (frame === 'auto' || frame === 'head') {
-      const aspect = 4 / 5;
       let w = Math.min(rig.W, rig.iod * (frame === 'head' ? 4.2 : 5.6)); let h = w / aspect;
       if (h > rig.H) { h = rig.H; w = Math.min(rig.W, h * aspect); }
-      const cx = rig.centre[0]; const cy = rig.centre[1] + rig.iod * 0.35;
+      const cx = rig.centre[0]; const cy = rig.centre[1] + (aspect < 0.7 ? h * 0.1 : rig.iod * 0.35);
       view = [Math.max(0, Math.min(rig.W - w, cx - w / 2)), Math.max(0, Math.min(rig.H - h, cy - h / 2)), w, h];
     }
     this.view = view;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const cssW = this.canvas.clientWidth || 480;
-    const pxW = Math.round(Math.min(view[2] * 1.25, Math.max(480, cssW * dpr)));
+    // Headroom above the photo's own resolution so a punch-in is drawn sharp rather than upscaled.
+    const pxW = Math.round(Math.min(view[2] * 1.6, Math.max(480, cssW * dpr)));
     this.canvas.width = pxW; this.canvas.height = Math.round((pxW * view[3]) / view[2]);
     this.canvas.style.aspectRatio = `${view[2]} / ${view[3]}`;
+    this.setShot(this.shot);
+  }
+
+  // Punch in: show the face larger within the current framing, as a jump cut (no easing). The face
+  // centre sits 38% of the way down the tighter shot; the shot never leaves the framed view.
+  setShot({ zoom = 1 } = {}) {
+    this.shot = { zoom };
+    const { rig, view } = this; if (!rig || !view) return;
+    if (zoom <= 1.001) { this.shotView = null; return; }
+    const w = view[2] / zoom; const h = view[3] / zoom;
+    const x = Math.max(view[0], Math.min(view[0] + view[2] - w, rig.centre[0] - w / 2));
+    const y = Math.max(view[1], Math.min(view[1] + view[3] - h, rig.centre[1] - h * 0.38));
+    this.shotView = [x, y, w, h];
   }
 
   syncKeyframes() {
@@ -207,7 +222,7 @@ export class AvatarRenderer {
     gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, out);
     gl.enableVertexAttribArray(this.loc.pos); gl.vertexAttribPointer(this.loc.pos, 2, gl.FLOAT, false, 0, 0);
-    gl.uniform4fv(this.loc.view, this.view); gl.uniform1i(this.loc.tex, 0); gl.activeTexture(gl.TEXTURE0);
+    gl.uniform4fv(this.loc.view, this.shotView || this.view); gl.uniform1i(this.loc.tex, 0); gl.activeTexture(gl.TEXTURE0);
     const pass = (tex, uvBuf, alphaBuf, index, alpha, tint = [1, 1, 1]) => {
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.bindBuffer(gl.ARRAY_BUFFER, uvBuf); gl.enableVertexAttribArray(this.loc.uv); gl.vertexAttribPointer(this.loc.uv, 2, gl.FLOAT, false, 0, 0);
@@ -226,7 +241,8 @@ export class AvatarRenderer {
   }
 
   snapshot(pose, size = 256) {
-    this.render(pose);
+    const shot = this.shotView; this.shotView = null;
+    this.render(pose); this.shotView = shot;
     const c = document.createElement('canvas'); c.width = size; c.height = Math.round((size * this.canvas.height) / this.canvas.width);
     c.getContext('2d').drawImage(this.canvas, 0, 0, c.width, c.height);
     return c;

@@ -111,6 +111,7 @@ export class Performer {
     } else { env.silence += dt; if (env.silence > 0.2 && env.speaking) { env.speaking = false; env.sinceStart = 0; if (Math.random() < 0.45) this.queueBlink(rand(0.05, 0.25)); } }
     if (env.speaking && env.fast - env.slow > 0.24 && t - env.lastBeat > 0.42) {
       env.lastBeat = t; const strength = Math.min(1, (env.fast - env.slow) * 2.2) * I;
+      this.onBeat?.(strength);
       this.head.pitch.kick(0.26 * strength * (Math.random() < 0.8 ? 1 : -0.6));
       if (Math.random() < 0.55) this.brow.kick(1.7 * strength); else if (Math.random() < 0.3) this.browL.kick(1.5 * strength);
       if (Math.random() < 0.25) this.head.roll.kick(rand(-0.12, 0.12) * strength);
@@ -236,6 +237,7 @@ export class Performer {
 
   // A new phrase is a natural moment to resettle the head, like a person shifting weight.
   phraseStart(silence) {
+    this.onPhrase?.(silence);
     const k = Math.min(1, 0.5 + silence);
     this.poseShift = { yaw: rand(-0.05, 0.05) * k, pitch: rand(-0.018, 0.03) * k, roll: rand(-0.028, 0.028) * k, x: rand(-0.02, 0.02) * k };
     if (Math.random() < 0.5) this.brow.kick(1.4);

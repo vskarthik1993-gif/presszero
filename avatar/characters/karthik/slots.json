@@ -1,0 +1,965 @@
+{
+ "fps": 29.993,
+ "frames": 2545,
+ "portrait_frame": 182,
+ "portrait_time": 6.068,
+ "window": [
+  180,
+  64,
+  900,
+  1600
+ ],
+ "size": [
+  720,
+  1280
+ ],
+ "pose_tolerance_deg": 6.0,
+ "usable_frames": 1446,
+ "within_pose": 719,
+ "open_range_iod": 0.2159,
+ "slots": {
+  "m00e": {
+   "source": "video",
+   "frame": 1126,
+   "time": 37.542,
+   "error": 0.0,
+   "yaw_off": 3.03,
+   "pitch_off": -3.82,
+   "measured": {
+    "gap": 0.005,
+    "width": 0.888,
+    "smile": 0.047,
+    "funnel": 0.0,
+    "pucker": 0.001,
+    "ear": 0.202,
+    "blink": 0.254,
+    "brow": 0.324,
+    "browDown": 0.082,
+    "gx": -0.038,
+    "gy": -0.082
+   }
+  },
+  "m00m": {
+   "source": "video",
+   "frame": 182,
+   "time": 6.068,
+   "error": 0.0,
+   "yaw_off": 0.0,
+   "pitch_off": 0.0,
+   "measured": {
+    "gap": 0.004,
+    "width": 0.864,
+    "smile": 0.015,
+    "funnel": 0.0,
+    "pucker": 0.006,
+    "ear": 0.261,
+    "blink": 0.084,
+    "brow": 0.319,
+    "browDown": 0.024,
+    "gx": -0.007,
+    "gy": -0.09
+   }
+  },
+  "m00o": {
+   "source": "video",
+   "frame": 1200,
+   "time": 40.009,
+   "error": 0.0,
+   "yaw_off": 0.55,
+   "pitch_off": 4.07,
+   "measured": {
+    "gap": 0.01,
+    "width": 0.75,
+    "smile": 0.0,
+    "funnel": 0.003,
+    "pucker": 0.189,
+    "ear": 0.265,
+    "blink": 0.084,
+    "brow": 0.291,
+    "browDown": 0.026,
+    "gx": -0.027,
+    "gy": -0.091
+   }
+  },
+  "m01e": {
+   "source": "video",
+   "frame": 507,
+   "time": 16.904,
+   "error": 0.003,
+   "yaw_off": 3.79,
+   "pitch_off": -0.34,
+   "measured": {
+    "gap": 0.06,
+    "width": 0.862,
+    "smile": 0.016,
+    "funnel": 0.003,
+    "pucker": 0.007,
+    "ear": 0.275,
+    "blink": 0.045,
+    "brow": 0.321,
+    "browDown": 0.013,
+    "gx": -0.029,
+    "gy": -0.075
+   }
+  },
+  "m01m": {
+   "source": "video",
+   "frame": 456,
+   "time": 15.204,
+   "error": 0.088,
+   "yaw_off": -4.49,
+   "pitch_off": 1.02,
+   "measured": {
+    "gap": 0.058,
+    "width": 0.83,
+    "smile": 0.096,
+    "funnel": 0.013,
+    "pucker": 0.033,
+    "ear": 0.262,
+    "blink": 0.084,
+    "brow": 0.302,
+    "browDown": 0.025,
+    "gx": -0.005,
+    "gy": -0.098
+   }
+  },
+  "m01o": {
+   "source": "video",
+   "frame": 2050,
+   "time": 68.349,
+   "error": 0.075,
+   "yaw_off": -5.82,
+   "pitch_off": 0.9,
+   "measured": {
+    "gap": 0.058,
+    "width": 0.73,
+    "smile": 0.0,
+    "funnel": 0.02,
+    "pucker": 0.345,
+    "ear": 0.284,
+    "blink": 0.038,
+    "brow": 0.313,
+    "browDown": 0.006,
+    "gx": 0.015,
+    "gy": -0.101
+   }
+  },
+  "m02e": {
+   "source": "video",
+   "frame": 1639,
+   "time": 54.646,
+   "error": 0.052,
+   "yaw_off": -0.41,
+   "pitch_off": -5.47,
+   "measured": {
+    "gap": 0.131,
+    "width": 0.874,
+    "smile": 0.025,
+    "funnel": 0.01,
+    "pucker": 0.008,
+    "ear": 0.023,
+    "blink": 0.712,
+    "brow": 0.392,
+    "browDown": 0.006,
+    "gx": -0.03,
+    "gy": 0.014
+   }
+  },
+  "m02m": {
+   "source": "video",
+   "frame": 1062,
+   "time": 35.408,
+   "error": 0.125,
+   "yaw_off": 1.16,
+   "pitch_off": 1.43,
+   "measured": {
+    "gap": 0.125,
+    "width": 0.803,
+    "smile": 0.012,
+    "funnel": 0.01,
+    "pucker": 0.002,
+    "ear": 0.249,
+    "blink": 0.103,
+    "brow": 0.309,
+    "browDown": 0.038,
+    "gx": -0.013,
+    "gy": -0.094
+   }
+  },
+  "m02o": {
+   "source": "video",
+   "frame": 1853,
+   "time": 61.781,
+   "error": 0.097,
+   "yaw_off": -1.12,
+   "pitch_off": 2.32,
+   "measured": {
+    "gap": 0.133,
+    "width": 0.735,
+    "smile": 0.0,
+    "funnel": 0.019,
+    "pucker": 0.032,
+    "ear": 0.289,
+    "blink": 0.039,
+    "brow": 0.317,
+    "browDown": 0.01,
+    "gx": -0.014,
+    "gy": -0.08
+   }
+  },
+  "m03e": {
+   "source": "video",
+   "frame": 1649,
+   "time": 54.98,
+   "error": 0.241,
+   "yaw_off": -0.63,
+   "pitch_off": 1.53,
+   "measured": {
+    "gap": 0.189,
+    "width": 0.862,
+    "smile": 0.164,
+    "funnel": 0.007,
+    "pucker": 0.003,
+    "ear": 0.268,
+    "blink": 0.074,
+    "brow": 0.319,
+    "browDown": 0.023,
+    "gx": -0.006,
+    "gy": -0.088
+   }
+  },
+  "m03m": {
+   "source": "video",
+   "frame": 522,
+   "time": 17.404,
+   "error": 0.033,
+   "yaw_off": 4.01,
+   "pitch_off": -1.01,
+   "measured": {
+    "gap": 0.18,
+    "width": 0.824,
+    "smile": 0.155,
+    "funnel": 0.034,
+    "pucker": 0.018,
+    "ear": 0.29,
+    "blink": 0.031,
+    "brow": 0.328,
+    "browDown": 0.008,
+    "gx": -0.036,
+    "gy": -0.088
+   }
+  },
+  "m03o": {
+   "source": "video",
+   "frame": 149,
+   "time": 4.968,
+   "error": 0.437,
+   "yaw_off": -5.27,
+   "pitch_off": 4.59,
+   "measured": {
+    "gap": 0.166,
+    "width": 0.783,
+    "smile": 0.201,
+    "funnel": 0.01,
+    "pucker": 0.002,
+    "ear": 0.244,
+    "blink": 0.102,
+    "brow": 0.288,
+    "browDown": 0.026,
+    "gx": 0.008,
+    "gy": -0.094
+   }
+  },
+  "m10e": {
+   "source": "video",
+   "frame": 64,
+   "time": 2.134,
+   "error": 0.72,
+   "yaw_off": 1.67,
+   "pitch_off": 0.38,
+   "measured": {
+    "gap": 0.004,
+    "width": 0.903,
+    "smile": 0.274,
+    "funnel": 0.0,
+    "pucker": 0.004,
+    "ear": 0.241,
+    "blink": 0.105,
+    "brow": 0.284,
+    "browDown": 0.059,
+    "gx": -0.017,
+    "gy": -0.103
+   }
+  },
+  "m10m": {
+   "source": "video",
+   "frame": 68,
+   "time": 2.267,
+   "error": 0.348,
+   "yaw_off": 1.55,
+   "pitch_off": 1.38,
+   "measured": {
+    "gap": 0.011,
+    "width": 0.877,
+    "smile": 0.318,
+    "funnel": 0.001,
+    "pucker": 0.005,
+    "ear": 0.251,
+    "blink": 0.099,
+    "brow": 0.285,
+    "browDown": 0.052,
+    "gx": -0.016,
+    "gy": -0.097
+   }
+  },
+  "m10o": {
+   "source": "video",
+   "frame": 431,
+   "time": 14.37,
+   "error": 0.782,
+   "yaw_off": -5.46,
+   "pitch_off": 5.14,
+   "measured": {
+    "gap": 0.009,
+    "width": 0.843,
+    "smile": 0.317,
+    "funnel": 0.001,
+    "pucker": 0.009,
+    "ear": 0.255,
+    "blink": 0.113,
+    "brow": 0.302,
+    "browDown": 0.026,
+    "gx": 0.015,
+    "gy": -0.096
+   }
+  },
+  "m11e": {
+   "source": "liveportrait",
+   "spec": "smile:0.6,aaa:4,eee:3",
+   "error": 0.626,
+   "measured": {
+    "gap": 0.078,
+    "width": 0.98,
+    "smile": 0.426,
+    "funnel": 0.003,
+    "pucker": 0.01,
+    "ear": 0.247,
+    "blink": 0.095,
+    "brow": 0.315,
+    "browDown": 0.027,
+    "gx": -0.0,
+    "gy": -0.089
+   },
+   "tried": [
+    {
+     "spec": "smile:0.6,aaa:4,eee:3",
+     "error": 0.626
+    },
+    {
+     "spec": "smile:0.6,aaa:4,eee:6",
+     "error": 1.608
+    },
+    {
+     "spec": "smile:0.6,aaa:16,eee:3",
+     "error": 2.293
+    },
+    {
+     "spec": "smile:0.6,aaa:16,eee:6",
+     "error": 2.902
+    },
+    {
+     "spec": "smile:1.0,aaa:4,eee:3",
+     "error": 1.366
+    },
+    {
+     "spec": "smile:1.0,aaa:4,eee:6",
+     "error": 1.776
+    },
+    {
+     "spec": "smile:1.0,aaa:16,eee:3",
+     "error": 2.814
+    },
+    {
+     "spec": "smile:1.0,aaa:16,eee:6",
+     "error": 3.245
+    }
+   ],
+   "closest_video_frame": {
+    "frame": 1054,
+    "time": 35.142,
+    "error": 1.209,
+    "yaw_off": 1.79,
+    "pitch_off": 2.7,
+    "measured": {
+     "gap": 0.091,
+     "width": 0.873,
+     "smile": 0.174,
+     "funnel": 0.003,
+     "pucker": 0.001,
+     "ear": 0.236,
+     "blink": 0.118,
+     "brow": 0.303,
+     "browDown": 0.054,
+     "gx": -0.015,
+     "gy": -0.089
+    }
+   }
+  },
+  "m11m": {
+   "source": "video",
+   "frame": 2204,
+   "time": 73.484,
+   "error": 0.614,
+   "yaw_off": -1.43,
+   "pitch_off": 0.02,
+   "measured": {
+    "gap": 0.078,
+    "width": 0.866,
+    "smile": 0.32,
+    "funnel": 0.004,
+    "pucker": 0.003,
+    "ear": 0.271,
+    "blink": 0.043,
+    "brow": 0.303,
+    "browDown": 0.017,
+    "gx": -0.004,
+    "gy": -0.095
+   }
+  },
+  "m11o": {
+   "source": "liveportrait",
+   "spec": "smile:1.0,aaa:16,woo:10",
+   "error": 2.24,
+   "measured": {
+    "gap": 0.104,
+    "width": 0.954,
+    "smile": 0.621,
+    "funnel": 0.013,
+    "pucker": 0.039,
+    "ear": 0.23,
+    "blink": 0.122,
+    "brow": 0.313,
+    "browDown": 0.027,
+    "gx": -0.003,
+    "gy": -0.089
+   },
+   "tried": [
+    {
+     "spec": "smile:0.6,aaa:4,woo:10",
+     "error": 2.429
+    },
+    {
+     "spec": "smile:0.6,aaa:4,woo:20",
+     "error": 2.278
+    },
+    {
+     "spec": "smile:0.6,aaa:16,woo:10",
+     "error": 2.38
+    },
+    {
+     "spec": "smile:0.6,aaa:16,woo:20",
+     "error": 2.327
+    },
+    {
+     "spec": "smile:1.0,aaa:4,woo:10",
+     "error": 2.383
+    },
+    {
+     "spec": "smile:1.0,aaa:4,woo:20",
+     "error": 2.355
+    },
+    {
+     "spec": "smile:1.0,aaa:16,woo:10",
+     "error": 2.24
+    },
+    {
+     "spec": "smile:1.0,aaa:16,woo:20",
+     "error": 2.305
+    }
+   ],
+   "closest_video_frame": {
+    "frame": 38,
+    "time": 1.267,
+    "error": 1.11,
+    "yaw_off": -1.6,
+    "pitch_off": 1.11,
+    "measured": {
+     "gap": 0.092,
+     "width": 0.881,
+     "smile": 0.564,
+     "funnel": 0.008,
+     "pucker": 0.012,
+     "ear": 0.246,
+     "blink": 0.098,
+     "brow": 0.302,
+     "browDown": 0.032,
+     "gx": -0.007,
+     "gy": -0.099
+    }
+   }
+  },
+  "m12e": {
+   "source": "video",
+   "frame": 1038,
+   "time": 34.608,
+   "error": 0.165,
+   "yaw_off": 1.32,
+   "pitch_off": 3.8,
+   "measured": {
+    "gap": 0.136,
+    "width": 0.919,
+    "smile": 0.374,
+    "funnel": 0.007,
+    "pucker": 0.005,
+    "ear": 0.208,
+    "blink": 0.188,
+    "brow": 0.294,
+    "browDown": 0.081,
+    "gx": -0.014,
+    "gy": -0.093
+   }
+  },
+  "m12m": {
+   "source": "video",
+   "frame": 1482,
+   "time": 49.412,
+   "error": 0.054,
+   "yaw_off": -2.62,
+   "pitch_off": -1.3,
+   "measured": {
+    "gap": 0.129,
+    "width": 0.957,
+    "smile": 0.774,
+    "funnel": 0.004,
+    "pucker": 0.002,
+    "ear": 0.194,
+    "blink": 0.242,
+    "brow": 0.342,
+    "browDown": 0.015,
+    "gx": -0.012,
+    "gy": -0.081
+   }
+  },
+  "m12o": {
+   "source": "video",
+   "frame": 7,
+   "time": 0.233,
+   "error": 0.453,
+   "yaw_off": -0.88,
+   "pitch_off": 1.28,
+   "measured": {
+    "gap": 0.113,
+    "width": 0.834,
+    "smile": 0.4,
+    "funnel": 0.024,
+    "pucker": 0.019,
+    "ear": 0.256,
+    "blink": 0.09,
+    "brow": 0.312,
+    "browDown": 0.017,
+    "gx": 0.008,
+    "gy": -0.098
+   }
+  },
+  "m13e": {
+   "source": "video",
+   "frame": 1488,
+   "time": 49.612,
+   "error": 0.0,
+   "yaw_off": -2.14,
+   "pitch_off": -4.88,
+   "measured": {
+    "gap": 0.204,
+    "width": 0.964,
+    "smile": 0.638,
+    "funnel": 0.006,
+    "pucker": 0.005,
+    "ear": 0.231,
+    "blink": 0.156,
+    "brow": 0.371,
+    "browDown": 0.005,
+    "gx": -0.008,
+    "gy": -0.082
+   }
+  },
+  "m13m": {
+   "source": "video",
+   "frame": 1045,
+   "time": 34.842,
+   "error": 0.09,
+   "yaw_off": 1.35,
+   "pitch_off": 3.94,
+   "measured": {
+    "gap": 0.19,
+    "width": 0.884,
+    "smile": 0.445,
+    "funnel": 0.017,
+    "pucker": 0.009,
+    "ear": 0.226,
+    "blink": 0.139,
+    "brow": 0.295,
+    "browDown": 0.102,
+    "gx": -0.027,
+    "gy": -0.092
+   }
+  },
+  "m13o": {
+   "source": "video",
+   "frame": 2272,
+   "time": 75.751,
+   "error": 0.076,
+   "yaw_off": -4.71,
+   "pitch_off": 4.07,
+   "measured": {
+    "gap": 0.207,
+    "width": 0.8,
+    "smile": 0.361,
+    "funnel": 0.016,
+    "pucker": 0.007,
+    "ear": 0.294,
+    "blink": 0.037,
+    "brow": 0.342,
+    "browDown": 0.003,
+    "gx": 0.011,
+    "gy": -0.083
+   }
+  },
+  "blink": {
+   "source": "video",
+   "frame": 1032,
+   "time": 34.408,
+   "error": 0.195,
+   "yaw_off": 1.05,
+   "pitch_off": 3.25,
+   "measured": {
+    "gap": 0.18,
+    "width": 0.924,
+    "smile": 0.466,
+    "funnel": 0.008,
+    "pucker": 0.005,
+    "ear": 0.053,
+    "blink": 0.553,
+    "brow": 0.328,
+    "browDown": 0.026,
+    "gx": -0.011,
+    "gy": -0.016
+   }
+  },
+  "browUp": {
+   "source": "video",
+   "frame": 1506,
+   "time": 50.212,
+   "error": 0.176,
+   "yaw_off": -0.16,
+   "pitch_off": -3.8,
+   "measured": {
+    "gap": 0.115,
+    "width": 0.824,
+    "smile": 0.002,
+    "funnel": 0.008,
+    "pucker": 0.009,
+    "ear": 0.294,
+    "blink": 0.043,
+    "brow": 0.372,
+    "browDown": 0.003,
+    "gx": -0.011,
+    "gy": -0.085
+   }
+  },
+  "frown": {
+   "source": "liveportrait",
+   "spec": "eyebrow:-21",
+   "error": 0.424,
+   "measured": {
+    "gap": 0.004,
+    "width": 0.854,
+    "smile": 0.009,
+    "funnel": 0.0,
+    "pucker": 0.006,
+    "ear": 0.252,
+    "blink": 0.111,
+    "brow": 0.271,
+    "browDown": 0.378,
+    "gx": 0.01,
+    "gy": -0.093
+   },
+   "tried": [
+    {
+     "spec": "eyebrow:-13",
+     "error": 1.452
+    },
+    {
+     "spec": "eyebrow:-17",
+     "error": 0.462
+    },
+    {
+     "spec": "eyebrow:-21",
+     "error": 0.424
+    }
+   ],
+   "closest_video_frame": {
+    "frame": 1048,
+    "time": 34.942,
+    "error": 1.942,
+    "yaw_off": 1.36,
+    "pitch_off": 4.82,
+    "measured": {
+     "gap": 0.173,
+     "width": 0.878,
+     "smile": 0.337,
+     "funnel": 0.009,
+     "pucker": 0.005,
+     "ear": 0.218,
+     "blink": 0.164,
+     "brow": 0.284,
+     "browDown": 0.156,
+     "gx": -0.016,
+     "gy": -0.095
+    }
+   }
+  },
+  "gl": {
+   "source": "liveportrait",
+   "spec": "pupil_x:-11",
+   "error": 0.257,
+   "measured": {
+    "gap": 0.005,
+    "width": 0.829,
+    "smile": 0.006,
+    "funnel": 0.0,
+    "pucker": 0.006,
+    "ear": 0.242,
+    "blink": 0.119,
+    "brow": 0.306,
+    "browDown": 0.042,
+    "gx": -0.118,
+    "gy": -0.092
+   },
+   "tried": [
+    {
+     "spec": "pupil_x:-8",
+     "error": 1.599
+    },
+    {
+     "spec": "pupil_x:-11",
+     "error": 0.257
+    },
+    {
+     "spec": "pupil_x:-14",
+     "error": 0.265
+    }
+   ],
+   "closest_video_frame": {
+    "frame": 487,
+    "time": 16.237,
+    "error": 2.51,
+    "yaw_off": 4.21,
+    "pitch_off": -1.72,
+    "measured": {
+     "gap": 0.123,
+     "width": 0.862,
+     "smile": 0.009,
+     "funnel": 0.012,
+     "pucker": 0.009,
+     "ear": 0.291,
+     "blink": 0.04,
+     "brow": 0.346,
+     "browDown": 0.01,
+     "gx": -0.047,
+     "gy": -0.078
+    }
+   }
+  },
+  "gr": {
+   "source": "liveportrait",
+   "spec": "pupil_x:14",
+   "error": 0.131,
+   "measured": {
+    "gap": 0.005,
+    "width": 0.838,
+    "smile": 0.003,
+    "funnel": 0.0,
+    "pucker": 0.006,
+    "ear": 0.26,
+    "blink": 0.076,
+    "brow": 0.312,
+    "browDown": 0.026,
+    "gx": 0.146,
+    "gy": -0.087
+   },
+   "tried": [
+    {
+     "spec": "pupil_x:8",
+     "error": 2.74
+    },
+    {
+     "spec": "pupil_x:11",
+     "error": 0.487
+    },
+    {
+     "spec": "pupil_x:14",
+     "error": 0.131
+    }
+   ],
+   "closest_video_frame": {
+    "frame": 758,
+    "time": 25.273,
+    "error": 1.349,
+    "yaw_off": -2.35,
+    "pitch_off": 0.05,
+    "measured": {
+     "gap": 0.009,
+     "width": 0.888,
+     "smile": 0.144,
+     "funnel": 0.001,
+     "pucker": 0.026,
+     "ear": 0.195,
+     "blink": 0.27,
+     "brow": 0.35,
+     "browDown": 0.01,
+     "gx": 0.116,
+     "gy": -0.055
+    }
+   }
+  },
+  "gu": {
+   "source": "liveportrait",
+   "spec": "pupil_y:20,blink:-4",
+   "error": 1.446,
+   "measured": {
+    "gap": 0.004,
+    "width": 0.847,
+    "smile": -0.006,
+    "funnel": 0.0,
+    "pucker": 0.007,
+    "ear": 0.269,
+    "blink": 0.091,
+    "brow": 0.305,
+    "browDown": 0.063,
+    "gx": -0.019,
+    "gy": -0.122
+   },
+   "tried": [
+    {
+     "spec": "pupil_y:20,blink:-4",
+     "error": 1.446
+    },
+    {
+     "spec": "pupil_y:24,blink:-6",
+     "error": 1.479
+    },
+    {
+     "spec": "pupil_y:28,blink:-8",
+     "error": 1.506
+    }
+   ],
+   "closest_video_frame": {
+    "frame": 1113,
+    "time": 37.109,
+    "error": 1.773,
+    "yaw_off": 0.05,
+    "pitch_off": -3.77,
+    "measured": {
+     "gap": 0.007,
+     "width": 0.728,
+     "smile": 0.0,
+     "funnel": 0.003,
+     "pucker": 0.187,
+     "ear": 0.263,
+     "blink": 0.088,
+     "brow": 0.293,
+     "browDown": 0.05,
+     "gx": -0.002,
+     "gy": -0.115
+    }
+   }
+  },
+  "gd": {
+   "source": "liveportrait",
+   "spec": "pupil_y:-20,blink:-4",
+   "error": 1.228,
+   "measured": {
+    "gap": 0.004,
+    "width": 0.877,
+    "smile": 0.051,
+    "funnel": 0.001,
+    "pucker": 0.008,
+    "ear": 0.136,
+    "blink": 0.366,
+    "brow": 0.326,
+    "browDown": 0.018,
+    "gx": 0.01,
+    "gy": -0.045
+   },
+   "tried": [
+    {
+     "spec": "pupil_y:-16,blink:-4",
+     "error": 1.955
+    },
+    {
+     "spec": "pupil_y:-20,blink:-4",
+     "error": 1.228
+    },
+    {
+     "spec": "pupil_y:-20",
+     "error": 2.16
+    }
+   ],
+   "closest_video_frame": {
+    "frame": 2477,
+    "time": 82.586,
+    "error": 1.077,
+    "yaw_off": 0.2,
+    "pitch_off": 4.0,
+    "measured": {
+     "gap": 0.004,
+     "width": 0.726,
+     "smile": 0.0,
+     "funnel": 0.004,
+     "pucker": 0.564,
+     "ear": 0.15,
+     "blink": 0.356,
+     "brow": 0.372,
+     "browDown": 0.005,
+     "gx": -0.015,
+     "gy": -0.027
+    }
+   }
+  },
+  "wide": {
+   "source": "video",
+   "frame": 2473,
+   "time": 82.453,
+   "error": 0.251,
+   "yaw_off": 0.46,
+   "pitch_off": 4.77,
+   "measured": {
+    "gap": 0.013,
+    "width": 0.783,
+    "smile": 0.0,
+    "funnel": 0.002,
+    "pucker": 0.059,
+    "ear": 0.302,
+    "blink": 0.041,
+    "brow": 0.344,
+    "browDown": 0.008,
+    "gx": -0.017,
+    "gy": -0.088
+   }
+  }
+ },
+ "liveportrait_drift": {
+  "gap": -0.0018,
+  "width": 0.0169,
+  "ear": 0.0025,
+  "ear_max": 0.0036,
+  "gx": -0.0018,
+  "gy": 0.0032,
+  "brow": 0.0155,
+  "smile": 0.0132,
+  "funnel": -0.0003,
+  "pucker": -0.0044,
+  "blink": 0.0134,
+  "browDown": 0.0116
+ }
+}
