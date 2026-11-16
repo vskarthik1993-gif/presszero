@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PressZero Live Avatar — real-time expression model</title>
+  <meta name="description" content="One portrait in, a live talking avatar out. Lip-sync, expression and eye contact rendered in real time on your device, driven by PressZero voice AI." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+  <script>
+    (function () {
+      if (!globalThis.__NAMMA_API_BASE__) globalThis.__NAMMA_API_BASE__ = 'https://namma-care-ai-receptionist.vskarthik1993.chatgpt.site';
+    })();
+  </script>
+  <link rel="stylesheet" href="./styles.css?v=1" />
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="../"><span class="brand-mark">0</span><span><strong>PressZero</strong><small>Live Avatar · expression model</small></span></a>
+    <div class="stats" id="stats" aria-live="off"><span id="stat-fps">— fps</span><span id="stat-lat">face ready — ms early</span></div>
+  </header>
+
+  <main class="layout">
+    <section class="stage-wrap" aria-label="Avatar">
+      <div class="stage" id="stage" data-state="empty">
+        <canvas id="avatar" aria-label="Live avatar"></canvas>
+        <div class="stage-empty" id="stage-empty">
+          <div class="empty-inner">
+            <p class="kicker">Step 1</p>
+            <h1>Give it a face</h1>
+            <p>Drop a front-facing portrait — a photo or an illustrated character with eyes and a mouth. Neutral expression, mouth closed, works best.</p>
+            <div class="row">
+              <label class="btn primary" for="portrait-file">Upload portrait</label>
+              <button class="btn" id="use-sample" type="button">Use sample face</button>
+            </div>
+            <p class="fine" id="build-status" role="status"></p>
+          </div>
+        </div>
+        <div class="pill" id="mode-pill"><i></i><span id="mode-text">Idle</span></div>
+        <p class="caption" id="caption" aria-live="polite"></p>
+      </div>
+      <div class="controls">
+        <button class="btn call" id="call" type="button" disabled>Start call</button>
+        <button class="btn" id="mute" type="button" hidden>Mute</button>
+        <button class="btn" id="sample-voice" type="button" disabled>Play sample voice</button>
+        <button class="btn" id="mic-drive" type="button" disabled>Drive with my voice</button>
+      </div>
+      <p class="fine" id="call-status" role="status"></p>
+      <input id="portrait-file" type="file" accept="image/*" hidden />
+    </section>
+
+    <aside class="panel">
+      <section class="card" id="card-character">
+        <div class="card-head"><h2>Character</h2><label class="link" for="portrait-file">Change portrait</label></div>
+        <p class="fine" id="rig-info">No portrait yet.</p>
+        <div class="seg" role="group" aria-label="Framing">
+          <button type="button" data-frame="head" class="on">Head</button><button type="button" data-frame="auto">Bust</button><button type="button" data-frame="full">Full image</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Expression storyboard</h2><span class="fine" id="board-note"></span></div>
+        <p class="fine">The model fits these from the portrait. Tap one to play it. Replace any tile with a real or generated image of the same character and the model learns that expression from it.</p>
+        <div class="board" id="board"></div>
+        <div class="row tight">
+          <button class="btn small" id="generate" type="button" disabled>Generate all with AI</button>
+          <span class="fine" id="gen-status" role="status"></span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Direct</h2></div>
+        <div class="chips" id="cues">
+          <button type="button" data-cue="smile">Smile</button><button type="button" data-cue="laugh">Laugh</button><button type="button" data-cue="gasp">Gasp</button>
+          <button type="button" data-cue="sad">Empathy</button><button type="button" data-cue="concerned">Concern</button><button type="button" data-cue="think">Think</button>
+          <button type="button" data-cue="nod">Nod</button><button type="button" data-cue="shake">Shake</button><button type="button" data-cue="wink">Wink</button><button type="button" data-cue="calm">Calm</button>
+        </div>
+        <label class="slider">Expressiveness <input id="intensity" type="range" min="0.3" max="1.6" step="0.05" value="1" /></label>
+        <p class="fine">In a call these fire on their own from what is said and heard. Text cues like <code>[smile]</code>, <code>[gasp]</code> or <code>(laughs)</code> in the transcript do the same.</p>
+      </section>
+
+      <details class="card">
+        <summary>AI storyboard settings</summary>
+        <p class="fine">Optional. Generating expression images needs an image model. Your Gemini API key stays in this browser.</p>
+        <label class="field">Gemini API key <input id="gen-key" type="password" autocomplete="off" placeholder="AIza…" /></label>
+        <label class="field">Image model <input id="gen-model" type="text" value="gemini-2.5-flash-image" /></label>
+      </details>
+    </aside>
+  </main>
+  <input id="tile-file" type="file" accept="image/*" hidden />
+  <script type="module" src="./app.js?v=1"></script>
+</body>
+</html>

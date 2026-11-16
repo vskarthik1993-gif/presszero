@@ -3,6 +3,7 @@
   "sharedEntry": "index.html",
   "routes": [
     { "path": "/auto/", "entry": "auto/index.html", "product": "Mercedes-Benz concierge" },
+    { "path": "/avatar/", "entry": "avatar/index.html", "product": "Live avatar expression model" },
     { "path": "/admin/", "entry": "admin/index.html", "product": "PressZero admin" },
     { "path": "/admin/call-history/", "entry": "admin/call-history/index.html", "product": "Call history" },
     { "path": "/admin/design/", "entry": "admin/design/index.html", "product": "Design studio" },
