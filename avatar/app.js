@@ -1,7 +1,7 @@
 import { buildRig, addKeyframe, loadPack, warmDetector } from './engine/rig.js';
 import { AvatarRenderer } from './engine/renderer.js';
 import { LipSync } from './engine/lipsync.js';
-import { Performer, expressionPose, applyPack } from './engine/performer.js';
+import { Performer, expressionPose, applyPack } from './engine/performer.js?v=3';
 import { Affect } from './engine/affect.js';
 import { generateExpression } from './engine/generate.js';
 
