@@ -453,7 +453,8 @@ export async function buildRig(source) {
     }
     return best;
   };
-  const regions = { face: new Float32Array(nV), mouth: new Float32Array(nV), eyes: new Float32Array(nV) };
+  const regions = { face: new Float32Array(nV), mouth: new Float32Array(nV), eyes: new Float32Array(nV), lower: new Float32Array(nV), upper: new Float32Array(nV) };
+  const lowerMask = new Float32Array(nV);
   const eyeMid = [(irisR[0] + irisL[0]) / 2, (irisR[1] + irisL[1]) / 2];
   for (let i = 0; i < N_FACE; i += 1) {
     const edge = smooth(0.02, 0.3, distToOval(lm[i]) / iod);
@@ -462,10 +463,13 @@ export async function buildRig(source) {
     regions.mouth[i] = edge * (1 - smooth(0.42, 0.78, md));
     const ed = ((lm[i][0] - eyeMid[0]) * d[0] + (lm[i][1] - eyeMid[1]) * d[1]) / iod;
     regions.eyes[i] = edge * (1 - smooth(0.25, 0.5, Math.abs(ed + 0.08)));
+    // Pack frames split the face in two at the nose: everything the jaw and lips move, and everything the eyes and brows move.
+    lowerMask[i] = smooth(-0.62, -0.3, drop(lm[i]));
+    regions.lower[i] = edge * lowerMask[i]; regions.upper[i] = edge * (1 - lowerMask[i]);
   }
 
   return {
-    canvas, W, H, nV, nFace: N_FACE, pos0, uv0, headW: Float32Array.from(headW),
+    canvas, W, H, nV, nFace: N_FACE, pos0, uv0, headW: Float32Array.from(headW), lowerMask, pack: null,
     tris: { face: faceTris.concat(eyeTris), outer: outerTris, mouth: mouthTris },
     props, shapes, regions, propagate, landmarks: lm, iod, axes: { r, d }, centre, mouth: M,
     pivot: [centre[0] + d[0] * iod * 0.55, centre[1] + d[1] * iod * 0.55, zOval + iod * 0.9],
@@ -501,3 +505,36 @@ export async function addKeyframe(rig, name, source, { region = 'face' } = {}) {
 }
 
 export function removeKeyframe(rig, name) { delete rig.keyframes[name]; }
+
+// Landmarks only, in pixels of the (possibly downscaled) image. Used by the pack builder.
+export async function detectLandmarks(source) {
+  const canvas = toCanvas(source);
+  const found = await detect(canvas);
+  if (!found) throw new FaceNotFoundError();
+  return { W: canvas.width, H: canvas.height, points: found.points.map((p) => [p.x * canvas.width, p.y * canvas.height]) };
+}
+
+// Attach a pre-rendered expression pack: neural renders of this same portrait across a grid of
+// mouth shapes and a set of eye/brow states, packed into one atlas image. Each frame carries its
+// own landmarks, so it is registered to the mesh exactly like a learned keyframe.
+//   pack = { cell: [w, h], crop: [x, y, w, h], cols, frames: [{ name, region, points: [[x, y] * 478] }], mouth: {...} }
+export function loadPack(rig, pack, atlas) {
+  const [cw, ch] = pack.cell; const [cx, cy, cwid, chei] = pack.crop;
+  const aw = atlas.naturalWidth || atlas.width; const ah = atlas.naturalHeight || atlas.height;
+  const k = pack.scale || 1; // landmark coordinates are stored in portrait pixels at this scale
+  pack.frames.forEach((frame, index) => {
+    const pts = frame.points.map((q) => [q[0] / k, q[1] / k]);
+    const align = fitSimilarity(STABLE.map((i) => pts[i]), STABLE.map((i) => rig.landmarks[i]));
+    const delta = new Float32Array(rig.nV * 2); const uv = new Float32Array(rig.nV * 2);
+    const cell = frame.cell ?? index; const ox = (cell % pack.cols) * cw; const oy = Math.floor(cell / pack.cols) * ch;
+    for (let i = 0; i < rig.nFace; i += 1) {
+      const p = align(pts[i]);
+      const m = frame.region === 'lower' ? rig.lowerMask[i] : frame.region === 'upper' ? 1 - rig.lowerMask[i] : 1;
+      delta[i * 2] = (p[0] - rig.landmarks[i][0]) * m; delta[i * 2 + 1] = (p[1] - rig.landmarks[i][1]) * m;
+      uv[i * 2] = (ox + ((pts[i][0] - cx) / cwid) * cw) / aw; uv[i * 2 + 1] = (oy + ((pts[i][1] - cy) / chei) * ch) / ah;
+    }
+    rig.propagate(delta);
+    rig.keyframes[frame.name] = { name: frame.name, region: frame.region, canvas: atlas, uv, delta, version: 1, pack: true };
+  });
+  rig.pack = pack;
+}

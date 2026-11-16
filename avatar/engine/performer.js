@@ -230,8 +230,7 @@ export class Performer {
       scale: breath * 0.0022 + (this.mode === 'listening' ? 0.006 : 0),
     };
 
-    if (this.override) return this.override;
-    this.pose = { shapes, keyframes: kf, head, talking };
+    this.pose = applyPack({ shapes, keyframes: kf, head, talking, teeth: Math.max(0, teeth) }, this.rig);
     return this.pose;
   }
 
@@ -262,4 +261,41 @@ export function expressionPose(name, amount = 1) {
     blink: { shapes: both('blink', 1) },
   };
   return table[name] || table.neutral;
+}
+
+// With a pre-rendered expression pack, the fitted shape units are re-expressed as blends of real
+// rendered frames: three axes for the mouth (openness × lip shape × smile) and a set of eye/brow
+// states. Whatever the pack cannot show stays on the fitted units.
+export function applyPack(pose, rig) {
+  const pack = rig?.pack; if (!pack) return pose;
+  const sh = { ...pose.shapes }; const kf = { ...(pose.keyframes || {}) };
+  const take = (k) => { const v = sh[k] || 0; delete sh[k]; return v; };
+  const put = (name, w) => { if (w > 0.003) kf[name] = (kf[name] || 0) + w; };
+
+  // ---- mouth grid ----
+  const jaw = take('jaw'); const wide = take('wide'); const round = take('round'); const smile = take('smile');
+  take('upperUp'); take('lowerDown'); const press = take('press'); take('tuck');
+  const teeth = pose.teeth || 0; // sibilants: teeth together, lips apart
+  const open = clamp01(Math.max(jaw / 0.74, 0.2 * teeth) * (1 - 0.6 * clamp01(press)));
+  const x = Math.max(-1, Math.min(1, wide * 0.95 + 0.4 * teeth - round * 1.15));
+  const s = clamp01(smile / 0.8);
+  const stops = pack.mouth.open; let oi = 0; while (oi < stops.length - 2 && open > stops[oi + 1]) oi += 1;
+  const ot = clamp01((open - stops[oi]) / (stops[oi + 1] - stops[oi]));
+  const vAxis = x >= 0 ? [['m', 1 - x], ['e', x]] : [['m', 1 + x], ['o', -x]];
+  for (const [si, sw] of [[0, 1 - s], [1, s]]) for (const [o, ow] of [[oi, 1 - ot], [oi + 1, ot]]) for (const [v, vw] of vAxis) put(`m${si}${o}${v}`, sw * ow * vw);
+
+  // ---- eyes and brows ----
+  const blink = Math.max(take('blinkR'), take('blinkL'));
+  const browR = take('browUpR'); const browL = take('browUpL'); const browUp = Math.max(0, Math.min(browR, browL));
+  if (browR - browUp > 0.01) sh.browUpR = browR - browUp; if (browL - browUp > 0.01) sh.browUpL = browL - browUp;
+  const frown = Math.max(take('browDownR'), take('browDownL'));
+  const gx = (take('gazeXR') + take('gazeXL')) / 2; const gy = (take('gazeYR') + take('gazeYL')) / 2;
+  const squint = Math.max(take('squintR'), take('squintL')); const eyeWide = Math.max(take('wideR'), take('wideL'));
+  const upper = { blink: clamp01(blink), browUp: clamp01(browUp / 0.95), frown: clamp01(frown / 0.5), gr: clamp01(gx), gl: clamp01(-gx), gd: clamp01(gy), gu: clamp01(-gy), wide: clamp01(eyeWide - browUp), m10m: clamp01(squint / 0.6) * 0.9 };
+  // A blink closes the eyes whatever else they were doing.
+  const others = Object.entries(upper).filter(([k]) => k !== 'blink'); const sum = others.reduce((a, [, v]) => a + v, 0);
+  const room = 1 - upper.blink; const scale = sum > room ? room / sum : 1;
+  put('blink', upper.blink);
+  for (const [k, v] of others) if (v * scale > 0.003) kf[k === 'm10m' ? 'eyesSmile' : k] = v * scale;
+  return { ...pose, shapes: sh, keyframes: kf };
 }

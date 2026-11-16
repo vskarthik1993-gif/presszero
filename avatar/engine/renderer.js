@@ -14,7 +14,11 @@ void main() {
   gl_Position = vec4(p.x * 2.0 - 1.0, 1.0 - p.y * 2.0, 0.0, 1.0);
 }`;
 const FS = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 uniform sampler2D uTex; uniform float uAlpha; uniform vec3 uTint;
 varying vec2 vUV; varying float vAlpha;
 void main() {
@@ -94,7 +98,7 @@ export class AvatarRenderer {
     this.loc = { pos: gl.getAttribLocation(prog, 'aPos'), uv: gl.getAttribLocation(prog, 'aUV'), alpha: gl.getAttribLocation(prog, 'aAlpha'), view: gl.getUniformLocation(prog, 'uView'), tex: gl.getUniformLocation(prog, 'uTex'), a: gl.getUniformLocation(prog, 'uAlpha'), tint: gl.getUniformLocation(prog, 'uTint') };
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    this.rig = null; this.kfGpu = new Map();
+    this.rig = null; this.kfGpu = new Map(); this.texCache = new Map();
   }
 
   texture(source) {
@@ -112,7 +116,7 @@ export class AvatarRenderer {
 
   setRig(rig, { frame = 'auto' } = {}) {
     const { gl } = this;
-    this.rig = rig; this.kfGpu.clear();
+    this.rig = rig; this.kfGpu.clear(); this.texCache = new Map();
     this.pos = new Float32Array(rig.nV * 2);
     this.posBuf = this.buffer(this.pos, gl.ARRAY_BUFFER, gl.DYNAMIC_DRAW);
     this.uvBuf = this.buffer(rig.uv0);
@@ -156,8 +160,12 @@ export class AvatarRenderer {
 
   syncKeyframes() {
     const { rig } = this;
-    for (const [name, gpu] of this.kfGpu) if (!rig.keyframes[name] || rig.keyframes[name].version !== gpu.version) { this.gl.deleteTexture(gpu.tex); this.kfGpu.delete(name); }
-    for (const kf of Object.values(rig.keyframes)) if (!this.kfGpu.has(kf.name)) this.kfGpu.set(kf.name, { tex: this.texture(kf.canvas), uv: this.buffer(kf.uv), version: kf.version });
+    for (const [name, gpu] of this.kfGpu) if (!rig.keyframes[name] || rig.keyframes[name].version !== gpu.version) { this.kfGpu.delete(name); }
+    for (const kf of Object.values(rig.keyframes)) if (!this.kfGpu.has(kf.name)) {
+      // Pack frames share one atlas texture.
+      if (!this.texCache.has(kf.canvas)) this.texCache.set(kf.canvas, this.texture(kf.canvas));
+      this.kfGpu.set(kf.name, { tex: this.texCache.get(kf.canvas), uv: this.buffer(kf.uv), version: kf.version });
+    }
   }
 
   // pose: { shapes: {name: weight}, keyframes: {name: weight}, head: {yaw, pitch, roll, x, y, scale} }
@@ -169,6 +177,16 @@ export class AvatarRenderer {
     for (const [name, w] of Object.entries(pose.shapes || {})) apply(rig.shapes[name], w);
     const kfs = [];
     for (const [name, w] of Object.entries(pose.keyframes || {})) { const kf = rig.keyframes[name]; if (kf && w > 0.004) { apply(kf.delta, w); kfs.push([kf, Math.min(1, w)]); } }
+    // Turn blend weights into "over" alphas so frames in the same region mix in exact proportion
+    // (the base portrait keeps whatever share the weights leave it).
+    const share = {};
+    for (const [kf, w] of kfs) share[kf.region] = (share[kf.region] || 0) + w;
+    const running = {};
+    for (const item of kfs) {
+      const region = item[0].region; const norm = Math.max(1, share[region]); const c = item[1] / norm;
+      if (!(region in running)) running[region] = Math.max(0, 1 - share[region] / norm);
+      running[region] += c; item[1] = running[region] > 1e-5 ? c / running[region] : 0;
+    }
 
     const h = pose.head || {};
     const yaw = h.yaw || 0; const pitch = h.pitch || 0; const roll = h.roll || 0; const sc = 1 + (h.scale || 0);
@@ -197,9 +215,9 @@ export class AvatarRenderer {
       gl.uniform1f(this.loc.a, alpha); gl.uniform3fv(this.loc.tint, tint);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index.buf); gl.drawElements(gl.TRIANGLES, index.n, gl.UNSIGNED_SHORT, 0);
     };
-    pass(this.atlasTex, this.propUV, this.ones, this.idx.props, 1);
+    if (!rig.pack) pass(this.atlasTex, this.propUV, this.ones, this.idx.props, 1);
     // A portrait that already shows teeth keeps its own teeth, fixed to the skull, behind the lips.
-    if (this.idx.fixedMouth) pass(this.photoTex, this.uvBuf, this.ones, this.idx.fixedMouth, 1);
+    if (this.idx.fixedMouth && !rig.pack) pass(this.photoTex, this.uvBuf, this.ones, this.idx.fixedMouth, 1);
     pass(this.photoTex, this.uvBuf, this.ones, this.idx.photo, 1);
     if (kfs.length) {
       this.syncKeyframes();

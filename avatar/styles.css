@@ -51,7 +51,8 @@ h1 { margin: 0 0 10px; font-size: 30px; letter-spacing: -.02em; }
 .panel { display: grid; gap: 14px; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
 .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-h2 { margin: 0; font-size: 15px; } .link { color: var(--green); font-size: 12.5px; font-weight: 600; }
+h2 { margin: 0; font-size: 15px; } .link { color: var(--green); font-size: 12.5px; font-weight: 600; background: none; border: 0; padding: 0; }
+.card-head > span { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
 summary { font-weight: 600; font-size: 15px; cursor: pointer; }
 .seg { display: inline-flex; margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .seg button { border: 0; background: transparent; padding: 7px 13px; font-size: 12.5px; color: var(--muted); } .seg button.on { background: var(--panel-2); color: var(--ink); }

@@ -1,12 +1,12 @@
-import { buildRig, addKeyframe, warmDetector } from './engine/rig.js';
+import { buildRig, addKeyframe, loadPack, warmDetector } from './engine/rig.js';
 import { AvatarRenderer } from './engine/renderer.js';
 import { LipSync } from './engine/lipsync.js';
-import { Performer, expressionPose } from './engine/performer.js';
+import { Performer, expressionPose, applyPack } from './engine/performer.js';
 import { Affect } from './engine/affect.js';
 import { generateExpression } from './engine/generate.js';
 
 const $ = (selector) => document.querySelector(selector);
-const SAMPLE_FACE = './samples/mira.jpg';
+const CHARACTER = { name: 'Asha', base: './characters/asha' };
 const SAMPLE_VOICE = '../health/audio/voice-previews/v1/kore.wav';
 const TILES = [['joy', 'Happy'], ['surprise', 'Surprise'], ['sad', 'Empathy'], ['concern', 'Concern'], ['think', 'Thinking'], ['aa', 'Aah'], ['ee', 'Eee'], ['oo', 'Ooo']];
 const STORE = { portrait: 'pz-avatar-portrait-v1', key: 'pz-avatar-gen-key', model: 'pz-avatar-gen-model' };
@@ -69,21 +69,26 @@ function rms(samples) { let s = 0; for (let i = 0; i < samples.length; i += 1) s
 // ---------------------------------------------------------------- character
 async function loadImage(src) { const image = new Image(); image.crossOrigin = 'anonymous'; image.src = src; await image.decode(); return image; }
 
-async function setPortrait(source, { remember = true } = {}) {
+async function setPortrait(source, { remember = true, pack = null, atlas = null, label = '' } = {}) {
   const status = $('#build-status');
   status.textContent = 'Reading the face…';
   $('#rig-info').textContent = 'Building expression model…';
   try {
     const started = performance.now();
     const rig = await buildRig(source);
-    state.rig = rig; performer.keyframes = rig.keyframes; performer.rig = rig;
+    if (pack) loadPack(rig, pack, atlas);
+    state.rig = rig; performer.keyframes = pack ? {} : rig.keyframes; performer.rig = rig;
     $('#stage').dataset.state = 'ready';
     renderer.setRig(rig, { frame: state.frame });
     const ms = Math.round(performance.now() - started);
-    $('#rig-info').textContent = `Expression model fitted in ${ms} ms · ${rig.nV} control points · ${Object.keys(rig.shapes).length} shape units${rig.photoMouthOpen ? ' · portrait shows teeth, so its own teeth are kept' : ''}`;
+    $('#rig-info').textContent = pack
+      ? `${label} · neural expression pack: ${pack.frames.length} rendered frames of this face (mouth grid, eyes, brows), blended live on ${rig.nV} control points`
+      : `Fitted from one image in ${ms} ms · ${rig.nV} control points · ${Object.keys(rig.shapes).length} shape units. Uploaded portraits use the fast fitted model; a neural pack like Asha's is rendered offline (about two minutes per character).${rig.photoMouthOpen ? ' Portrait shows teeth, so its own teeth are kept.' : ''}`;
     status.textContent = '';
-    for (const id of ['#call', '#sample-voice', '#mic-drive', '#generate']) $(id).disabled = false;
+    for (const id of ['#call', '#sample-voice', '#mic-drive']) $(id).disabled = Boolean(state.call);
+    $('#generate').disabled = Boolean(pack);
     renderBoard();
+    if (pack) { try { localStorage.removeItem(STORE.portrait); } catch { /* blocked */ } }
     if (remember) { try { localStorage.setItem(STORE.portrait, rig.canvas.toDataURL('image/jpeg', 0.86)); } catch { /* storage full or blocked */ } }
   } catch (error) {
     status.textContent = error.message || 'Could not read that image.';
@@ -95,7 +100,12 @@ async function setPortrait(source, { remember = true } = {}) {
 async function fileToImage(file) { const url = URL.createObjectURL(file); try { return await loadImage(url); } finally { setTimeout(() => URL.revokeObjectURL(url), 4000); } }
 
 $('#portrait-file').addEventListener('change', async (event) => { const file = event.target.files?.[0]; event.target.value = ''; if (file) await setPortrait(await fileToImage(file)); });
-$('#use-sample').addEventListener('click', async () => setPortrait(await loadImage(SAMPLE_FACE), { remember: false }));
+async function loadCharacter() {
+  $('#build-status').textContent = `Loading ${CHARACTER.name}…`;
+  const [pack, portrait, atlas] = await Promise.all([fetch(`${CHARACTER.base}/pack.json`).then((r) => r.json()), loadImage(`${CHARACTER.base}/portrait.jpg`), loadImage(`${CHARACTER.base}/atlas.jpg`)]);
+  await setPortrait(portrait, { remember: false, pack, atlas, label: CHARACTER.name });
+}
+for (const id of ['#use-sample', '#use-default']) $(id).addEventListener('click', () => loadCharacter().catch((error) => { $('#build-status').textContent = error.message; }));
 const stageEl = $('#stage');
 for (const type of ['dragenter', 'dragover']) stageEl.addEventListener(type, (event) => { event.preventDefault(); stageEl.classList.add('drag'); });
 for (const type of ['dragleave', 'drop']) stageEl.addEventListener(type, (event) => { event.preventDefault(); stageEl.classList.remove('drag'); });
@@ -107,24 +117,24 @@ document.querySelectorAll('[data-frame]').forEach((button) => button.addEventLis
 
 // ---------------------------------------------------------------- storyboard
 let tileTarget = null;
-function tilePose(name) { return state.rig.keyframes[name] ? { keyframes: { [name]: 1 } } : expressionPose(name); }
+function tilePose(name, amount = 1) { const rig = state.rig; return !rig.pack && rig.keyframes[name] ? { keyframes: { [name]: amount }, shapes: {} } : applyPack(expressionPose(name, amount), rig); }
 function renderBoard() {
   const board = $('#board'); board.textContent = '';
   let learned = 0;
   for (const [name, label] of TILES) {
-    const isLearned = Boolean(state.rig.keyframes[name]); if (isLearned) learned += 1;
+    const packed = Boolean(state.rig.pack); const isLearned = packed || Boolean(state.rig.keyframes[name]); if (isLearned) learned += 1;
     const tile = document.createElement('div'); tile.className = `tile${isLearned ? ' learned' : ''}`; tile.dataset.name = name;
     const play = document.createElement('button'); play.type = 'button'; play.style.cssText = 'all:unset;display:block;cursor:pointer;width:100%'; play.setAttribute('aria-label', `Play ${label}`);
     play.append(renderer.snapshot(tilePose(name), 200));
     const caption = document.createElement('div'); caption.className = 'name';
-    const a = document.createElement('span'); a.textContent = label; const b = document.createElement('span'); b.className = 'tag'; b.textContent = isLearned ? 'learned' : 'fitted';
+    const a = document.createElement('span'); a.textContent = label; const b = document.createElement('span'); b.className = 'tag'; b.textContent = packed ? 'rendered' : isLearned ? 'learned' : 'fitted';
     caption.append(a, b); play.append(caption);
     play.addEventListener('click', () => playTile(name));
     const swap = document.createElement('button'); swap.type = 'button'; swap.className = 'swap'; swap.textContent = '↑'; swap.title = `Teach ${label} from an image`; swap.setAttribute('aria-label', swap.title);
     swap.addEventListener('click', () => { tileTarget = name; $('#tile-file').click(); });
-    tile.append(play, swap); board.append(tile);
+    tile.append(play); if (!packed) tile.append(swap); board.append(tile);
   }
-  $('#board-note').textContent = learned ? `${learned} learned · ${TILES.length - learned} fitted` : 'all fitted from one image';
+  $('#board-note').textContent = state.rig.pack ? 'neural renders of this face' : learned ? `${learned} learned · ${TILES.length - learned} fitted` : 'all fitted from one image';
 }
 function playTile(name) {
   if (['aa', 'ee', 'oo'].includes(name)) state.preview = { name, start: performance.now(), dur: 900 };
@@ -275,7 +285,11 @@ function tick(nowMs) {
   let pose = performer.update(dt, audioNow);
   if (state.preview) {
     const p = (nowMs - state.preview.start) / state.preview.dur;
-    if (p >= 1) state.preview = null; else { const k = Math.sin(Math.min(1, p * 2.2) * Math.PI / 2) * Math.min(1, (1 - p) * 4); const target = state.rig.keyframes[state.preview.name] ? { keyframes: { [state.preview.name]: k }, shapes: {} } : expressionPose(state.preview.name, k); pose = { shapes: { ...pose.shapes, ...target.shapes }, keyframes: { ...pose.keyframes, ...(target.keyframes || {}) }, head: pose.head }; }
+    if (p >= 1) state.preview = null; else {
+      const k = Math.sin(Math.min(1, p * 2.2) * Math.PI / 2) * Math.min(1, (1 - p) * 4);
+      const target = tilePose(state.preview.name, k);
+      pose = { shapes: { ...(state.rig.pack ? {} : pose.shapes), ...target.shapes }, keyframes: state.rig.pack ? target.keyframes : { ...pose.keyframes, ...target.keyframes }, head: pose.head };
+    }
   }
   renderer.render(pose);
   if (stageEl.dataset.mode !== mode) { stageEl.dataset.mode = mode; $('#mode-text').textContent = MODE_LABEL[mode]; }
@@ -289,7 +303,8 @@ window.addEventListener('resize', () => { if (state.rig) renderer.setFrame(state
 // ---------------------------------------------------------------- boot
 warmDetector().catch(() => { $('#build-status').textContent = 'Could not load the face model. Check the connection and reload.'; });
 const saved = (() => { try { return localStorage.getItem(STORE.portrait); } catch { return null; } })();
-if (saved) loadImage(saved).then((image) => setPortrait(image, { remember: false })).catch(() => undefined);
+if (saved) loadImage(saved).then((image) => setPortrait(image, { remember: false })).catch(() => loadCharacter());
+else loadCharacter().catch((error) => { $('#build-status').textContent = `Could not load ${CHARACTER.name}: ${error.message}`; });
 
 // Small surface for embedding and for tests.
-window.pzAvatar = { state, lip, performer, affect, renderer, stage, setPortrait, loadImage, learnTile };
+window.pzAvatar = { state, lip, performer, affect, renderer, stage, setPortrait, loadImage, learnTile, loadCharacter };
