@@ -1,17 +1,25 @@
 // Builds an avatar expression pack (atlas.jpg + pack.json + portrait.jpg) from frames rendered by
-// render_frames.py. Runs the same landmark detector the browser engine uses, so every frame is
-// registered to the mesh exactly as it will be at runtime.
+// render_frames.py, or harvested from video by harvest_frames.py. Runs the same landmark detector the
+// browser engine uses, so every frame is registered to the mesh exactly as it will be at runtime.
 //
 //   1. python render_frames.py <liveportrait_dir> portrait.png landmarks.json frames/ <name=spec ...>
+//      or, from a video of the character: harvest_frames.py analyze / select / fill (see its header)
 //   2. serve the repo root and the frames directory over HTTP
-//   3. node build-pack.mjs <site_url> <frames_url> <out_dir>
+//   3. node build-pack.mjs <site_url> <frames_url> <out_dir> [slots.json]
+//      With harvest_frames.py's slots.json, each frame records its source: a video frame (number and
+//      time) or a LivePortrait render (spec).
 //
 // Frame names: m{smile 0|1}{open 0-3}{shape e|m|o} for the mouth grid; blink, browUp, frown, gl, gr,
 // gu, gd, wide for eyes and brows.
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 
-const [site, framesUrl, outDir] = process.argv.slice(2);
+const [site, framesUrl, outDir, slotsFile] = process.argv.slice(2);
+const slots = slotsFile ? JSON.parse(fs.readFileSync(slotsFile, 'utf8')).slots : null;
+const source = (name) => {
+  const s = slots?.[name]; if (!s) return undefined;
+  return s.source === 'video' ? { kind: 'video', frame: s.frame, time: s.time } : { kind: 'liveportrait', spec: s.spec };
+};
 const OPEN = [0, 0.28, 0.6, 1];
 const mouth = []; for (const s of [0, 1]) for (const o of [0, 1, 2, 3]) for (const v of ['e', 'm', 'o']) mouth.push(`m${s}${o}${v}`);
 const upper = ['blink', 'browUp', 'frown', 'gl', 'gr', 'gu', 'gd', 'wide'];
@@ -44,9 +52,9 @@ const result = await page.evaluate(async ({ names, framesUrl, cols }) => {
 }, { names, framesUrl, cols: 8 });
 await browser.close();
 
-const frames = names.map((name, i) => ({ name, cell: i, region: name.startsWith('m') ? 'lower' : 'upper', points: result.points[i] }));
+const frames = names.map((name, i) => ({ name, cell: i, region: name.startsWith('m') ? 'lower' : 'upper', source: source(name), points: result.points[i] }));
 // The smiling frame also supplies smiling eyes.
-frames.push({ name: 'eyesSmile', cell: names.indexOf('m10m'), region: 'upper', points: result.points[names.indexOf('m10m')] });
+frames.push({ name: 'eyesSmile', cell: names.indexOf('m10m'), region: 'upper', source: source('m10m'), points: result.points[names.indexOf('m10m')] });
 const pack = { version: 1, cols: result.cols, cell: [result.crop[2], result.crop[3]], crop: result.crop, mouth: { open: OPEN }, frames };
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(`${outDir}/pack.json`, JSON.stringify(pack));
