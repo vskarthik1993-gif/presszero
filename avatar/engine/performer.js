@@ -181,9 +181,9 @@ export class Performer {
     const gz = this.gaze; gz.next -= dt;
     if (gz.next <= 0) {
       const thinking = this.emotion.think > 0.3;
-      if (gz.away) { gz.away = false; gz.tx = rand(-0.06, 0.06); gz.ty = rand(-0.05, 0.05); gz.next = rand(1.2, 3.2); }
-      else if (talking && !thinking && Math.random() < 0.22) { gz.away = true; gz.tx = rand(0.35, 0.6) * (Math.random() < 0.5 ? -1 : 1); gz.ty = rand(-0.35, 0.15); gz.next = rand(0.45, 1.1); if (Math.random() < 0.6) this.queueBlink(0); }
-      else { gz.tx = rand(-0.09, 0.09); gz.ty = rand(-0.07, 0.07); gz.next = this.mode === 'listening' ? rand(0.9, 2.6) : rand(0.5, 1.9); }
+      if (gz.away) { gz.away = false; gz.tx = rand(-0.03, 0.03); gz.ty = rand(-0.02, 0.02); gz.next = rand(1.2, 3.2); }
+      else if (talking && !thinking && Math.random() < 0.1) { gz.away = true; gz.tx = rand(0.3, 0.45) * (Math.random() < 0.5 ? -1 : 1); gz.ty = rand(-0.2, 0.1); gz.next = rand(0.45, 0.9); if (Math.random() < 0.6) this.queueBlink(0); }
+      else { gz.tx = rand(-0.035, 0.035); gz.ty = rand(-0.025, 0.025); gz.next = this.mode === 'listening' ? rand(1.4, 3.2) : rand(0.9, 2.4); }
     }
     const gx = gz.x.step(gz.tx * (1 - lookGaze[2]) + lookGaze[0], dt); const gy = gz.y.step(gz.ty * (1 - lookGaze[2]) + lookGaze[1], dt);
 
